@@ -1,19 +1,35 @@
 import { mount } from "svelte";
 import App from "./App.svelte";
 
+type WidgetMetadata = Record<string, unknown>;
+
+type WidgetConfig = {
+  endpoint: string;
+  apiKey: string;
+  sourceId: string;
+  sessionId: string;
+  metadata: WidgetMetadata;
+};
+
 /** Shadow DOM base styles (wrapper + collapsed/expanded) */
 const shadowStyles = `
   :host {
     all: initial;
     display: block;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; }
+  button, input, textarea { font-family: inherit; }
 
-  /* ✅ Animación continua (sin @property, sin cortes) */
+  /* Rotación fluida continua */
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+
+  @keyframes glowSpread {
+    0%, 100% { transform: scale(.82); opacity: .12; }
+    55% { transform: scale(1.16); opacity: .24; }
   }
 
   /* Posición widget (SIEMPRE abajo-centro, estable) */
@@ -51,16 +67,18 @@ const shadowStyles = `
     background: transparent;
     cursor: pointer;
     outline: none;
-    width: 100%;
+    width: auto;
+    display: block;
+    margin: 0 auto;
   }
 
-  /* ✅ Borde sutil: UNA sola “línea” (streak) que recorre el borde */
+  /* Borde: una sola línea continua */
   .collapsedBorder {
     position: absolute;
     inset: -1.5px;
     border-radius: 16px;
     overflow: hidden;
-    opacity: .85;  /* sutil */
+    opacity: .92;
   }
 
   .collapsedBorder::before {
@@ -69,66 +87,99 @@ const shadowStyles = `
     inset: -60%;          /* grande => nunca “corta” al rotar */
     border-radius: 999px;
 
-    /* ✅ UN SOLO highlight (no dos) */
     background: conic-gradient(
       from 0deg,
-      transparent 0 84%,
-      rgba(251,191,36,0.00) 84%,
-      rgba(251,191,36,0.55) 88%,
-      rgba(245,158,11,0.70) 90%,
-      rgba(217,119,6,0.65) 92%,
-      rgba(146,64,14,0.35) 94%,
+      transparent 0 74%,
+      rgba(251,191,36,0.00) 74%,
+      rgba(253,224,71,0.42) 81%,
+      rgba(251,191,36,0.82) 86%,
+      rgba(245,158,11,0.96) 89%,
+      rgba(217,119,6,0.78) 92%,
+      rgba(146,64,14,0.28) 95%,
       transparent 98% 100%
     );
 
-    animation: spin 18s linear infinite;  /* 🐢 lento */
+    animation: spin 4.8s linear infinite;
   }
 
-  /* ✅ Glow MUY leve (tu pedido) */
+  /* Glow muy leve */
   .collapsedGlow {
     position: absolute;
-    inset: -12px;
+    inset: -10px -9px -9px -9px;
     border-radius: 16px;
-    filter: blur(22px);
-    opacity: 0.035; /* muy bajo */
+    filter: blur(8px);
+    opacity: 0.14;
     background: radial-gradient(
-      circle,
-      rgba(146,64,14,.18),
-      rgba(217,119,6,.10),
-      transparent 60%
+      circle at 50% 50%,
+      rgba(146,64,14,.68) 0%,
+      rgba(146,64,14,.44) 28%,
+      rgba(146,64,14,.22) 50%,
+      rgba(146,64,14,.08) 66%,
+      transparent 76%
     );
+    transform-origin: center center;
+    animation: glowSpread 2.2s ease-in-out infinite;
   }
 
   /* Input collapsed */
   .collapsedInner {
     position: relative;
-    display: flex;
-    align-items: center;
+    display: block;
     border-radius: 16px;
 
-    /* ✅ input chico */
     padding: 11px 18px;
-    min-width: 240px;
-    width: 100%;
+    width: 200px;
+    min-height: 44px;
 
     background: #fff;
     border: 1px solid rgba(245,158,11,.28);
     box-shadow: 0 8px 18px rgba(0,0,0,.08);
-    transition: padding .25s ease, min-width .25s ease, box-shadow .25s ease;
+    transition: width .26s ease, box-shadow .2s ease;
   }
 
   .collapsedText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
     font-size: 13px;
     color: #a8a29e;
     font-weight: 400;
+    transform: translate(-50%, -50%);
+    transition: left .24s ease, transform .24s ease;
+    white-space: nowrap;
+    max-width: calc(100% - 48px);
+  }
+
+  .collapsedSend {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(217,119,6,.95);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: translate(10px, -50%) scale(.88);
+    transition: opacity .24s ease, transform .24s ease;
   }
 
   /* Hover: expande un poco */
   .collapsedBtn:hover .collapsedInner {
-    min-width: 280px;
-    padding-left: 22px;
-    padding-right: 22px;
+    width: 280px;
     box-shadow: 0 12px 26px rgba(146,64,14,.14);
+  }
+  .collapsedBtn:hover .collapsedText {
+    left: 16px;
+    transform: translate(0, -50%);
+  }
+  .collapsedBtn:hover .collapsedSend {
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
   }
 
   /* ---------- Expanded (Modal) ---------- */
@@ -143,7 +194,7 @@ const shadowStyles = `
     inset: -1.5px;
     border-radius: 24px;
     overflow: hidden;
-    opacity: .85;
+    opacity: .9;
   }
 
   .panelBorder::before {
@@ -153,15 +204,16 @@ const shadowStyles = `
     border-radius: 999px;
     background: conic-gradient(
       from 0deg,
-      transparent 0 84%,
-      rgba(251,191,36,0.00) 84%,
-      rgba(251,191,36,0.55) 88%,
-      rgba(245,158,11,0.70) 90%,
-      rgba(217,119,6,0.65) 92%,
-      rgba(146,64,14,0.35) 94%,
+      transparent 0 74%,
+      rgba(251,191,36,0.00) 74%,
+      rgba(253,224,71,0.40) 81%,
+      rgba(251,191,36,0.80) 86%,
+      rgba(245,158,11,0.94) 89%,
+      rgba(217,119,6,0.76) 92%,
+      rgba(146,64,14,0.24) 95%,
       transparent 98% 100%
     );
-    animation: spin 22s linear infinite; /* 🐢 más lento en modal */
+    animation: spin 5.4s linear infinite;
   }
 
   /* Glow modal muy leve */
@@ -170,7 +222,7 @@ const shadowStyles = `
     inset: -26px;
     border-radius: 24px;
     filter: blur(30px);
-    opacity: 0.035;
+    opacity: 0.04;
     background: radial-gradient(
       circle,
       rgba(146,64,14,.22),
@@ -352,10 +404,27 @@ const svelteStyles = `
 `;
 
 export class ConversationalWidget extends HTMLElement {
+  static get observedAttributes() {
+    return ["endpoint", "data-endpoint", "api-key", "data-api-key", "source-id", "data-source-id", "session-id", "data-session-id", "metadata", "data-metadata"];
+  }
+
   private shadow: ShadowRoot;
   private container: HTMLDivElement | null = null;
   private svelteApp: any = null;
   private isOpen = false;
+  private config: WidgetConfig = {
+    endpoint: "/api/widget/query",
+    apiKey: "",
+    sourceId: "",
+    sessionId: "",
+    metadata: {},
+  };
+  private handleDocumentPointerDown = (e: PointerEvent) => {
+    if (!this.isOpen) return;
+    const target = e.target as Node | null;
+    if (!target) return;
+    if (!this.contains(target)) this.close();
+  };
 
   constructor() {
     super();
@@ -363,11 +432,25 @@ export class ConversationalWidget extends HTMLElement {
   }
 
   connectedCallback() {
+    this.config = this.buildConfig();
     this.render();
+    document.addEventListener("pointerdown", this.handleDocumentPointerDown, true);
+  }
+
+  attributeChangedCallback() {
+    this.config = this.buildConfig();
+    this.svelteApp?.$set?.({
+      endpoint: this.config.endpoint,
+      apiKey: this.config.apiKey,
+      sourceId: this.config.sourceId,
+      sessionId: this.config.sessionId,
+      metadata: this.config.metadata,
+    });
   }
 
   disconnectedCallback() {
     this.svelteApp?.$destroy?.();
+    document.removeEventListener("pointerdown", this.handleDocumentPointerDown, true);
   }
 
   private render() {
@@ -407,7 +490,13 @@ export class ConversationalWidget extends HTMLElement {
     text.className = "collapsedText";
     text.textContent = "Preguntame algo...";
 
+    const sendIcon = document.createElement("div");
+    sendIcon.className = "collapsedSend";
+    sendIcon.setAttribute("aria-hidden", "true");
+    sendIcon.textContent = "➤";
+
     inner.appendChild(text);
+    inner.appendChild(sendIcon);
 
     btn.appendChild(border);
     btn.appendChild(glow);
@@ -441,12 +530,99 @@ export class ConversationalWidget extends HTMLElement {
     this.shadow.appendChild(this.container);
   }
 
+  private safeParseMetadata(raw: string | null): WidgetMetadata {
+    if (!raw) return {};
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? (parsed as WidgetMetadata) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private buildRuntimeMetadata(): WidgetMetadata {
+    const win = typeof window !== "undefined" ? window : null;
+    const nav = typeof navigator !== "undefined" ? navigator : null;
+
+    return {
+      page_url: win?.location?.href ?? "",
+      page_path: win?.location?.pathname ?? "",
+      page_title: win?.document?.title ?? "",
+      page_origin: win?.location?.origin ?? "",
+      user_agent: nav?.userAgent ?? "",
+      language: nav?.language ?? "",
+      viewport: {
+        width: win?.innerWidth ?? null,
+        height: win?.innerHeight ?? null,
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  private getOrCreateBrowserSessionId(sourceId: string): string {
+    const key = `cw_session_id:${sourceId || "default"}`;
+    try {
+      const existing = window.sessionStorage.getItem(key);
+      if (existing) return existing;
+      const generated =
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `cw_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      window.sessionStorage.setItem(key, generated);
+      return generated;
+    } catch {
+      return `cw_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    }
+  }
+
+  private buildConfig(): WidgetConfig {
+    const endpoint =
+      this.getAttribute("endpoint") ||
+      this.getAttribute("data-endpoint") ||
+      (import.meta.env.VITE_WIDGET_API_ENDPOINT as string | undefined) ||
+      "/api/widget/query";
+
+    const apiKey =
+      this.getAttribute("api-key") ||
+      this.getAttribute("data-api-key") ||
+      (import.meta.env.VITE_WIDGET_API_KEY as string | undefined) ||
+      "";
+
+    const sourceId =
+      this.getAttribute("source-id") ||
+      this.getAttribute("data-source-id") ||
+      (import.meta.env.VITE_WIDGET_SOURCE_ID as string | undefined) ||
+      "";
+
+    const explicitSessionId =
+      this.getAttribute("session-id") ||
+      this.getAttribute("data-session-id") ||
+      (import.meta.env.VITE_WIDGET_SESSION_ID as string | undefined) ||
+      "";
+
+    const attrMetadata = this.safeParseMetadata(
+      this.getAttribute("metadata") || this.getAttribute("data-metadata")
+    );
+
+    return {
+      endpoint,
+      apiKey,
+      sourceId,
+      sessionId: explicitSessionId || this.getOrCreateBrowserSessionId(sourceId),
+      metadata: {
+        ...this.buildRuntimeMetadata(),
+        ...attrMetadata,
+      },
+    };
+  }
+
   public open() {
     const collapsed = this.shadow.getElementById("collapsed")!;
     const expanded = this.shadow.getElementById("expanded")!;
     const svelteRoot = this.shadow.querySelector("#svelte-root") as HTMLElement;
 
     this.isOpen = true;
+    this.config = this.buildConfig();
 
     collapsed.classList.remove("visible");
     collapsed.classList.add("hidden");
@@ -462,9 +638,27 @@ export class ConversationalWidget extends HTMLElement {
           onRefresh: () =>
             this.dispatchEvent(new CustomEvent("widget:refresh")),
           onExpand: () => this.dispatchEvent(new CustomEvent("widget:expand")),
+          endpoint: this.config.endpoint,
+          apiKey: this.config.apiKey,
+          sourceId: this.config.sourceId,
+          sessionId: this.config.sessionId,
+          metadata: this.config.metadata,
         },
       });
+    } else {
+      this.svelteApp?.$set?.({
+        endpoint: this.config.endpoint,
+        apiKey: this.config.apiKey,
+        sourceId: this.config.sourceId,
+        sessionId: this.config.sessionId,
+        metadata: this.config.metadata,
+      });
     }
+
+    requestAnimationFrame(() => {
+      const input = this.shadow.querySelector("textarea.input") as HTMLTextAreaElement | null;
+      input?.focus();
+    });
   }
 
   public close() {

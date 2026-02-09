@@ -23,6 +23,11 @@ def _origin_host(origin: str) -> str:
     return (parsed.hostname or "").lower()
 
 
+def _is_local_dev_origin(origin: str) -> bool:
+    host = _origin_host(_normalize_origin(origin))
+    return host in {"localhost", "127.0.0.1", "::1"}
+
+
 def _is_test_origin_allowed(origin: str) -> bool:
     test_origin = _normalize_origin(settings.WIDGET_TEST_ORIGIN)
     if not test_origin:
@@ -38,6 +43,8 @@ async def is_origin_allowed_globally(origin: str) -> bool:
     norm_origin = _normalize_origin(origin)
     if not norm_origin:
         return False
+    if _is_local_dev_origin(norm_origin):
+        return True
     if _is_test_origin_allowed(norm_origin):
         return True
 
@@ -59,6 +66,8 @@ async def is_origin_allowed_for_source(origin: str, source_id: UUID) -> bool:
     norm_origin = _normalize_origin(origin)
     if not norm_origin:
         return False
+    if _is_local_dev_origin(norm_origin):
+        return True
     if _is_test_origin_allowed(norm_origin):
         return True
 

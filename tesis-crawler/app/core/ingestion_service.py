@@ -2,7 +2,7 @@ import asyncio
 import hashlib
 import logging
 import re
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from sqlalchemy import delete, select
 from langchain_openai import OpenAIEmbeddings
@@ -31,6 +31,30 @@ class IngestionService:
             model=settings.OPENAI_EMBEDDING_MODEL,
             dimensions=settings.EMBEDDING_DIM,
         )
+
+    @staticmethod
+    def _canonicalize_url(raw_url: str) -> str:
+        parsed = urlparse((raw_url or "").strip())
+        scheme = (parsed.scheme or "https").lower()
+        host = normalize_domain(parsed.netloc)
+        path = re.sub(r"/{2,}", "/", parsed.path or "/")
+        if path != "/" and path.endswith("/"):
+            path = path[:-1]
+
+        # Drop common tracking query params but keep functional params.
+        kept_params: list[tuple[str, str]] = []
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True):
+            lk = key.lower()
+            if (
+                lk.startswith("utm_")
+                or lk in {"fbclid", "gclid", "mc_cid", "mc_eid", "ref", "ref_src"}
+            ):
+                continue
+            kept_params.append((key, value))
+        kept_params.sort(key=lambda item: (item[0].lower(), item[1]))
+        query = urlencode(kept_params, doseq=True)
+
+        return urlunparse((scheme, host, path or "/", "", query, ""))
 
     @staticmethod
     def _clean_markdown(content: str) -> str:
@@ -62,6 +86,7 @@ class IngestionService:
         return "\n".join(cleaned).strip()
 
     async def process_and_save(self, url: str, title: str, content: str, session):
+        canonical_url = self._canonicalize_url(url)
         clean_content = self._clean_markdown(content or "")
         if not clean_content:
             return {"saved": False, "reason": "empty_content"}
@@ -75,14 +100,7 @@ class IngestionService:
 
         doc_hash = hashlib.sha256(clean_content.encode("utf-8")).hexdigest()
 
-        existing_by_url = await session.execute(
-            select(Document).where(Document.canonical_url == url)
-        )
-        existing_doc = existing_by_url.scalar_one_or_none()
-        if existing_doc is not None and existing_doc.content_hash == doc_hash:
-            return {"saved": False, "reason": "duplicate_content"}
-
-        parsed_url = urlparse(url)
+        parsed_url = urlparse(canonical_url)
         domain = normalize_domain(parsed_url.netloc)
         source_result = await session.execute(
             select(Source).where(Source.domain.in_(list(domain_variants(domain))))
@@ -94,11 +112,33 @@ class IngestionService:
             session.add(source)
             await session.flush()
 
+        existing_by_url = await session.execute(
+            select(Document).where(Document.canonical_url == canonical_url)
+        )
+        existing_doc = existing_by_url.scalar_one_or_none()
+        if existing_doc is not None and existing_doc.content_hash == doc_hash:
+            return {"saved": False, "reason": "duplicate_content"}
+
+        existing_same_hash = await session.execute(
+            select(Document)
+            .where(Document.source_id == source.source_id)
+            .where(Document.content_hash == doc_hash)
+            .where(Document.canonical_url != canonical_url)
+            .limit(1)
+        )
+        same_hash_doc = existing_same_hash.scalar_one_or_none()
+        if same_hash_doc is not None:
+            return {
+                "saved": False,
+                "reason": "duplicate_content_other_url",
+                "canonical_url": same_hash_doc.canonical_url,
+            }
+
         if existing_doc is None:
             doc = Document(
                 source_id=source.source_id,
-                url=url,
-                canonical_url=url,
+                url=canonical_url,
+                canonical_url=canonical_url,
                 title=title,
                 content_hash=doc_hash,
                 page_type="academic",
@@ -108,7 +148,7 @@ class IngestionService:
         else:
             doc = existing_doc
             doc.source_id = source.source_id
-            doc.url = url
+            doc.url = canonical_url
             doc.title = title
             doc.content_hash = doc_hash
             doc.page_type = "academic"

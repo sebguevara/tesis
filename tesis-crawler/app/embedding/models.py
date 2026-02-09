@@ -66,3 +66,11 @@ class WidgetCredential(SQLModel, table=True):
     is_active: bool = Field(default=True, index=True)
     created_at: datetime = Field(default_factory=utc_now_naive)
     last_used_at: Optional[datetime] = Field(default=None)
+
+
+class WidgetCredentialUser(SQLModel, table=True):
+    __tablename__ = "widget_credential_users"
+    link_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    credential_id: UUID = Field(foreign_key="widget_credentials.credential_id", index=True)
+    user_id: str = Field(index=True)
+    created_at: datetime = Field(default_factory=utc_now_naive)

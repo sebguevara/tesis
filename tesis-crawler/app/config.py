@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     SITE_MD_DIR: str = os.getenv("SITE_MD_DIR")
     WIDGET_TEST_ORIGIN: str = os.getenv("WIDGET_TEST_ORIGIN", "")
     WIDGET_ADMIN_TOKEN: str = os.getenv("WIDGET_ADMIN_TOKEN", "")
+    WIDGET_DEV_API_KEY: str = os.getenv("WIDGET_DEV_API_KEY", "")
 
     model_config = SettingsConfigDict(
         env_file=".env",

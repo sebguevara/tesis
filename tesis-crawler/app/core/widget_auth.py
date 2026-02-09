@@ -64,3 +64,38 @@ async def verify_widget_api_key(
         source_id=matched.source_id,
     )
 
+
+async def verify_widget_api_key_for_source_id(
+    db_session,
+    source_id: UUID,
+    raw_api_key: str,
+) -> WidgetAuthResult | None:
+    if source_id is None or not raw_api_key:
+        return None
+
+    stmt = (
+        select(WidgetCredential)
+        .where(WidgetCredential.source_id == source_id)
+        .where(WidgetCredential.is_active.is_(True))
+        .order_by(WidgetCredential.created_at.desc())
+    )
+    rows = (await db_session.execute(stmt)).scalars().all()
+    if not rows:
+        return None
+
+    candidate_hash = hash_api_key(raw_api_key)
+    matched: WidgetCredential | None = None
+    for cred in rows:
+        if hmac.compare_digest(cred.api_key_hash, candidate_hash):
+            matched = cred
+            break
+
+    if matched is None:
+        return None
+
+    matched.last_used_at = utc_now_naive()
+    await db_session.commit()
+    return WidgetAuthResult(
+        source_public_id=matched.source_public_id,
+        source_id=matched.source_id,
+    )

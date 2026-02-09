@@ -1,0 +1,35 @@
+[project]
+name = "tesis-crawler"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.31.0",
+    "beautifulsoup4>=4.14.3",
+    "crawl4ai>=0.8.0",
+    "fastapi[standard]>=0.128.5",
+    "httpx[http2]>=0.28.1",
+    "langchain-openai>=1.1.7",
+    "langchain-text-splitters>=1.1.0",
+    "langgraph>=1.0.8",
+    "openai>=2.17.0",
+    "pgvector>=0.4.2",
+    "psycopg>=3.3.2",
+    "psycopg-binary>=3.3.2",
+    "psycopg2-binary>=2.9.11",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+    "ruff>=0.15.0",
+    "sqlalchemy>=2.0.46",
+    "sqlmodel>=0.0.32",
+    "typing>=3.10.0.0",
+    "uuid>=1.30",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+exclude = [".venv", ".agent", ".git", ".mypy_cache", ".tox", ".venv", ".vscode", "__pycache__", "build", "dist", "htmlcov", "venv", "pyproject.toml"]

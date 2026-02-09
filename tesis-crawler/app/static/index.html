@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scraping con Progreso</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #18212f;
+        --muted: #5d6b80;
+        --track: #d8deea;
+        --fill: linear-gradient(90deg, #0f766e, #0284c7);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at top left, #eaf2ff, var(--bg) 45%);
+        color: var(--text);
+      }
+
+      .wrap {
+        width: min(780px, 92vw);
+        margin: 4rem auto;
+        background: var(--card);
+        border-radius: 14px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+      }
+
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: 1.35rem;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.6rem;
+      }
+
+      input,
+      button {
+        height: 44px;
+        border-radius: 10px;
+        border: 1px solid #c7d0e0;
+        font-size: 0.95rem;
+      }
+
+      input {
+        width: 100%;
+        padding: 0 0.8rem;
+      }
+
+      button {
+        background: #0f766e;
+        color: white;
+        border: none;
+        padding: 0 1rem;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+
+      .progress {
+        margin-top: 1rem;
+        border-radius: 999px;
+        background: var(--track);
+        overflow: hidden;
+        height: 16px;
+      }
+
+      .fill {
+        width: 0;
+        height: 100%;
+        background: var(--fill);
+        transition: width 0.4s ease;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-top: 0.55rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .status {
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      code {
+        font-size: 0.82rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>Scraping con barra de progreso estimada</h1>
+      <form id="scrapeForm" class="row">
+        <input id="urlInput" type="url" required placeholder="https://sitio.com" />
+        <button id="submitBtn" type="submit">Iniciar</button>
+      </form>
+
+      <div class="progress" aria-label="Progreso de scraping">
+        <div id="progressFill" class="fill"></div>
+      </div>
+
+      <div class="meta">
+        <span id="phase">Pendiente</span>
+        <span id="percent">0%</span>
+      </div>
+
+      <div id="statusText" class="status">Esperando URL...</div>
+      <div class="status"><code id="jobCode"></code></div>
+    </main>
+
+    <script>
+      const form = document.getElementById("scrapeForm");
+      const input = document.getElementById("urlInput");
+      const submitBtn = document.getElementById("submitBtn");
+      const fill = document.getElementById("progressFill");
+      const phase = document.getElementById("phase");
+      const percent = document.getElementById("percent");
+      const statusText = document.getElementById("statusText");
+      const jobCode = document.getElementById("jobCode");
+
+      let pollTimer = null;
+
+      function setProgress(pct) {
+        const safe = Math.max(0, Math.min(100, Number(pct || 0)));
+        fill.style.width = `${safe}%`;
+        percent.textContent = `${safe.toFixed(1)}%`;
+      }
+
+      function formatEta(seconds) {
+        if (seconds == null || Number(seconds) <= 0) return "sin ETA";
+        const s = Number(seconds);
+        if (s < 60) return `${Math.round(s)}s restantes`;
+        const min = Math.floor(s / 60);
+        const sec = Math.round(s % 60);
+        return `${min}m ${sec}s restantes`;
+      }
+
+      async function pollStatus(jobId) {
+        try {
+          const resp = await fetch(`/api/status/${jobId}`);
+          if (!resp.ok) throw new Error("No se pudo consultar estado");
+          const data = await resp.json();
+
+          setProgress(data.progress_pct);
+          phase.textContent = `${data.phase || "running"} · ${data.status || ""}`;
+          statusText.textContent = `${data.message || "Procesando"} (${formatEta(data.eta_seconds)})`;
+
+          const pages = data.pages_crawled || 0;
+          const valid = data.metrics?.accepted_valid_pages || 0;
+          const total = data.metrics?.total_results || 0;
+          jobCode.textContent = `job_id=${jobId} | pages_crawled=${pages} | valid=${valid} | total=${total}`;
+
+          if (data.status === "completed" || data.status === "failed") {
+            clearInterval(pollTimer);
+            pollTimer = null;
+            submitBtn.disabled = false;
+          }
+        } catch (err) {
+          statusText.textContent = `Error consultando estado: ${err.message}`;
+          clearInterval(pollTimer);
+          pollTimer = null;
+          submitBtn.disabled = false;
+        }
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (pollTimer) clearInterval(pollTimer);
+
+        submitBtn.disabled = true;
+        setProgress(1);
+        phase.textContent = "iniciando";
+        statusText.textContent = "Creando job de scraping...";
+        jobCode.textContent = "";
+
+        const payload = { url: input.value };
+        try {
+          const resp = await fetch("/api/scrape", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!resp.ok) throw new Error("Falló el inicio del scraping");
+          const data = await resp.json();
+          const jobId = data.job_id;
+          jobCode.textContent = `job_id=${jobId}`;
+
+          await pollStatus(jobId);
+          pollTimer = setInterval(() => pollStatus(jobId), 1000);
+        } catch (err) {
+          statusText.textContent = `Error: ${err.message}`;
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

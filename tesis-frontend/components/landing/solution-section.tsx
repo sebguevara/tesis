@@ -5,7 +5,7 @@ import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { SOLUTION_SECTION, WIDGET_SNIPPET } from "@/lib/constants";
 
 const DEMO_URL = "https://www.universidad-ejemplo.edu.ar";
-const DEMO_JOB_ID = "demo-univ-2026";
+const DEMO_SOURCE_ID = "demo-univ-2026";
 
 const phases = ["URL cargada", "Analisis en curso", "Widget generado"] as const;
 
@@ -62,7 +62,11 @@ export function SolutionSection() {
   }, []);
 
   const pages = Math.round(120 + (progress / 100) * 1240);
-  const snippet = WIDGET_SNIPPET(DEMO_JOB_ID);
+  const snippet = WIDGET_SNIPPET({
+    sourceId: DEMO_SOURCE_ID,
+    apiKey: "pfc_sk_demo_placeholder",
+    widgetQueryUrl: "https://api.4gentle.io/api/widget/query",
+  });
 
   async function handleCopySnippet() {
     if (activePhase !== 2) return;

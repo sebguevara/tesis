@@ -1,27 +1,73 @@
 "use client";
 
 import { DASHBOARD } from "@/lib/constants";
-import type { CrawlState } from "@/app/dashboard/page";
+import type { CrawlState } from "@/app/dashboard/crawl/page";
 
 interface CrawlStatusProps {
   crawlState: CrawlState;
+  notificationPermission: NotificationPermission | "unsupported";
+  onRequestNotifications: () => void | Promise<void>;
 }
 
 function formatEta(seconds: number): string {
-  if (seconds <= 0) return "...";
+  if (seconds <= 0) return "";
+  if (seconds >= 3600) {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    return `${h}h ${m}m`;
+  }
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
-  if (m === 0) return `${s}s`;
-  return `${m}m ${s}s`;
+  if (m === 0) return `~${s}s`;
+  return `~${m}m ${s}s`;
 }
 
-export function CrawlStatus({ crawlState }: CrawlStatusProps) {
+export function CrawlStatus({
+  crawlState,
+  notificationPermission,
+  onRequestNotifications,
+}: CrawlStatusProps) {
   const phaseLabel =
     DASHBOARD.crawlStatus.phases[crawlState.phase] || crawlState.phase;
+  const isRunningPhase =
+    crawlState.phase !== "completed" && crawlState.phase !== "failed";
+  const filteredCount = crawlState.metrics
+    ? crawlState.metrics.blocked_by_host_filter +
+      crawlState.metrics.blocked_by_block_filter
+    : 0;
+
+  const hasEta = crawlState.etaSeconds > 0;
+  const etaDisplay = hasEta ? formatEta(crawlState.etaSeconds) : "";
+  // Show pending animation when running and no ETA available yet
+  const etaPending = isRunningPhase && !hasEta;
+
+  const stats = [
+    {
+      label: "Tiempo restante",
+      value: etaDisplay || "Calculando...",
+      isMono: true,
+      pending: etaPending,
+    },
+    {
+      label: "Paginas Encontradas",
+      value: crawlState.pagesCrawled,
+      pending: isRunningPhase && crawlState.pagesCrawled <= 0,
+    },
+    {
+      label: "Docs guardados",
+      value: crawlState.metrics?.saved_docs ?? 0,
+      pending: isRunningPhase && (crawlState.metrics?.saved_docs ?? 0) <= 0,
+    },
+    {
+      label: "Contenido filtrado",
+      value: filteredCount,
+      pending: isRunningPhase && filteredCount <= 0,
+    },
+  ];
 
   return (
     <div className="flex min-h-[75vh] flex-col items-center justify-center">
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-5xl">
         {/* Header */}
         <div className="mb-10 text-center">
           {/* Animated spinner icon */}
@@ -51,6 +97,25 @@ export function CrawlStatus({ crawlState }: CrawlStatusProps) {
           <p className="mx-auto max-w-md text-sm leading-relaxed text-muted-foreground">
             {DASHBOARD.crawlStatus.message}
           </p>
+
+          <div className="mx-auto mt-5 w-full glass rounded-2xl border border-primary/15 p-4 text-left">
+            <p className="text-sm font-semibold text-foreground">
+              Este proceso puede tardar varios minutos.
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Te avisaremos cuando termine.
+            </p>
+            {notificationPermission !== "granted" &&
+            notificationPermission !== "unsupported" ? (
+              <button
+                type="button"
+                onClick={onRequestNotifications}
+                className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+              >
+                Activar notificaciones
+              </button>
+            ) : null}
+          </div>
         </div>
 
         {/* Main status card */}
@@ -59,7 +124,9 @@ export function CrawlStatus({ crawlState }: CrawlStatusProps) {
             {/* URL & Phase */}
             <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50">Dominio</p>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground/50">
+                  Dominio
+                </p>
                 <p className="mt-1 font-mono text-sm text-foreground">
                   {crawlState.url}
                 </p>
@@ -73,13 +140,17 @@ export function CrawlStatus({ crawlState }: CrawlStatusProps) {
             {/* Progress bar */}
             <div className="mb-8">
               <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{crawlState.message}</span>
-                <span className="font-mono text-sm font-semibold text-primary">{Math.round(crawlState.progressPct)}%</span>
+                <span className="text-xs text-muted-foreground">
+                  {crawlState.message}
+                </span>
+                <span className="font-mono text-sm font-semibold text-primary">
+                  {Math.round(crawlState.progressPct)}%
+                </span>
               </div>
               <div className="h-3 w-full overflow-hidden rounded-full bg-warm-200/50 backdrop-blur-sm">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] transition-all duration-1000 ease-out"
-                  style={{ 
+                  style={{
                     width: `${crawlState.progressPct}%`,
                     animation: "gradient-text-flow 3s ease infinite",
                   }}
@@ -88,35 +159,36 @@ export function CrawlStatus({ crawlState }: CrawlStatusProps) {
             </div>
 
             {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              {[
-                { label: "Paginas rastreadas", value: crawlState.pagesCrawled },
-                { label: "Tiempo estimado", value: formatEta(crawlState.etaSeconds), isMono: true },
-                ...(crawlState.metrics
-                  ? [
-                      { label: "Docs guardados", value: crawlState.metrics.saved_docs },
-                      {
-                        label: "Contenido filtrado",
-                        value: crawlState.metrics.blocked_by_host_filter + crawlState.metrics.blocked_by_block_filter,
-                      },
-                    ]
-                  : []),
-              ].map((stat, i) => (
-                <div key={i} className="glass rounded-2xl p-4 transition-all hover:scale-[1.02]">
-                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">{stat.label}</p>
-                  <p className={`mt-2 text-2xl font-bold text-foreground count-in ${typeof stat.value === "string" ? "font-mono text-lg" : ""}`}>
-                    {stat.value}
+            <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+              {stats.map((stat, i) => (
+                <div
+                  key={i}
+                  className="glass flex min-h-[122px] flex-col justify-between overflow-hidden rounded-2xl p-4 transition-all hover:scale-[1.02]"
+                >
+                  <p className="min-h-[1.25rem] truncate whitespace-nowrap text-[11px] font-medium uppercase tracking-wider text-muted-foreground/50">
+                    {stat.label}
                   </p>
+                  <div className="flex min-h-[2.25rem] items-center">
+                    {stat.pending ? (
+                      <span className="inline-flex max-w-full items-center gap-1 overflow-hidden text-sm font-medium leading-none text-muted-foreground">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.25s]" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.1s]" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce" />
+                        Cargando
+                      </span>
+                    ) : (
+                      <span
+                        className={`text-2xl font-bold text-foreground count-in ${typeof stat.value === "string" ? "font-mono" : ""}`}
+                      >
+                        {stat.value}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Job ID */}
-        <p className="mt-6 text-center font-mono text-[11px] text-muted-foreground/30">
-          Job ID: {crawlState.jobId}
-        </p>
       </div>
     </div>
   );

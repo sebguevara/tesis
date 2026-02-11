@@ -6,9 +6,19 @@ import { DASHBOARD } from "@/lib/constants";
 
 interface CrawlFormProps {
   onSubmit: (url: string) => void;
+  notificationPermission: NotificationPermission | "unsupported";
+  onRequestNotifications: () => void | Promise<void>;
+  isStarting: boolean;
+  startMessage: string;
 }
 
-export function CrawlForm({ onSubmit }: CrawlFormProps) {
+export function CrawlForm({
+  onSubmit,
+  notificationPermission,
+  onRequestNotifications,
+  isStarting,
+  startMessage,
+}: CrawlFormProps) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [isFocused, setIsFocused] = useState(false);
@@ -24,11 +34,13 @@ export function CrawlForm({ onSubmit }: CrawlFormProps) {
 
     try {
       const parsed = new URL(url);
-      if (!parsed.protocol.startsWith("http")) {
-        setError("La URL debe comenzar con http:// o https://");
+      if (parsed.protocol !== "https:") {
+        setError("La URL debe comenzar con https://");
         return;
       }
-      onSubmit(url);
+      if (!isStarting) {
+        onSubmit(url);
+      }
     } catch {
       setError("Ingresa una URL valida (ej: https://www.tu-institucion.edu)");
     }
@@ -71,7 +83,9 @@ export function CrawlForm({ onSubmit }: CrawlFormProps) {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div
-            className={`relative rounded-2xl transition-all duration-300 ${
+            className={`relative rounded-2xl transition-all duration-500 ${
+              isStarting ? "translate-y-2 opacity-95" : "translate-y-0 opacity-100"
+            } ${
               isFocused
                 ? "shadow-xl shadow-primary/10 ring-2 ring-primary/30"
                 : "shadow-md shadow-warm-300/10"
@@ -97,6 +111,7 @@ export function CrawlForm({ onSubmit }: CrawlFormProps) {
             <input
               type="text"
               value={url}
+              disabled={isStarting}
               onChange={(e) => {
                 setUrl(e.target.value);
                 setError("");
@@ -104,21 +119,56 @@ export function CrawlForm({ onSubmit }: CrawlFormProps) {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               placeholder={DASHBOARD.crawlForm.placeholder}
-              className="w-full rounded-2xl glass-strong py-5 pl-14 pr-5 text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all text-base"
+              className={`w-full rounded-2xl glass-strong py-5 pl-14 pr-12 text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-all text-base ${
+                isStarting ? "cursor-not-allowed opacity-85" : ""
+              }`}
             />
+            {isStarting ? (
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-5">
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+              </div>
+            ) : null}
           </div>
 
           {error && (
             <p className="text-sm text-destructive animate-in fade-in-0">{error}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={!url.trim()}
-            className="rounded-2xl bg-gradient-to-r from-primary to-accent py-5 text-base font-semibold text-primary-foreground transition-all hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+          <div
+            className={`overflow-hidden transition-all duration-500 ${
+              isStarting ? "max-h-24 opacity-100" : "max-h-0 opacity-0"
+            }`}
           >
-            {DASHBOARD.crawlForm.buttonText}
-          </button>
+            <div className="glass rounded-2xl border border-primary/20 p-4 text-left">
+              <p className="text-sm font-semibold text-foreground">{startMessage}</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Estamos preparando el rastreo y te avisaremos en cuanto termine.
+              </p>
+              {notificationPermission !== "granted" && notificationPermission !== "unsupported" ? (
+                <button
+                  type="button"
+                  onClick={onRequestNotifications}
+                  className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                >
+                  Activar notificaciones
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <div
+            className={`overflow-hidden transition-all duration-400 ${
+              isStarting ? "max-h-0 opacity-0" : "max-h-24 opacity-100"
+            }`}
+          >
+            <button
+              type="submit"
+              disabled={!url.trim() || isStarting}
+              className="w-full rounded-2xl bg-gradient-to-r from-primary to-accent py-5 text-base font-semibold text-primary-foreground transition-all hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+            >
+              {DASHBOARD.crawlForm.buttonText}
+            </button>
+          </div>
         </form>
 
         {/* Platform tags */}

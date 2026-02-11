@@ -1,3 +1,5 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { Navbar } from "@/components/landing/navbar";
 import { HeroSection } from "@/components/landing/hero-section";
 import { ProblemSection } from "@/components/landing/problem-section";
@@ -8,7 +10,13 @@ import { ClosingSection } from "@/components/landing/closing-section";
 import { Footer } from "@/components/landing/footer";
 import { AnimatedBg } from "@/components/ui/animated-bg";
 
-export default function Page() {
+export default async function Page() {
+  const { userId } = await auth();
+
+  if (userId) {
+    redirect("/dashboard");
+  }
+
   return (
     <>
       <AnimatedBg />

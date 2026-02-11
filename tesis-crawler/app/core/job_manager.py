@@ -20,6 +20,7 @@ class JobProgress(BaseModel):
     metrics: dict = Field(
         default_factory=lambda: {
             "total_results": 0,
+            "processed_results": 0,
             "successful_results": 0,
             "saved_docs": 0,
             "saved_markdown_files": 0,

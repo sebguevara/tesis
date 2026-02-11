@@ -53,10 +53,10 @@ export function Navbar() {
         </div>
 
         <Link
-          href="/dashboard"
+          href="/sign-in"
           className="rounded-xl bg-gradient-to-r from-primary to-accent px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/20 hover:scale-[1.02] active:scale-[0.98]"
         >
-          Ver dashboard
+          Iniciar sesion
         </Link>
       </nav>
     </header>

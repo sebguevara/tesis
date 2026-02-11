@@ -1,11 +1,16 @@
 import asyncio
 import traceback
 from datetime import datetime
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 from app.tasks.worker import CrawlWorker
+from app.auth.service import link_user_to_source
+from app.core.domain_utils import domain_variants, normalize_domain
 from app.core.job_manager import job_manager
+from app.storage.db_client import async_session
+from sqlalchemy import text
 
 router = APIRouter(tags=["Scrape"])
 
@@ -21,6 +26,7 @@ class ScrapeRequest(BaseModel):
     min_content_words: int = Field(default=5, ge=1, le=200)
     count_valid_pages_only: bool = True
     block_old_years: bool = True
+    clerk_user_id: str | None = None
 
     @field_validator("url")
     @classmethod
@@ -30,61 +36,100 @@ class ScrapeRequest(BaseModel):
         return value
 
 
+# ── Progress ranges ──
+# Phase A  (BFS crawling, simulated):    0 % →  60 %
+# Phase B  (HTML processing + saving):  60 % →  99 %
+# 100 % when HTML processing is done (PDFs continue silently).
+_PHASE_A_MAX = 60.0
+_PHASE_B_START = 60.0
+_PHASE_B_RANGE = 39.0  # 60 → 99
+
+
 def _safe_progress(value: float) -> float:
     return max(0.0, min(100.0, round(value, 2)))
 
 
-def _simulated_tracking_progress(elapsed_seconds: float) -> float:
-    # Curva pensada para crawls de 3-5 min: sube gradual y evita saltos tempranos.
+def _safe_incomplete_progress(value: float) -> float:
+    # Never report 100 % until the job is truly completed.
+    return min(99.4, _safe_progress(value))
+
+
+def _simulated_crawl_progress(elapsed_seconds: float) -> float:
+    """Time-based simulated progress, capped at _PHASE_A_MAX (60 %)."""
     t = max(0.0, float(elapsed_seconds))
-    if t <= 20:
-        return _safe_progress(2.0 + (t / 20.0) * 8.0)  # 2 -> 10
-    if t <= 60:
-        return _safe_progress(10.0 + ((t - 20.0) / 40.0) * 15.0)  # 10 -> 25
-    if t <= 120:
-        return _safe_progress(25.0 + ((t - 60.0) / 60.0) * 15.0)  # 25 -> 40
-    if t <= 180:
-        return _safe_progress(40.0 + ((t - 120.0) / 60.0) * 12.0)  # 40 -> 52
-    if t <= 240:
-        return _safe_progress(52.0 + ((t - 180.0) / 60.0) * 10.0)  # 52 -> 62
-    if t <= 300:
-        return _safe_progress(62.0 + ((t - 240.0) / 60.0) * 8.0)  # 62 -> 70
-    return _safe_progress(min(82.0, 70.0 + ((t - 300.0) / 120.0) * 12.0))
-
-
-def _estimate_progress(
-    metrics: dict, max_pages: int, count_valid_pages_only: bool
-) -> tuple[float, str, str]:
-    accepted = int(metrics.get("accepted_valid_pages", 0))
-    successful = int(metrics.get("successful_results", 0))
-    total_results = int(metrics.get("total_results", 0))
-    crawl_budget_pages = int(metrics.get("crawl_budget_pages", max_pages))
-    finished_reason = str(metrics.get("finished_reason", "running"))
-
-    if count_valid_pages_only:
-        target = max(1, max_pages)
-        observed_total = total_results if total_results > 0 else max(successful, accepted)
-
-        # Curva no lineal: muestra avance temprano sin perder relación con el objetivo real.
-        valid_ratio = min(1.0, accepted / target)
-        budget_ratio = min(1.0, observed_total / max(1, crawl_budget_pages))
-        valid_curve = (valid_ratio ** 0.55) * 95.0
-        budget_curve = (budget_ratio ** 0.60) * 90.0
-        pct = _safe_progress(max(valid_curve, budget_curve))
+    if t <= 15:
+        pct = 2.0 + (t / 15.0) * 6.0        # 2 → 8
+    elif t <= 45:
+        pct = 8.0 + ((t - 15.0) / 30.0) * 7.0   # 8 → 15
+    elif t <= 90:
+        pct = 15.0 + ((t - 45.0) / 45.0) * 10.0  # 15 → 25
+    elif t <= 150:
+        pct = 25.0 + ((t - 90.0) / 60.0) * 10.0   # 25 → 35
+    elif t <= 240:
+        pct = 35.0 + ((t - 150.0) / 90.0) * 12.0  # 35 → 47
+    elif t <= 360:
+        pct = 47.0 + ((t - 240.0) / 120.0) * 8.0  # 47 → 55
     else:
-        target = max(1, max_pages)
-        pct = _safe_progress((successful / target) * 100)
+        # After 6 min, slowly approach 58 % but never pass 60 %
+        pct = min(58.0, 55.0 + ((t - 360.0) / 180.0) * 3.0)
+    return _safe_progress(min(pct, _PHASE_A_MAX))
 
-    if finished_reason == "frontier_exhausted" and pct < 95:
-        pct = max(pct, 95.0)
+
+def _estimate_real_progress(
+    metrics: dict,
+    persist_to_db: bool,
+) -> tuple[float, str, str]:
+    """
+    Phase B (60 % → 99 %): based on HTML result processing only.
+    PDF processing happens silently in the background.
+    """
+    total_results = int(metrics.get("total_results", 0))
+    processed = int(metrics.get("processed_results", 0))
+    saved_docs = int(metrics.get("saved_docs", 0))
+    accepted = int(metrics.get("accepted_valid_pages", 0))
+
+    # If we haven't started processing yet, stay at 60 %.
+    if total_results == 0 and processed == 0:
+        return _safe_incomplete_progress(_PHASE_B_START), "rastreando", "Explorando enlaces y descargando páginas"
+
+    ratio = min(1.0, processed / max(1, total_results))
+    pct = _PHASE_B_START + ratio * _PHASE_B_RANGE
 
     phase = "procesando"
-    message = f"Procesando resultados ({accepted} válidas)"
-    if total_results == 0 and successful == 0:
-        phase = "rastreando"
-        message = "Explorando enlaces y descargando páginas"
+    message = f"Analizando y guardando ({saved_docs} docs guardados, {accepted} páginas válidas)"
 
-    return pct, phase, message
+    return _safe_incomplete_progress(pct), phase, message
+
+
+def _estimate_eta(
+    metrics: dict,
+    processing_elapsed_seconds: float,
+) -> int | None:
+    """
+    ETA based on HTML processing rate only.
+    Returns seconds remaining, or None if no reliable estimate yet.
+    """
+    if processing_elapsed_seconds < 3.0:
+        return None
+
+    total_results = int(metrics.get("total_results", 0))
+    processed = int(metrics.get("processed_results", 0))
+
+    total_work = max(1, total_results)
+    done_work = processed
+
+    if done_work < 3:
+        return None
+
+    rate = done_work / processing_elapsed_seconds
+    if rate <= 0:
+        return None
+
+    remaining = max(0, total_work - done_work)
+    eta = int(remaining / rate)
+
+    # Sanity cap: never show more than 60 min
+    return min(eta, 3600)
 
 
 async def run_scrape_task(
@@ -99,11 +144,14 @@ async def run_scrape_task(
     min_content_words: int,
     count_valid_pages_only: bool,
     block_old_years: bool,
+    clerk_user_id: str | None = None,
 ):
     worker = CrawlWorker()
     debug_output_dir = f"./crawl_debug/{job_id}"
     started_at = datetime.now()
     first_metrics_seen = False
+    processing_started_at: datetime | None = None
+    job_marked_complete = False
 
     job_manager.update_job(
         job_id,
@@ -117,6 +165,7 @@ async def run_scrape_task(
         pages_crawled=0,
         metrics={
             "total_results": 0,
+            "processed_results": 0,
             "successful_results": 0,
             "saved_docs": 0,
             "saved_markdown_files": 0,
@@ -133,44 +182,79 @@ async def run_scrape_task(
     )
 
     async def simulated_progress_pulse():
-        # Keep the UI moving while crawl discovery is still running and no metrics arrived.
+        """Phase A: simulated progress while BFS crawl runs (0 % → 60 % max)."""
         while True:
             await asyncio.sleep(1)
             job = job_manager.get_job(job_id)
             if not job or job.status != "running":
                 return
             if first_metrics_seen:
-                continue
+                return  # Stop the pulse; Phase B takes over
             elapsed = (datetime.now() - started_at).total_seconds()
-            pct = _simulated_tracking_progress(elapsed)
+            pct = _safe_incomplete_progress(_simulated_crawl_progress(elapsed))
             job_manager.update_job(
                 job_id,
                 phase="rastreando",
                 message="Explorando enlaces y descargando páginas",
                 progress_pct=pct,
+                eta_seconds=None,  # No reliable ETA during crawling
             )
 
     def on_progress(metrics: dict):
-        nonlocal first_metrics_seen
-        first_metrics_seen = True
-        pct, phase, message = _estimate_progress(
-            metrics, max_pages=max_pages, count_valid_pages_only=count_valid_pages_only
+        nonlocal first_metrics_seen, processing_started_at, job_marked_complete
+
+        # Once we've marked the job as completed, ignore all subsequent
+        # progress updates (e.g. from PDF processing in the background).
+        if job_marked_complete:
+            return
+
+        if not first_metrics_seen:
+            first_metrics_seen = True
+            processing_started_at = datetime.now()
+
+        finished_reason = str(metrics.get("finished_reason", "running"))
+
+        # When HTML processing is done, mark job completed immediately.
+        # PDFs will continue processing silently in the background.
+        if finished_reason != "running":
+            job_marked_complete = True
+            saved_docs = int(metrics.get("saved_docs", 0))
+            accepted = int(metrics.get("accepted_valid_pages", 0))
+            job_manager.update_job(
+                job_id,
+                status="completed",
+                phase="completado",
+                message=f"Scraping finalizado ({saved_docs} docs guardados, {accepted} páginas válidas)",
+                progress_pct=100.0,
+                eta_seconds=0,
+                finished_at=datetime.now(),
+                pages_crawled=metrics.get(
+                    "processed_results",
+                    metrics.get("successful_results", metrics.get("accepted_valid_pages", 0)),
+                ),
+                metrics=metrics,
+            )
+            return
+
+        # Phase B: real progress (60 % → 99 %)
+        pct, phase, message = _estimate_real_progress(
+            metrics, persist_to_db=persist_to_db,
         )
+
+        # Ensure progress never goes backwards
         current_job = job_manager.get_job(job_id)
         current_pct = 0.0
         if current_job is not None:
             current_pct = float(current_job.progress_pct or 0.0)
         pct = max(pct, current_pct)
-        if (
-            str(metrics.get("finished_reason", "running")) == "running"
-            and pct <= current_pct
-            and current_pct < 99.9
-        ):
-            pct = _safe_progress(current_pct + 0.1)
-        elapsed = max((datetime.now() - started_at).total_seconds(), 0)
-        eta = None
-        if pct >= 3 and pct < 100 and elapsed > 0:
-            eta = int((100 - pct) * elapsed / pct)
+        pct = _safe_incomplete_progress(pct)
+
+        # ETA based on actual processing rate
+        proc_elapsed = 0.0
+        if processing_started_at is not None:
+            proc_elapsed = max(0.0, (datetime.now() - processing_started_at).total_seconds())
+        eta = _estimate_eta(metrics, proc_elapsed)
+
         job_manager.update_job(
             job_id,
             phase=phase,
@@ -178,7 +262,10 @@ async def run_scrape_task(
             progress_pct=pct,
             eta_seconds=eta,
             pages_crawled=metrics.get(
-                "accepted_valid_pages", metrics.get("successful_results", 0)
+                "processed_results",
+                metrics.get(
+                    "successful_results", metrics.get("accepted_valid_pages", 0)
+                ),
             ),
             metrics=metrics,
         )
@@ -200,15 +287,49 @@ async def run_scrape_task(
             debug_output_dir=debug_output_dir,
             progress_hook=on_progress,
         )
-        job_manager.update_job(
-            job_id,
-            status="completed",
-            phase="completado",
-            message="Scraping finalizado",
-            progress_pct=100.0,
-            eta_seconds=0,
-            finished_at=datetime.now(),
-        )
+
+        # If on_progress didn't mark it yet (edge case), mark now.
+        if not job_marked_complete:
+            job_manager.update_job(
+                job_id,
+                status="completed",
+                phase="completado",
+                message="Scraping finalizado",
+                progress_pct=100.0,
+                eta_seconds=0,
+                finished_at=datetime.now(),
+            )
+
+        user_key = (clerk_user_id or "").strip()
+        if user_key:
+            try:
+                parsed = urlparse(url)
+                host = normalize_domain(parsed.netloc or "")
+                variants = sorted(domain_variants(host))
+                if variants:
+                    async with async_session() as session:
+                        row = (
+                            await session.execute(
+                                text(
+                                    """
+                                    SELECT source_id::text AS source_id
+                                    FROM sources
+                                    WHERE lower(domain) = :domain1 OR lower(domain) = :domain2
+                                    ORDER BY created_at DESC
+                                    LIMIT 1
+                                    """
+                                ),
+                                {"domain1": variants[0], "domain2": variants[1]},
+                            )
+                        ).mappings().first()
+                    if row and row.get("source_id"):
+                        await link_user_to_source(
+                            clerk_user_id=user_key,
+                            source_id=str(row.get("source_id")),
+                        )
+            except Exception:
+                # No romper el estado "completed" si falla solo el enlace usuario-source.
+                pass
     except Exception as e:
         message = str(e).strip() or repr(e)
         job_manager.update_job(
@@ -217,7 +338,7 @@ async def run_scrape_task(
             phase="error",
             message="Falló el scraping",
             finished_at=datetime.now(),
-            progress_pct=100.0,
+            progress_pct=99.4,
             eta_seconds=None,
             errors=[message, traceback.format_exc()],
         )
@@ -245,5 +366,6 @@ async def start_scraping(req: ScrapeRequest, bt: BackgroundTasks):
         req.min_content_words,
         req.count_valid_pages_only,
         req.block_old_years,
+        (req.clerk_user_id or "").strip() or None,
     )
     return {"job_id": job_id, "status": "accepted"}

@@ -26,18 +26,15 @@ export const PROBLEM_SECTION = {
   painPoints: [
     {
       title: "Navegacion extensa",
-      description:
-        "Demasiados niveles para una consulta simple.",
+      description: "Demasiados niveles para una consulta simple.",
     },
     {
       title: "Buscador limitado",
-      description:
-        "Coincidencias por palabra, no por intencion.",
+      description: "Coincidencias por palabra, no por intencion.",
     },
     {
       title: "Soporte saturado",
-      description:
-        "Consultas repetidas en canales institucionales.",
+      description: "Consultas repetidas en canales institucionales.",
     },
   ],
 } as const;
@@ -51,20 +48,17 @@ export const SOLUTION_SECTION = {
     {
       number: "01",
       title: "Pegas la URL",
-      description:
-        "Inicias el rastreo desde el dashboard.",
+      description: "Inicias el rastreo desde el dashboard.",
     },
     {
       number: "02",
       title: "4gentle rastrea",
-      description:
-        "Procesa contenidos y estructura institucional.",
+      description: "Procesa contenidos y estructura institucional.",
     },
     {
       number: "03",
       title: "Copias el script",
-      description:
-        "Publicas el widget en tu portal.",
+      description: "Publicas el widget en tu portal.",
     },
   ],
 } as const;
@@ -75,29 +69,25 @@ export const FEATURES_SECTION = {
   features: [
     {
       title: "Cobertura completa del portal",
-      description:
-        "Indexa contenido util y evita ruido tecnico.",
+      description: "Indexa contenido util y evita ruido tecnico.",
       metric: "5,000+",
       metricLabel: "paginas por dominio",
     },
     {
       title: "Respuestas por intencion",
-      description:
-        "Guia a cada usuario al tramite correcto.",
+      description: "Guia a cada usuario al tramite correcto.",
       metric: "< 2s",
       metricLabel: "respuesta promedio",
     },
     {
       title: "Implementacion rapida",
-      description:
-        "Un snippet. Sin cambios de CMS ni migraciones.",
+      description: "Un snippet. Sin cambios de CMS ni migraciones.",
       metric: "1 linea",
       metricLabel: "para integrar",
     },
     {
       title: "Metricas de uso",
-      description:
-        "Visibilidad de consultas y fricciones frecuentes.",
+      description: "Visibilidad de consultas y fricciones frecuentes.",
       metric: "100%",
       metricLabel: "queries trazables",
     },
@@ -108,12 +98,36 @@ export const TECH_SECTION = {
   label: "Motor de descubrimiento",
   title: "Como el crawler convierte miles de paginas en respuestas precisas",
   specs: [
-    { label: "Crawl multinivel", value: "Explora menus, enlaces profundos y documentos institucionales sin romper performance." },
-    { label: "Parsing inteligente", value: "Extrae estructura academica, fechas clave, requisitos y pasos accionables por tramite." },
-    { label: "Index semantico", value: "Construye embeddings por contexto para resolver intenciones, no solo palabras sueltas." },
-    { label: "Orquestacion RAG", value: "Recupera evidencia del portal y genera respuestas trazables con contexto actualizado." },
-    { label: "Widget liviano", value: "Snippet embebible, carga asincronica y despliegue inmediato en cualquier CMS." },
-    { label: "Operacion estable", value: "Rate limiting, control de errores y telemetria para entornos universitarios de alto trafico." },
+    {
+      label: "Crawl multinivel",
+      value:
+        "Explora menus, enlaces profundos y documentos institucionales sin romper performance.",
+    },
+    {
+      label: "Parsing inteligente",
+      value:
+        "Extrae estructura academica, fechas clave, requisitos y pasos accionables por tramite.",
+    },
+    {
+      label: "Index semantico",
+      value:
+        "Construye embeddings por contexto para resolver intenciones, no solo palabras sueltas.",
+    },
+    {
+      label: "Orquestacion RAG",
+      value:
+        "Recupera evidencia del portal y genera respuestas trazables con contexto actualizado.",
+    },
+    {
+      label: "Widget liviano",
+      value:
+        "Snippet embebible, carga asincronica y despliegue inmediato en cualquier CMS.",
+    },
+    {
+      label: "Operacion estable",
+      value:
+        "Rate limiting, control de errores y telemetria para entornos universitarios de alto trafico.",
+    },
   ],
 } as const;
 
@@ -136,22 +150,24 @@ export const DASHBOARD = {
   nav: {
     brand: "4gentle",
     links: [
-      { label: "Proyectos", href: "/dashboard" },
+      { label: "Proyectos", href: "/dashboard/projects" },
+      { label: "Nuevo crawl", href: "/dashboard/crawl" },
       { label: "Documentacion", href: "#" },
     ],
   },
   crawlForm: {
     title: "Nuevo proyecto",
-    subtitle: "Ingresa la URL de tu plataforma institucional y 4gentle se encargara del resto.",
+    subtitle:
+      "Ingresa la URL de tu plataforma institucional y nos encargaremos del resto.",
     placeholder: "https://www.tu-institucion.edu",
     buttonText: "Iniciar crawl",
   },
   crawlStatus: {
     title: "Crawl en progreso",
-    message:
-      "Estamos recorriendo y analizando tu plataforma. Este proceso puede tomar varios minutos dependiendo del tamano del sitio. Podes hacer otra cosa mientras tanto, te notificaremos cuando este listo.",
+    message: "Estamos recorriendo y analizando tu plataforma.",
     phases: {
       crawling: "Rastreando paginas",
+      rastreando: "Rastreando paginas",
       procesando: "Procesando resultados",
       indexing: "Indexando contenido",
       completed: "Completado",
@@ -160,7 +176,8 @@ export const DASHBOARD = {
   },
   widgetReady: {
     title: "Tu widget esta listo",
-    subtitle: "Copia el siguiente snippet y pegalo en tu sitio antes del cierre del tag </body>.",
+    subtitle:
+      "Copia el siguiente snippet y pegalo en tu sitio antes del cierre del tag </body>.",
   },
   integrationGuides: [
     {
@@ -259,11 +276,25 @@ export const MOCK_SCRAPING_STATUS = {
 } as const;
 
 // --- Widget Snippet Template ---
-export const WIDGET_SNIPPET = (projectId: string) =>
+export const WIDGET_SNIPPET = ({
+  sourceId,
+  apiKey,
+  widgetQueryUrl,
+  theme = "warm",
+}: {
+  sourceId: string;
+  apiKey: string;
+  widgetQueryUrl?: string;
+  theme?: string;
+}) =>
   `<!-- 4gentle Widget -->
 <script
   src="https://cdn.4gentle.io/widget.js"
-  data-project-id="${projectId}"
-  data-theme="warm"
+  data-project-id="${sourceId}"
+  data-source-id="${sourceId}"
+  data-api-key="${apiKey}"
+  data-api-url="${widgetQueryUrl || "https://api.4gentle.io/api/widget/query"}"
+  data-endpoint="${widgetQueryUrl || "https://api.4gentle.io/api/widget/query"}"
+  data-theme="${theme}"
   async
 ><\/script>`;

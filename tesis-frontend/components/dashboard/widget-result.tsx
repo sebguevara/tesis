@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { DASHBOARD, WIDGET_SNIPPET } from "@/lib/constants";
-import type { CrawlState } from "@/app/dashboard/page";
+import type { CrawlState } from "@/app/dashboard/crawl/page";
 import { IntegrationGuide } from "./integration-guide";
 
 interface WidgetResultProps {
@@ -10,16 +10,66 @@ interface WidgetResultProps {
   onReset: () => void;
 }
 
+function formatTotalDuration(seconds: number | null): string {
+  if (seconds == null || seconds < 0) return "-";
+  const total = Math.round(seconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
 export function WidgetResult({ crawlState, onReset }: WidgetResultProps) {
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const snippet = WIDGET_SNIPPET(crawlState.jobId);
+  const [snippet, setSnippet] = useState(
+    "<!-- Preparando snippet del widget... -->",
+  );
+  const [snippetReady, setSnippetReady] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    async function loadSnippet() {
+      try {
+        const response = await fetch(
+          `/api/widget/snippet?domain=${encodeURIComponent(crawlState.url)}`,
+          { cache: "no-store" },
+        );
+        const payload = (await response.json()) as {
+          source_id?: string;
+          api_key?: string;
+          widget_query_url?: string;
+          detail?: string;
+        };
+        if (!response.ok || !payload.source_id || !payload.api_key) {
+          throw new Error(payload.detail || "No se pudo preparar el snippet.");
+        }
+        setSnippet(
+          WIDGET_SNIPPET({
+            sourceId: payload.source_id,
+            apiKey: payload.api_key,
+            widgetQueryUrl: payload.widget_query_url,
+          }),
+        );
+        setSnippetReady(true);
+      } catch (error) {
+        setSnippetReady(false);
+        setSnippet(
+          "<!-- No se pudo generar el snippet automaticamente. Verifica source_id y api_key. -->",
+        );
+        void error;
+      }
+    }
+    void loadSnippet();
+  }, [crawlState.url]);
+
   async function handleCopy() {
+    if (!snippetReady) return;
     try {
       await navigator.clipboard.writeText(snippet);
       setCopied(true);
@@ -74,7 +124,11 @@ export function WidgetResult({ crawlState, onReset }: WidgetResultProps) {
         {[
           { value: crawlState.pagesCrawled, label: "Paginas indexadas" },
           { value: crawlState.metrics?.saved_docs ?? 0, label: "Documentos procesados" },
-          { value: "1", label: "Widget generado", isAccent: true },
+          {
+            value: formatTotalDuration(crawlState.totalDurationSeconds),
+            label: "Tiempo total",
+            isAccent: true,
+          },
         ].map((stat, i) => (
           <div
             key={i}
@@ -105,6 +159,7 @@ export function WidgetResult({ crawlState, onReset }: WidgetResultProps) {
               <button
                 type="button"
                 onClick={handleCopy}
+                disabled={!snippetReady}
                 className="flex items-center gap-2 rounded-lg bg-warm-700 px-4 py-2 text-xs font-medium text-warm-100 transition-all hover:bg-warm-600 hover:scale-105 active:scale-95"
               >
                 {copied ? (

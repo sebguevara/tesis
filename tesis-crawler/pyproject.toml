@@ -19,10 +19,12 @@ dependencies = [
     "psycopg-binary>=3.3.2",
     "psycopg2-binary>=2.9.11",
     "pydantic>=2.12.5",
+    "pymupdf>=1.26.7",
     "python-dotenv>=1.2.1",
     "ruff>=0.15.0",
     "sqlalchemy>=2.0.46",
     "sqlmodel>=0.0.32",
+    "svix>=1.84.1",
     "typing>=3.10.0.0",
     "uuid>=1.30",
 ]

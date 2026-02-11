@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from app.api import query, scrape, sources, status, widget
+from app.api import auth, query, scrape, sources, status, widget
 from app.core.widget_origin import is_origin_allowed_globally
 from app.storage.db_client import init_db
 
@@ -35,7 +35,7 @@ async def dynamic_widget_cors(request, call_next):
         response.headers["Vary"] = "Origin"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type,X-API-Key,X-Admin-Token"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type,X-API-Key"
         return response
 
     response = await call_next(request)
@@ -44,7 +44,7 @@ async def dynamic_widget_cors(request, call_next):
         response.headers["Vary"] = "Origin"
         response.headers["Access-Control-Allow-Credentials"] = "true"
         response.headers["Access-Control-Allow-Methods"] = "POST,GET,OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type,X-API-Key,X-Admin-Token"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type,X-API-Key"
     return response
 
 
@@ -58,6 +58,7 @@ app.include_router(query.router, prefix="/api")
 app.include_router(status.router, prefix="/api")
 app.include_router(sources.router, prefix="/api")
 app.include_router(widget.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
 
 if static_dir.exists():
     app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")

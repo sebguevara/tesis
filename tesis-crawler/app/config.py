@@ -13,8 +13,17 @@ class Settings(BaseSettings):
     EMBEDDING_DIM: int = os.getenv("EMBEDDING_DIM")
     SITE_MD_DIR: str = os.getenv("SITE_MD_DIR")
     WIDGET_TEST_ORIGIN: str = os.getenv("WIDGET_TEST_ORIGIN", "")
-    WIDGET_ADMIN_TOKEN: str = os.getenv("WIDGET_ADMIN_TOKEN", "")
     WIDGET_DEV_API_KEY: str = os.getenv("WIDGET_DEV_API_KEY", "")
+    CLERK_WEBHOOK_SECRET: str = os.getenv("CLERK_WEBHOOK_SECRET", "")
+    RAG_ENABLE_LIVE_FETCH: bool = (
+        str(os.getenv("RAG_ENABLE_LIVE_FETCH", "false")).strip().lower()
+        in {"1", "true", "yes", "on"}
+    )
+
+    # PDF processing
+    PDF_STORAGE_DIR: str = os.getenv("PDF_STORAGE_DIR", "./data/pdf")
+    MAX_PDF_SIZE_MB: int = int(os.getenv("MAX_PDF_SIZE_MB", "50"))
+    PDF_CONCURRENCY: int = int(os.getenv("PDF_CONCURRENCY", "5"))
 
     model_config = SettingsConfigDict(
         env_file=".env",

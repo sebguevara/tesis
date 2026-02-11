@@ -22,6 +22,54 @@ async def list_sources(limit: int = Query(default=100, ge=1, le=1000)):
     return {"items": [dict(row) for row in rows]}
 
 
+@router.get("/sources/overview")
+async def list_sources_overview(limit: int = Query(default=100, ge=1, le=500)):
+    stmt = text(
+        """
+        SELECT
+          s.source_id::text AS source_id,
+          s.domain,
+          s.created_at,
+          COALESCE(ds.documents_count, 0) AS documents_count,
+          COALESCE(ds.first_fetched_at, NULL) AS first_fetched_at,
+          COALESCE(ds.last_fetched_at, NULL) AS last_fetched_at,
+          COALESCE(cs.chunks_count, 0) AS chunks_count,
+          COALESCE(ss.sessions_count, 0) AS sessions_count
+        FROM sources s
+        LEFT JOIN (
+          SELECT
+            d.source_id,
+            COUNT(*) AS documents_count,
+            MIN(d.fetched_at) AS first_fetched_at,
+            MAX(d.fetched_at) AS last_fetched_at
+          FROM documents d
+          GROUP BY d.source_id
+        ) ds ON ds.source_id = s.source_id
+        LEFT JOIN (
+          SELECT
+            d.source_id,
+            COUNT(c.chunk_id) AS chunks_count
+          FROM documents d
+          LEFT JOIN chunks c ON c.doc_id = d.doc_id
+          GROUP BY d.source_id
+        ) cs ON cs.source_id = s.source_id
+        LEFT JOIN (
+          SELECT
+            cm.source_id,
+            COUNT(DISTINCT cm.session_id) AS sessions_count
+          FROM conversation_messages cm
+          WHERE cm.source_id IS NOT NULL AND cm.role = 'user'
+          GROUP BY cm.source_id
+        ) ss ON ss.source_id = s.source_id
+        ORDER BY COALESCE(ds.last_fetched_at, s.created_at) DESC
+        LIMIT :limit
+        """
+    )
+    async with async_session() as session:
+        rows = (await session.execute(stmt, {"limit": limit})).mappings().all()
+    return {"items": [dict(row) for row in rows]}
+
+
 @router.get("/sources/lookup")
 async def lookup_source(domain: str = Query(..., min_length=3)):
     norm_domain = normalize_domain(domain)

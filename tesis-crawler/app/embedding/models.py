@@ -1,6 +1,7 @@
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
+from sqlalchemy import UniqueConstraint
 from sqlmodel import SQLModel, Field, Column, ARRAY, Text, JSON
 from pgvector.sqlalchemy import Vector
 
@@ -25,6 +26,9 @@ class Document(SQLModel, table=True):
     canonical_url: str = Field(unique=True, index=True)
     title: Optional[str]
     page_type: str
+    content_type: str = Field(default="html")  # "html" | "pdf"
+    authority_score: float = Field(default=0.5)
+    original_filename: Optional[str] = Field(default=None)
     content_hash: str = Field(index=True)
     fetched_at: datetime = Field(default_factory=utc_now_naive)
 
@@ -56,21 +60,44 @@ class ConversationMessage(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utc_now_naive)
 
 
-class WidgetCredential(SQLModel, table=True):
-    __tablename__ = "widget_credentials"
-    credential_id: UUID = Field(default_factory=uuid4, primary_key=True)
-    source_public_id: str = Field(index=True)
-    source_id: UUID = Field(foreign_key="sources.source_id", index=True)
-    api_key_hash: str = Field(index=True)
-    api_key_prefix: str = Field(default="pfc_sk")
-    is_active: bool = Field(default=True, index=True)
+class User(SQLModel, table=True):
+    __tablename__ = "user"
+    user_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    clerk_user_id: str = Field(unique=True, index=True)
+    email: Optional[str] = Field(default=None, index=True)
+    api_key: str = Field(unique=True, index=True)
     created_at: datetime = Field(default_factory=utc_now_naive)
-    last_used_at: Optional[datetime] = Field(default=None)
+    updated_at: datetime = Field(default_factory=utc_now_naive)
+    last_sign_in_at: Optional[datetime] = Field(default=None)
 
 
-class WidgetCredentialUser(SQLModel, table=True):
-    __tablename__ = "widget_credential_users"
+class UserSource(SQLModel, table=True):
+    __tablename__ = "user_sources"
+    __table_args__ = (UniqueConstraint("user_id", "source_id", name="uq_user_sources_user_source"),)
     link_id: UUID = Field(default_factory=uuid4, primary_key=True)
-    credential_id: UUID = Field(foreign_key="widget_credentials.credential_id", index=True)
-    user_id: str = Field(index=True)
+    user_id: UUID = Field(foreign_key="user.user_id", index=True)
+    source_id: UUID = Field(foreign_key="sources.source_id", index=True)
     created_at: datetime = Field(default_factory=utc_now_naive)
+
+
+class ProgramFact(SQLModel, table=True):
+    __tablename__ = "program_facts"
+    __table_args__ = (
+        UniqueConstraint(
+            "source_id",
+            "canonical_url",
+            "program_name",
+            "fact_key",
+            "fact_value",
+            name="uq_program_facts_source_url_program_key_value",
+        ),
+    )
+    fact_id: UUID = Field(default_factory=uuid4, primary_key=True)
+    source_id: UUID = Field(foreign_key="sources.source_id", index=True)
+    canonical_url: str = Field(index=True)
+    program_name: str = Field(index=True)
+    fact_key: str = Field(index=True)  # e.g. program_name, duration, director, secretary_academic, year_N_subject, profile_*_page
+    fact_value: str
+    evidence_text: Optional[str] = None
+    confidence: float = 0.7
+    fetched_at: datetime = Field(default_factory=utc_now_naive, index=True)

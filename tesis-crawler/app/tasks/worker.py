@@ -1,21 +1,35 @@
+"""
+Crawl Worker — Orchestrates HTML crawling (Phase 1) + PDF processing (Phase 2).
+
+Phase 1: BFS deep crawl of HTML pages, collecting PDF links along the way.
+Phase 2: Parallel download + conversion of discovered PDFs.
+Both phases use the PageClassifier to assign page_type and authority_score.
+"""
+
 from datetime import datetime
 import hashlib
 import json
+import logging
 import re
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from typing import Callable, Optional
 
+from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler
 from crawl4ai.async_dispatcher import SemaphoreDispatcher
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.deep_crawling.filters import FilterChain, URLFilter, URLPatternFilter
 from app.config import settings
-from app.core.content_filters import is_institutional_news, is_outdated_content
+from app.core.content_filters import should_index_page
 from app.core.domain_utils import domain_variants, normalize_domain
+from app.core.page_classifier import PageClassifier
+from app.core.pdf_service import PDFService
 from app.core.scraping_service import ScrapingService
 from app.core.ingestion_service import IngestionService
 from app.storage.db_client import async_session
+
+logger = logging.getLogger(__name__)
 
 
 class ExactHostFilter(URLFilter):
@@ -42,7 +56,6 @@ class TrackingPatternFilter(URLPatternFilter):
         self.rejected_url_samples: list[str] = []
 
     def apply(self, url: str) -> bool:
-        # Normaliza para que patrones como *.jpg* también bloqueen .JPG/.Jpg/etc.
         result = super().apply((url or "").lower())
         if not result and len(self.rejected_url_samples) < self._sample_limit:
             self.rejected_url_samples.append(url)
@@ -71,16 +84,22 @@ class CrawlWorker:
     def __init__(self):
         self.scraper = ScrapingService()
         self.ingestor = IngestionService()
+        self.classifier = PageClassifier()
+        self.pdf_service = PDFService()
 
     @classmethod
     def _matches_allow_priority(cls, url: str, title: str = "") -> bool:
         haystack = f"{(url or '').lower()} {(title or '').lower()}".strip()
         return any(token in haystack for token in cls.ALLOW_PRIORITY_TOKENS)
 
-    @staticmethod
     def _invalid_reason(
-        url: str, title: str, content: str, min_content_words: int = 5
+        self, url: str, title: str, content: str, min_content_words: int = 5
     ) -> Optional[str]:
+        """
+        Check if a page is invalid and should be skipped.
+        Uses PageClassifier for blocking decisions and should_index_page
+        for content filtering.
+        """
         url_lc = (url or "").lower()
         parsed = urlparse(url_lc)
         if not content:
@@ -88,17 +107,23 @@ class CrawlWorker:
         normalized = content.strip().lower()
         if not normalized:
             return "blank_content"
-        # Evita guardar home/listados genéricos que suelen ser solo cards y enlaces.
         if parsed.path in ("", "/"):
             return "root_path"
         if "página no encontrada" in normalized or "pagina no encontrada" in normalized:
             return "not_found_page"
         if len(normalized.split()) < max(1, min_content_words):
             return "too_short"
-        if is_institutional_news(url, title, normalized):
-            return "institutional_news"
-        if is_outdated_content(url, title, normalized):
-            return "outdated_content"
+
+        # Use the classifier to check if this page type should be blocked
+        classification = self.classifier.classify(url, title, normalized[:2000])
+        if classification.should_block:
+            return f"classifier_blocked:{classification.reason}"
+
+        # Use smart content filter
+        should_index, filter_reason = should_index_page(url, title, normalized)
+        if not should_index:
+            return filter_reason
+
         return None
 
     @staticmethod
@@ -112,7 +137,6 @@ class CrawlWorker:
         base_dir = Path(settings.SITE_MD_DIR)
         base_dir.mkdir(parents=True, exist_ok=True)
         url_hash = hashlib.sha1(url.encode("utf-8")).hexdigest()[:10]
-        # Evita rutas largas en Windows, que pueden disparar FileNotFoundError/OSError.
         slug = self._slugify(title or url)[:80]
         filename = f"{slug}-{url_hash}.md"
         path = base_dir / filename
@@ -137,6 +161,28 @@ class CrawlWorker:
             seen.add(value)
             result.append(value)
         return result
+
+    def _extract_pdf_links_from_html(self, html: str, base_url: str) -> list[str]:
+        """Extract PDF links from raw HTML content."""
+        try:
+            soup = BeautifulSoup(html, "html.parser")
+            pdf_links: list[str] = []
+            seen: set[str] = set()
+            for anchor in soup.find_all("a", href=True):
+                href = anchor["href"].strip()
+                if not href:
+                    continue
+                href_lower = href.lower()
+                if not (href_lower.endswith(".pdf") or ".pdf?" in href_lower):
+                    continue
+                absolute_url = urljoin(base_url, href)
+                normalized = absolute_url.split("#")[0].split("?")[0]
+                if normalized not in seen:
+                    seen.add(normalized)
+                    pdf_links.append(absolute_url)
+            return pdf_links
+        except Exception:
+            return []
 
     def _write_debug_report(
         self,
@@ -207,6 +253,8 @@ class CrawlWorker:
         year_patterns: list[str] = []
         if block_old_years:
             year_patterns = ["*/201*/*", *stale_year_patterns]
+
+        # PDF no longer blocked! Only media and binary files are blocked.
         block_filter = TrackingPatternFilter(
             patterns=[
                 "*/attachment/*",
@@ -219,54 +267,76 @@ class CrawlWorker:
                 "*/?s=*",
                 "*?fluentcrm=*",
                 "*/search/*",
-                "*/notimed/*",
-                "*/licitaciones-y-compr/*",
-                "*/licitaciones/*",
-                "*/compras/*",
-                "*/cvm-prop-form/*",
                 "*/siga*",
-                "*/boletin/*",
-                "*/newsletter/*",
-                "*/noticia/*",
-                "*/noticias/*",
-                "*/novedad/*",
-                "*/novedades/*",
-                "*/actualidad/*",
-                "*/actualidades/*",
-                "*/prensa/*",
-                "*/comunicado/*",
-                "*/comunicados/*",
-                "*/blog/*",
-                "*/news/*",
-                "*/eventos/*",
-                "*/evento/*",
-                "*/agenda/*",
-                "*.pdf*",
+                "*/cvm-prop-form/*",
+                # Images
                 "*.jpg*",
                 "*.jpeg*",
                 "*.png*",
                 "*.gif*",
                 "*.webp*",
                 "*.svg*",
+                # Audio
                 "*.mp3*",
                 "*.wav*",
                 "*.ogg*",
                 "*.m4a*",
                 "*.aac*",
+                # Video
                 "*.mp4*",
                 "*.webm*",
                 "*.avi*",
                 "*.mov*",
                 "*.mkv*",
+                # Binary documents (not PDF!)
                 "*.doc*",
                 "*.docx*",
                 "*.xls*",
                 "*.xlsx*",
                 "*.ppt*",
                 "*.pptx*",
+                # Archives
                 "*.zip*",
                 "*.rar*",
                 "*.7z*",
+                # ── NEWS / EVENTS / COMMUNICATIONS — hard blocked ──
+                "*/noticia/*",
+                "*/noticias/*",
+                "*/notimed/*",
+                "*/novedad/*",
+                "*/novedades/*",
+                "*/prensa/*",
+                "*/comunicado/*",
+                "*/comunicados/*",
+                "*/blog/*",
+                "*/news/*",
+                "*/evento/*",
+                "*/eventos/*",
+                "*/agenda/*",
+                "*/actualidad/*",
+                "*/actualidades/*",
+                "*/boletin/*",
+                "*/newsletter/*",
+                "*/gacetilla/*",
+                "*/efemeride/*",
+                "*/efemerides/*",
+                # ── NON-ACADEMIC CONTENT NOISE — hard blocked ──
+                "*/revista/*",
+                "*/revistas/*",
+                "*/viaje/*",
+                "*/viajes/*",
+                "*/simposio/*",
+                "*/simposios/*",
+                "*/jornada/*",
+                "*/jornadas/*",
+                "*/congreso/*",
+                "*/congresos/*",
+                "*/publicacion/*",
+                "*/publicaciones/*",
+                "*/intercambio/*",
+                "*/convocatoria/*",
+                "*/cuaderno-urbano*",
+                # WP navigation noise
                 "*/tag/*",
                 "*/author/*",
                 "*/category/*",
@@ -289,6 +359,11 @@ class CrawlWorker:
             crawl_budget_pages = min(max(max_pages * 4, max_pages + 500), 50000)
         config.max_pages = crawl_budget_pages
         config.semaphore_count = max(1, concurrency)
+
+        # ═══════════════════════════════════════════════════════════════
+        # PHASE 1: HTML crawl + PDF link collection
+        # ═══════════════════════════════════════════════════════════════
+        collected_pdf_urls: set[str] = set()
 
         async with AsyncWebCrawler() as crawler:
             crawl_dispatcher = SemaphoreDispatcher(
@@ -316,6 +391,7 @@ class CrawlWorker:
                 skipped_ingestion_rows: list[str] = []
                 metrics = {
                     "total_results": len(result),
+                    "processed_results": 0,
                     "finished_reason": "running",
                     "target_valid_pages": max_pages,
                     "crawl_budget_pages": crawl_budget_pages,
@@ -332,9 +408,17 @@ class CrawlWorker:
                     "blocked_by_allow_filter": 0,
                     "matched_allow_filter": 0,
                     "blocked_by_block_filter": block_filter.stats.rejected_urls,
+                    # Phase 2 (PDF) metrics
+                    "pdf_links_found": 0,
+                    "pdf_processed": 0,
+                    "pdf_saved": 0,
+                    "pdf_skipped": 0,
+                    "pdf_errors": 0,
                 }
 
                 for res in result:
+                    metrics["processed_results"] += 1
+
                     if not res.success:
                         failed_fetch_urls.append(res.url or "")
                         if progress_hook:
@@ -342,6 +426,24 @@ class CrawlWorker:
                         continue
 
                     metrics["successful_results"] += 1
+
+                    # ── Collect PDF links from the page ──
+                    if res.html:
+                        page_pdf_links = self._extract_pdf_links_from_html(
+                            res.html, res.url
+                        )
+                        for pdf_url in page_pdf_links:
+                            # Only collect PDFs from the same host
+                            pdf_parsed = urlparse(pdf_url)
+                            pdf_host = normalize_domain(pdf_parsed.netloc)
+                            if pdf_host in domain_variants(parsed_start.netloc):
+                                collected_pdf_urls.add(pdf_url)
+
+                    # ── Skip PDF URLs in the HTML phase ──
+                    url_lower = (res.url or "").lower()
+                    if url_lower.endswith(".pdf") or ".pdf?" in url_lower:
+                        collected_pdf_urls.add(res.url)
+                        continue
 
                     invalid_reason = self._invalid_reason(
                         res.url,
@@ -359,14 +461,19 @@ class CrawlWorker:
                     if use_allow_filter and self._matches_allow_priority(
                         res.url, res.metadata.get("title", "")
                     ):
-                        # Modo no excluyente: solo marca páginas de alta prioridad.
                         metrics["matched_allow_filter"] += 1
+
+                    # ── Classify the page ──
+                    page_title = res.metadata.get("title", "")
+                    classification = self.classifier.classify_content(
+                        res.url, page_title, res.markdown
+                    )
 
                     try:
                         if save_markdown_files:
                             saved_file, save_reason = self._save_markdown_to_disk(
                                 res.url,
-                                res.metadata.get("title", ""),
+                                page_title,
                                 res.markdown,
                             )
                             if saved_file:
@@ -379,9 +486,12 @@ class CrawlWorker:
                             async with async_session() as session:
                                 ingestion_result = await self.ingestor.process_and_save(
                                     url=res.url,
-                                    title=res.metadata.get("title", ""),
+                                    title=page_title,
                                     content=res.markdown,
                                     session=session,
+                                    page_type=classification.page_type,
+                                    content_type="html",
+                                    authority_score=classification.authority_score,
                                 )
                             if ingestion_result.get("saved"):
                                 metrics["saved_docs"] += 1
@@ -411,7 +521,92 @@ class CrawlWorker:
                         break
 
                 if metrics["finished_reason"] == "running":
-                    metrics["finished_reason"] = "frontier_exhausted"
+                    metrics["finished_reason"] = "phase1_done"
+
+                metrics["pdf_links_found"] = len(collected_pdf_urls)
+                if progress_hook:
+                    progress_hook(metrics)
+
+                # ═══════════════════════════════════════════════════════
+                # PHASE 2: Process collected PDFs in parallel
+                # ═══════════════════════════════════════════════════════
+                if collected_pdf_urls and persist_to_db:
+                    logger.info(
+                        "Phase 2: Processing %d PDF URLs", len(collected_pdf_urls)
+                    )
+                    pdf_results = await self.pdf_service.process_batch(
+                        list(collected_pdf_urls),
+                        max_concurrent=settings.PDF_CONCURRENCY,
+                    )
+
+                    for pdf_result in pdf_results:
+                        metrics["pdf_processed"] += 1
+
+                        if not pdf_result.success:
+                            metrics["pdf_errors"] += 1
+                            logger.debug(
+                                "PDF failed: %s (%s)",
+                                pdf_result.url,
+                                pdf_result.error,
+                            )
+                            if progress_hook:
+                                progress_hook(metrics)
+                            continue
+
+                        # Classify the PDF
+                        pdf_classification = self.classifier.classify(
+                            pdf_result.url, pdf_result.title
+                        )
+
+                        try:
+                            if save_markdown_files:
+                                self._save_markdown_to_disk(
+                                    pdf_result.url,
+                                    pdf_result.title,
+                                    pdf_result.markdown_content,
+                                )
+
+                            async with async_session() as session:
+                                ingestion_result = (
+                                    await self.ingestor.process_pdf_and_save(
+                                        url=pdf_result.url,
+                                        title=pdf_result.title,
+                                        markdown_content=pdf_result.markdown_content,
+                                        session=session,
+                                        page_type=pdf_classification.page_type,
+                                        authority_score=pdf_classification.authority_score,
+                                        original_filename=pdf_result.original_filename,
+                                        pdf_metadata=pdf_result.metadata,
+                                    )
+                                )
+                            if ingestion_result.get("saved"):
+                                metrics["pdf_saved"] += 1
+                                metrics["saved_docs"] += 1
+                            else:
+                                metrics["pdf_skipped"] += 1
+                                reason = ingestion_result.get("reason", "unknown")
+                                skipped_ingestion_rows.append(
+                                    f"{pdf_result.url}\tpdf:{reason}"
+                                )
+                        except Exception as exc:  # noqa: BLE001
+                            metrics["pdf_errors"] += 1
+                            logger.warning(
+                                "PDF ingestion error for %s: %s",
+                                pdf_result.url,
+                                exc,
+                            )
+                            skipped_ingestion_rows.append(
+                                f"{pdf_result.url}\tpdf_error:{exc.__class__.__name__}"
+                            )
+
+                        if progress_hook:
+                            progress_hook(metrics)
+
+                metrics["finished_reason"] = (
+                    "completed" if metrics["finished_reason"] == "phase1_done"
+                    else metrics["finished_reason"]
+                )
+
                 if progress_hook:
                     progress_hook(metrics)
 

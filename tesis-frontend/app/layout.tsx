@@ -1,6 +1,9 @@
 import React from "react";
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
+import { esES } from "@clerk/localizations";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -32,12 +35,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body
-        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <ClerkProvider localization={esES}>
+      <html lang="es">
+        <body
+          className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        >
+          {children}
+          <Toaster richColors position="top-right" />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

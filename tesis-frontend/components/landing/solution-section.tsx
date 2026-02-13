@@ -65,7 +65,6 @@ export function SolutionSection() {
   const snippet = WIDGET_SNIPPET({
     sourceId: DEMO_SOURCE_ID,
     apiKey: "pfc_sk_demo_placeholder",
-    widgetQueryUrl: "https://api.4gentle.io/api/widget/query",
   });
 
   async function handleCopySnippet() {

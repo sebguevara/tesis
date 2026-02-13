@@ -22,6 +22,11 @@ function formatEta(seconds: number): string {
   return `~${m}m ${s}s`;
 }
 
+function formatFreshness(ms: number): string {
+  if (ms < 1000) return `${ms} ms`;
+  return `${(ms / 1000).toFixed(1)} s`;
+}
+
 export function CrawlStatus({
   crawlState,
   notificationPermission,
@@ -38,30 +43,38 @@ export function CrawlStatus({
 
   const hasEta = crawlState.etaSeconds > 0;
   const etaDisplay = hasEta ? formatEta(crawlState.etaSeconds) : "";
-  // Show pending animation when running and no ETA available yet
-  const etaPending = isRunningPhase && !hasEta;
+  const telemetry = crawlState.telemetry;
+  const docsPerSec = telemetry?.saved_per_sec ?? 0;
+  const pagesPerSec = telemetry?.processed_per_sec ?? 0;
+  const queuePending = telemetry?.ingest_pending_total ?? 0;
+  const freshnessMs = telemetry?.freshness_ms ?? 0;
+  const hasLiveTelemetry = Boolean(telemetry);
+  const inDiscovery = Boolean(telemetry?.in_discovery);
+  const discoveryNote =
+    telemetry?.discovery_note || "Descubriendo enlaces iniciales del sitio.";
+  const etaText = hasEta ? etaDisplay : isRunningPhase ? "Sin ETA aún" : "—";
 
   const stats = [
     {
       label: "Tiempo restante",
-      value: etaDisplay || "Calculando...",
+      value: etaText,
       isMono: true,
-      pending: etaPending,
+      pending: !hasLiveTelemetry && isRunningPhase,
     },
     {
       label: "Paginas Encontradas",
       value: crawlState.pagesCrawled,
-      pending: isRunningPhase && crawlState.pagesCrawled <= 0,
+      pending: !hasLiveTelemetry && isRunningPhase,
     },
     {
       label: "Docs guardados",
       value: crawlState.metrics?.saved_docs ?? 0,
-      pending: isRunningPhase && (crawlState.metrics?.saved_docs ?? 0) <= 0,
+      pending: !hasLiveTelemetry && isRunningPhase,
     },
     {
-      label: "Contenido filtrado",
-      value: filteredCount,
-      pending: isRunningPhase && filteredCount <= 0,
+      label: "Cola pendiente",
+      value: queuePending,
+      pending: !hasLiveTelemetry && isRunningPhase,
     },
   ];
 
@@ -146,6 +159,22 @@ export function CrawlStatus({
                 <span className="font-mono text-sm font-semibold text-primary">
                   {Math.round(crawlState.progressPct)}%
                 </span>
+              </div>
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                <span>actualizado: {formatFreshness(freshnessMs)}</span>
+                <span>crawl/s: {inDiscovery ? "-" : pagesPerSec.toFixed(2)}</span>
+                <span>guardado/s: {inDiscovery ? "-" : docsPerSec.toFixed(2)}</span>
+                <span>filtrado: {filteredCount}</span>
+                {telemetry?.is_stale ? (
+                  <span className="rounded bg-amber-500/20 px-2 py-0.5 text-amber-700">
+                    sin heartbeat reciente
+                  </span>
+                ) : null}
+                {inDiscovery ? (
+                  <span className="rounded bg-sky-500/15 px-2 py-0.5 text-sky-700">
+                    {discoveryNote}
+                  </span>
+                ) : null}
               </div>
               <div className="h-3 w-full overflow-hidden rounded-full bg-warm-200/50 backdrop-blur-sm">
                 <div

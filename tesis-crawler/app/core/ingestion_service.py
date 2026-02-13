@@ -1,19 +1,13 @@
-import asyncio
 import hashlib
 import logging
 import re
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from sqlalchemy import delete, select
-from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import (
-    MarkdownHeaderTextSplitter,
-    RecursiveCharacterTextSplitter,
-)
 from app.config import settings
 from app.core.content_filters import should_index_page
-from app.core.domain_utils import domain_variants, normalize_domain
-from app.embedding.models import Chunk, Document, ProgramFact, Source, utc_now_naive
+from app.core.domain_utils import domain_variants, normalize_domain, normalize_host_exact
+from app.embedding.models import Document, ProgramFact, Source, utc_now_naive
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +39,6 @@ class IngestionService:
             for token in (
                 "/carreras/",
                 "/oferta-academica/",
-                "/ofertas-acad/",
                 "/ofertas-academicas/",
             )
         )
@@ -55,6 +48,22 @@ class IngestionService:
         ptype = (page_type or "").strip().lower()
         low_url = (url or "").lower()
         return ptype in {"career_canonical", "curriculum"} or "/carreras/" in low_url
+
+    @staticmethod
+    def _is_fact_source_url(url: str, page_type: str) -> bool:
+        """
+        Strict gate for ProgramFact extraction.
+        Only canonical career/curriculum pages should generate structured facts.
+        """
+        low_url = (url or "").lower()
+        ptype = (page_type or "").strip().lower()
+        if ptype in {"career_canonical", "curriculum"}:
+            return True
+        if "/carreras/" in low_url:
+            return True
+        if any(token in low_url for token in ("/plan-de-estudios", "/distribucion-de-asignaturas")):
+            return True
+        return False
 
     @staticmethod
     def _has_program_page_signals(url: str, title: str, content: str, program_name: str) -> bool:
@@ -83,6 +92,20 @@ class IngestionService:
         )
 
     @staticmethod
+    def _is_year_subject_fact_source(url: str, page_type: str) -> bool:
+        low_url = (url or "").lower()
+        if not low_url:
+            return False
+        if "/wp-content/uploads/" in low_url or low_url.endswith(".pdf") or ".pdf?" in low_url:
+            return False
+        ptype = (page_type or "").strip().lower()
+        if ptype == "career_canonical":
+            return True
+        if "/carreras/" in low_url:
+            return True
+        return False
+
+    @staticmethod
     def _is_duration_value_plausible(value: str) -> bool:
         raw = re.sub(r"\s+", " ", (value or "").lower()).strip()
         if not raw:
@@ -94,16 +117,7 @@ class IngestionService:
         return 1 <= years <= 12
 
     def __init__(self):
-        self.md_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=[("#", "H1"), ("##", "H2"), ("###", "H3")]
-        )
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1500, chunk_overlap=300
-        )
-        self.embeddings = OpenAIEmbeddings(
-            model=settings.OPENAI_EMBEDDING_MODEL,
-            dimensions=settings.EMBEDDING_DIM,
-        )
+        pass  # No splitters needed — pgai handles chunking + embedding
 
     @staticmethod
     def _canonicalize_url(raw_url: str) -> str:
@@ -282,28 +296,142 @@ class IngestionService:
         return found
 
     @staticmethod
-    def _slice_year_block(content: str, year_num: int) -> str:
-        labels = dict(IngestionService.YEAR_LABELS).get(year_num, ())
-        if not labels:
+    def _is_plausible_authority_person_name(value: str) -> bool:
+        raw = re.sub(r"\s+", " ", (value or "").strip())
+        if not raw:
+            return False
+        low = raw.lower()
+        blocked_tokens = (
+            "licenciatura",
+            "tecnicatura",
+            "doctorado",
+            "especializacion",
+            "especialización",
+            "enfermer",
+            "kinesiolog",
+            "medicina",
+            "carrera",
+            "plan de estudios",
+            "oferta",
+            "programa",
+            "materia",
+            "asignatura",
+        )
+        if any(tok in low for tok in blocked_tokens):
+            return False
+        cleaned = re.sub(r"^(dr\.?|dra\.?|lic\.?|mg\.?|msc\.?|prof\.?)\s+", "", raw, flags=re.IGNORECASE)
+        parts = [p for p in re.split(r"\s+", cleaned) if p]
+        if len(parts) < 2:
+            return False
+        return sum(1 for p in parts if re.fullmatch(r"[A-Za-zÁÉÍÓÚÑÜáéíóúñü'`-]{2,}", p)) >= 2
+
+    @staticmethod
+    def _is_plausible_subject_name(value: str) -> bool:
+        raw = re.sub(r"\s+", " ", (value or "").strip(" .:-\t")).lower()
+        if not raw:
+            return False
+        if len(raw) < 4 or len(raw) > 120:
+            return False
+        blocked = (
+            "periodo",
+            "período",
+            "matricul",
+            "clave",
+            "aula virtual",
+            "inscrip",
+            "resoluci",
+            "descargar",
+            "hacer clic",
+            "link",
+            "pdf",
+            "www.",
+            "http",
+            "siu",
+            "calendario",
+            "cronograma",
+            "lunes",
+            "martes",
+            "miercoles",
+            "miércoles",
+            "jueves",
+            "viernes",
+            "sabado",
+            "sábado",
+            "domingo",
+            "primer año",
+            "primer anio",
+            "segundo año",
+            "segundo anio",
+            "tercer año",
+            "tercer anio",
+            "cuarto año",
+            "cuarto anio",
+            "quinto año",
+            "quinto anio",
+            "sexto año",
+            "sexto anio",
+        )
+        if any(tok in raw for tok in blocked):
+            return False
+        alpha_tokens = re.findall(r"[a-záéíóúñü]{2,}", raw, flags=re.IGNORECASE)
+        if len(alpha_tokens) >= 2:
+            return True
+        if len(alpha_tokens) == 1 and len(alpha_tokens[0]) >= 8:
+            return True
+        return False
+
+    @staticmethod
+    def _best_year_block(content: str, year_num: int) -> str:
+        labels_map = dict(IngestionService.YEAR_LABELS)
+        starts = labels_map.get(year_num, ())
+        if not starts:
             return ""
-        low = content.lower()
-        start_idx = -1
-        for label in labels:
-            idx = low.find(label)
-            if idx >= 0:
-                start_idx = idx
-                break
-        if start_idx < 0:
+        source = content or ""
+        if not source:
             return ""
-        next_idx = len(content)
+        low = source.lower()
+
+        candidate_starts: list[int] = []
+        for label in starts:
+            for m in re.finditer(re.escape(label), low):
+                candidate_starts.append(m.start())
+        if not candidate_starts:
+            return ""
+
+        next_markers: list[int] = []
         for next_year, next_labels in IngestionService.YEAR_LABELS:
             if next_year <= year_num:
                 continue
             for label in next_labels:
-                idx = low.find(label, start_idx + 1)
-                if idx >= 0:
-                    next_idx = min(next_idx, idx)
-        return content[start_idx:next_idx]
+                for m in re.finditer(re.escape(label), low):
+                    next_markers.append(m.start())
+        next_markers.sort()
+
+        best_block = ""
+        best_score = -1
+        for start in sorted(set(candidate_starts)):
+            end = len(source)
+            for marker in next_markers:
+                if marker > start:
+                    end = marker
+                    break
+            block = source[start:end]
+            if not block:
+                continue
+            block_low = block.lower()
+            score = 0
+            score += len(re.findall(r"(?:^|\n)\s*(?:materia|asignatura)\s*:", block_low, flags=re.IGNORECASE)) * 7
+            score += len(re.findall(r"\b(?:semestre|cuatrimestre)\b", block_low, flags=re.IGNORECASE)) * 2
+            score += len(re.findall(r"(?:^|\n)\s*(?:[-*]\s+|\d{1,2}[.)]\s+)", block, flags=re.IGNORECASE))
+            score += min(len(block) // 500, 4)
+            if score > best_score or (score == best_score and len(block) > len(best_block)):
+                best_score = score
+                best_block = block
+        return best_block
+
+    @staticmethod
+    def _slice_year_block(content: str, year_num: int) -> str:
+        return IngestionService._best_year_block(content, year_num)
 
     @staticmethod
     def _extract_year_subject_facts(url: str, content: str) -> list[dict]:
@@ -321,11 +449,14 @@ class IngestionService:
                     r"(?:^|\n)\s*asignatura\s*:\s*([^\n]{3,120})",
                     r"(?:^|\n)\s*asignatura\s*:\s*\n+\s*([^\n]{3,120})",
                     r"(?:^|\n)\s*-\s*([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ0-9\s\-/]{3,120})\s*(?:\n|$)",
+                    r"(?:^|\n)\s*([A-ZÁÉÍÓÚÑÜ][A-Za-zÁÉÍÓÚÑÜáéíóúñü0-9\s().,\-/]{3,120})\s*\|",
                 ],
             )
             for subject in subjects:
                 clean_subject = re.sub(r"\s+", " ", subject).strip(" .:-\t")
                 if not clean_subject:
+                    continue
+                if not IngestionService._is_plausible_subject_name(clean_subject):
                     continue
                 facts.append(
                     {
@@ -348,11 +479,49 @@ class IngestionService:
         return facts
 
     @staticmethod
+    def _extract_titled_person_lines(content: str, max_scan_lines: int = 0) -> list[str]:
+        lines = (content or "").splitlines()
+        if not lines:
+            return []
+        out: list[str] = []
+        seen: set[str] = set()
+        title_token = re.compile(
+            r"\b(?:prof\.?|dr\.?|dra\.?|lic\.?|mgter\.?|mgtr\.?|mg\.?|esp\.?|msc\.?)\b",
+            flags=re.IGNORECASE,
+        )
+        scan_lines = lines if max_scan_lines <= 0 else lines[:max_scan_lines]
+        for raw in scan_lines:
+            line = (raw or "").strip()
+            if not line:
+                continue
+            line = re.sub(r"^\s*[-*>\d.)#\s_`]+", "", line)
+            line = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", line)
+            line = re.sub(r"[*_`]+", "", line)
+            line = re.sub(r"\s+", " ", line).strip(" .:-\t")
+            if not line or len(line) > 120:
+                continue
+            low = line.lower()
+            if any(tok in low for tok in ("@", "http://", "https://", "cuerpo docente", "plan de estudios")):
+                continue
+            if not title_token.search(line):
+                continue
+            if not IngestionService._is_plausible_authority_person_name(line):
+                continue
+            key = line.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            out.append(line)
+        return out
+
+    @staticmethod
     def _extract_profile_page_facts(url: str, title: str, content: str) -> list[dict]:
         low_url = (url or "").lower()
         low_title = (title or "").lower()
         low_content = (content or "").lower()
         haystack = f"{low_url} {low_title} {low_content[:3000]}"
+        if any(token in low_url for token in ("/ofertas-acad/", "/ofertas-academicas/", "/oferta-academica/")):
+            return []
         facts: list[dict] = []
         for profile_key, hints in IngestionService.PROFILE_HINTS.items():
             if any(h in haystack for h in hints):
@@ -365,22 +534,32 @@ class IngestionService:
                     }
                 )
 
-        if any(t in haystack for t in ("tramite", "trámite", "mesa de entradas")):
+        if any(t in haystack for t in ("tramite", "trámite", "mesa de entradas", "diploma", "titulo", "título")):
             facts.append(
                 {
                     "fact_key": "tramites_page",
                     "fact_value": url,
                     "evidence_text": (title or "").strip()[:200],
-                    "confidence": 0.86 if "tramite" in low_url or "trámite" in low_url else 0.72,
+                    "confidence": 0.9 if any(t in low_url for t in ("tramite", "trámite", "diploma", "titulo")) else 0.74,
                 }
             )
-        if any(t in haystack for t in ("admis", "ingres", "inscrip")):
+        admissions_url_hints = (
+            "/ingreso",
+            "/ingresantes",
+            "/admis",
+            "/inscrip",
+            "/requisitos",
+            "/aspirantes",
+        )
+        if any(t in haystack for t in ("admis", "ingres", "inscrip", "requisito")) and any(
+            hint in low_url for hint in admissions_url_hints
+        ):
             facts.append(
                 {
                     "fact_key": "admissions_page",
                     "fact_value": url,
                     "evidence_text": (title or "").strip()[:200],
-                    "confidence": 0.84,
+                    "confidence": 0.88,
                 }
             )
         return facts
@@ -412,12 +591,27 @@ class IngestionService:
             content,
             [
                 r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
+                r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
                 r"\|\s*(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?|responsable)\s*\|\s*([^\|\n]{3,120})\|",
                 r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{3,120})",
+                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{3,120})",
+                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n|]{3,120})",
+                r"(?:^|\n)\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{3,120})",
             ],
         )
+        if is_program_page and not director_matches:
+            canonical_root = bool(
+                re.search(r"/carreras/[^/]+/?$", (url or "").lower())
+                or re.search(r"/oferta-academica/[^/]+/?$", (url or "").lower())
+            )
+            if canonical_root:
+                titled = IngestionService._extract_titled_person_lines(content)
+                if titled:
+                    director_matches = [titled[0]]
         if is_program_page:
             for match in director_matches:
+                if not IngestionService._is_plausible_authority_person_name(match):
+                    continue
                 facts.append(
                     {
                         "fact_key": "director",
@@ -431,11 +625,25 @@ class IngestionService:
             content,
             [
                 r"(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*[:\-]\s*([^\n|]{3,120})",
+                r"(?:secretar[ií]a\s+acad[eé]mica|coordinaci[oó]n\s+acad[eé]mica)\s*[:\-]\s*([^\n|]{3,120})",
                 r"\|\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\|\s*([^\|\n]{3,120})\|",
+                r"(?:^|\n)\s*#{1,6}\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\n+\s*([^\n|]{3,120})",
+                r"(?:^|\n)\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\n+\s*([^\n|]{3,120})",
             ],
         )
+        if is_program_page and not secretary_matches:
+            canonical_root = bool(
+                re.search(r"/carreras/[^/]+/?$", (url or "").lower())
+                or re.search(r"/oferta-academica/[^/]+/?$", (url or "").lower())
+            )
+            if canonical_root:
+                titled = IngestionService._extract_titled_person_lines(content)
+                if len(titled) >= 2:
+                    secretary_matches = [titled[1]]
         if is_program_page:
             for match in secretary_matches:
+                if not IngestionService._is_plausible_authority_person_name(match):
+                    continue
                 facts.append(
                     {
                         "fact_key": "secretary_academic",
@@ -466,9 +674,8 @@ class IngestionService:
                     }
                 )
 
-        if is_program_page:
+        if is_program_page and IngestionService._is_year_subject_fact_source(url, page_type):
             facts.extend(IngestionService._extract_year_subject_facts(url, content))
-        facts.extend(IngestionService._extract_profile_page_facts(url, title, content))
 
         return facts
 
@@ -482,7 +689,14 @@ class IngestionService:
         content_type: str = "html",
         authority_score: float = 0.5,
         original_filename: str | None = None,
+        allowed_host_exact: str | None = None,
     ):
+        raw_parsed_url = urlparse((url or "").strip())
+        raw_host_exact = normalize_host_exact(raw_parsed_url.netloc or raw_parsed_url.hostname or "")
+        expected_host_exact = normalize_host_exact(allowed_host_exact or "")
+        if expected_host_exact and raw_host_exact != expected_host_exact:
+            return {"saved": False, "reason": "host_mismatch"}
+
         canonical_url = self._canonicalize_url(url)
         clean_content = self._clean_markdown(content or "")
         if not clean_content:
@@ -558,70 +772,43 @@ class IngestionService:
             if original_filename:
                 doc.original_filename = original_filename
             doc.fetched_at = utc_now_naive()
-            await session.execute(delete(Chunk).where(Chunk.doc_id == doc.doc_id))
 
-        segments = self.md_splitter.split_text(clean_content)
-        chunks = self.text_splitter.split_documents(segments)
-        if not chunks:
-            await session.rollback()
-            return {"saved": False, "reason": "no_chunks"}
-
-        chunk_texts = [c.page_content for c in chunks]
-        embeddings: list[list[float]]
-        try:
-            embeddings = await asyncio.to_thread(self.embeddings.embed_documents, chunk_texts)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Embedding generation failed for %s: %s", url, exc)
-            embeddings = [[0.0] * settings.EMBEDDING_DIM for _ in chunk_texts]
-
-        for c, emb in zip(chunks, embeddings):
-            heading_path = [
-                c.metadata.get("H1"),
-                c.metadata.get("H2"),
-                c.metadata.get("H3"),
-            ]
-            heading_path = [h for h in heading_path if h]
-
-            chunk = Chunk(
-                doc_id=doc.doc_id,
-                text=c.page_content,
-                heading_path=heading_path,
-                embedding=emb,
-            )
-            session.add(chunk)
+        # Save full cleaned text — pgai vectorizer handles chunking + embedding
+        doc.content = clean_content
 
         await session.execute(
             delete(ProgramFact)
             .where(ProgramFact.source_id == source.source_id)
             .where(ProgramFact.canonical_url == canonical_url)
         )
-        for fact in self._extract_program_facts(
-            canonical_url,
-            title or "",
-            clean_content,
-            page_type=page_type,
-        ):
-            fact_key = str(fact.get("fact_key"))
-            derived_program_name = (
-                str(fact.get("program_name") or "").strip()
-                or (
-                    str(fact.get("fact_value") or "").strip()
-                    if fact_key == "program_name"
-                    else self._extract_program_name(canonical_url, title or "", clean_content)
+        if self._is_fact_source_url(canonical_url, page_type):
+            for fact in self._extract_program_facts(
+                canonical_url,
+                title or "",
+                clean_content,
+                page_type=page_type,
+            ):
+                fact_key = str(fact.get("fact_key"))
+                derived_program_name = (
+                    str(fact.get("program_name") or "").strip()
+                    or (
+                        str(fact.get("fact_value") or "").strip()
+                        if fact_key == "program_name"
+                        else self._extract_program_name(canonical_url, title or "", clean_content)
+                    )
+                    or "__general__"
                 )
-                or "__general__"
-            )
-            session.add(
-                ProgramFact(
-                    source_id=source.source_id,
-                    canonical_url=canonical_url,
-                    program_name=derived_program_name,
-                    fact_key=fact_key,
-                    fact_value=str(fact.get("fact_value")),
-                    evidence_text=(fact.get("evidence_text") or "")[:500],
-                    confidence=float(fact.get("confidence") or 0.7),
+                session.add(
+                    ProgramFact(
+                        source_id=source.source_id,
+                        canonical_url=canonical_url,
+                        program_name=derived_program_name,
+                        fact_key=fact_key,
+                        fact_value=str(fact.get("fact_value")),
+                        evidence_text=(fact.get("evidence_text") or "")[:500],
+                        confidence=float(fact.get("confidence") or 0.7),
+                    )
                 )
-            )
         await session.commit()
         return {"saved": True, "reason": "saved" if existing_doc is None else "updated"}
 
@@ -635,6 +822,7 @@ class IngestionService:
         authority_score: float = 0.75,
         original_filename: str | None = None,
         pdf_metadata: dict | None = None,
+        allowed_host_exact: str | None = None,
     ):
         """
         Ingest a PDF document that has already been converted to markdown.
@@ -651,4 +839,5 @@ class IngestionService:
             content_type="pdf",
             authority_score=authority_score,
             original_filename=original_filename,
+            allowed_host_exact=allowed_host_exact,
         )

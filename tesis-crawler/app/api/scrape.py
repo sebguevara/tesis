@@ -1,14 +1,19 @@
 import asyncio
+import math
 import traceback
 from datetime import datetime
 from urllib.parse import urlparse
+from uuid import uuid4
 
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 from app.tasks.worker import CrawlWorker
-from app.auth.service import link_user_to_source
+from app.auth.service import link_user_to_source, upsert_user_from_clerk_event
 from app.core.domain_utils import domain_variants, normalize_domain
 from app.core.job_manager import job_manager
+from app.core.scraping_service import ScrapingService
+from app.core.ingestion_service import IngestionService
+from app.core.page_classifier import PageClassifier
 from app.storage.db_client import async_session
 from sqlalchemy import text
 
@@ -27,6 +32,19 @@ class ScrapeRequest(BaseModel):
     count_valid_pages_only: bool = True
     block_old_years: bool = True
     clerk_user_id: str | None = None
+
+    @field_validator("url")
+    @classmethod
+    def validate_https_url(cls, value: HttpUrl) -> HttpUrl:
+        if value.scheme.lower() != "https":
+            raise ValueError("La URL debe usar HTTPS")
+        return value
+
+
+class QuickRefreshRequest(BaseModel):
+    url: HttpUrl
+    clerk_user_id: str | None = None
+    include_pdf_links: bool = Field(default=False)
 
     @field_validator("url")
     @classmethod
@@ -87,13 +105,26 @@ def _estimate_real_progress(
     processed = int(metrics.get("processed_results", 0))
     saved_docs = int(metrics.get("saved_docs", 0))
     accepted = int(metrics.get("accepted_valid_pages", 0))
+    ingest_pending = int(metrics.get("ingest_pending_total", 0))
 
     # If we haven't started processing yet, stay at 60 %.
     if total_results == 0 and processed == 0:
         return _safe_incomplete_progress(_PHASE_B_START), "rastreando", "Explorando enlaces y descargando páginas"
 
-    ratio = min(1.0, processed / max(1, total_results))
-    pct = _PHASE_B_START + ratio * _PHASE_B_RANGE
+    if total_results <= 0:
+        # Unknown total scope while deep crawl is still discovering URLs:
+        # grow progressively but avoid jumping to 99%.
+        growth = min(30.0, math.log1p(max(0, processed)) * 8.0)
+        pct = _PHASE_B_START + growth
+        if ingest_pending > 0:
+            pct = min(pct, 95.0)
+        else:
+            pct = min(pct, 97.0)
+    else:
+        ratio = min(1.0, processed / max(1, total_results))
+        pct = _PHASE_B_START + ratio * _PHASE_B_RANGE
+        if ingest_pending > 0:
+            pct = min(pct, 97.0)
 
     phase = "procesando"
     message = f"Analizando y guardando ({saved_docs} docs guardados, {accepted} páginas válidas)"
@@ -153,6 +184,40 @@ async def run_scrape_task(
     processing_started_at: datetime | None = None
     job_marked_complete = False
 
+    # Ensure source exists from the beginning so /api/sources/lookup works
+    # while the crawl is still running (before first document is ingested).
+    parsed_source = urlparse(url)
+    source_domain = normalize_domain(parsed_source.netloc or "")
+    if source_domain:
+        variants = sorted(domain_variants(source_domain))
+        if variants:
+            async with async_session() as session:
+                row = (
+                    await session.execute(
+                        text(
+                            """
+                            SELECT source_id::text AS source_id
+                            FROM sources
+                            WHERE lower(domain) = :domain1 OR lower(domain) = :domain2
+                            LIMIT 1
+                            """
+                        ),
+                        {"domain1": variants[0], "domain2": variants[1]},
+                    )
+                ).mappings().first()
+                if row is None:
+                    await session.execute(
+                        text(
+                            """
+                            INSERT INTO sources (source_id, domain, created_at)
+                            VALUES (CAST(:source_id AS uuid), :domain, NOW())
+                            ON CONFLICT (domain) DO NOTHING
+                            """
+                        ),
+                        {"source_id": str(uuid4()), "domain": source_domain},
+                    )
+                    await session.commit()
+
     job_manager.update_job(
         job_id,
         status="running",
@@ -178,6 +243,11 @@ async def run_scrape_task(
             "blocked_by_allow_filter": 0,
             "matched_allow_filter": 0,
             "blocked_by_block_filter": 0,
+            "ingest_workers": 0,
+            "ingest_queue_size": 0,
+            "ingest_queue_maxsize": 0,
+            "ingest_inflight": 0,
+            "ingest_pending_total": 0,
         },
     )
 
@@ -192,12 +262,16 @@ async def run_scrape_task(
                 return  # Stop the pulse; Phase B takes over
             elapsed = (datetime.now() - started_at).total_seconds()
             pct = _safe_incomplete_progress(_simulated_crawl_progress(elapsed))
+            remaining_discovery = max(0.0, (_PHASE_A_MAX - min(pct, _PHASE_A_MAX)) / _PHASE_A_MAX)
+            eta_discovery = int(remaining_discovery * 360)  # up to ~6 min
+            eta_processing_buffer = 120  # ~2 min post-discovery buffer
+            eta = max(30, eta_discovery + eta_processing_buffer)
             job_manager.update_job(
                 job_id,
                 phase="rastreando",
                 message="Explorando enlaces y descargando páginas",
                 progress_pct=pct,
-                eta_seconds=None,  # No reliable ETA during crawling
+                eta_seconds=eta,
             )
 
     def on_progress(metrics: dict):
@@ -254,6 +328,15 @@ async def run_scrape_task(
         if processing_started_at is not None:
             proc_elapsed = max(0.0, (datetime.now() - processing_started_at).total_seconds())
         eta = _estimate_eta(metrics, proc_elapsed)
+        if eta is None:
+            elapsed_total = max(1.0, (datetime.now() - started_at).total_seconds())
+            if pct >= 2.0:
+                projected_total = elapsed_total / max(0.02, pct / 100.0)
+                eta = int(max(0.0, projected_total - elapsed_total))
+            else:
+                eta = 300
+        if eta <= 0 and int(metrics.get("ingest_pending_total", 0) or 0) > 0:
+            eta = max(15, int(metrics.get("ingest_pending_total", 0) or 0) * 3)
 
         job_manager.update_job(
             job_id,
@@ -303,6 +386,11 @@ async def run_scrape_task(
         user_key = (clerk_user_id or "").strip()
         if user_key:
             try:
+                await upsert_user_from_clerk_event(
+                    clerk_user_id=user_key,
+                    email=None,
+                    last_sign_in_at=None,
+                )
                 parsed = urlparse(url)
                 host = normalize_domain(parsed.netloc or "")
                 variants = sorted(domain_variants(host))
@@ -369,3 +457,87 @@ async def start_scraping(req: ScrapeRequest, bt: BackgroundTasks):
         (req.clerk_user_id or "").strip() or None,
     )
     return {"job_id": job_id, "status": "accepted"}
+
+
+@router.post("/scrape/refresh-page")
+async def quick_refresh_page(req: QuickRefreshRequest):
+    """
+    Refresh a single canonical page without deep crawl.
+    Useful for fast precision fixes (e.g., /carreras/medicina) in seconds.
+    """
+    url = str(req.url)
+    scraper = ScrapingService()
+    ingestor = IngestionService()
+    classifier = PageClassifier()
+
+    scrape_result = await scraper.scrape_page(url)
+    if not scrape_result.success or not (scrape_result.markdown or "").strip():
+        return {
+            "status": "failed",
+            "url": url,
+            "message": "No se pudo extraer contenido de la URL",
+        }
+
+    classification = classifier.classify_with_content(
+        url=url,
+        title=scrape_result.title or "",
+        content=(scrape_result.markdown or "")[:8000],
+    )
+
+    variants = sorted(domain_variants(normalize_domain(req.url.host or "")))
+    d1 = variants[0] if variants else normalize_domain(req.url.host or "")
+    d2 = variants[1] if len(variants) > 1 else d1
+
+    async with async_session() as session:
+        saved = await ingestor.process_and_save(
+            url=url,
+            title=scrape_result.title or "",
+            content=scrape_result.markdown or "",
+            session=session,
+            page_type=classification.page_type,
+            content_type="html",
+            authority_score=float(classification.authority_score),
+        )
+        await session.commit()
+
+        source_row = (
+            await session.execute(
+                text(
+                    """
+                    SELECT s.source_id::text AS source_id
+                    FROM sources s
+                    WHERE lower(s.domain) = :domain1 OR lower(s.domain) = :domain2
+                    ORDER BY s.created_at DESC
+                    LIMIT 1
+                    """
+                ),
+                {
+                    "domain1": d1,
+                    "domain2": d2,
+                },
+            )
+        ).mappings().first()
+
+    user_key = (req.clerk_user_id or "").strip()
+    source_id = str(source_row.get("source_id")) if source_row and source_row.get("source_id") else None
+    if user_key and source_id:
+        try:
+            await upsert_user_from_clerk_event(
+                clerk_user_id=user_key,
+                email=None,
+                last_sign_in_at=None,
+            )
+            await link_user_to_source(clerk_user_id=user_key, source_id=source_id)
+        except Exception:
+            pass
+
+    return {
+        "status": "ok",
+        "url": url,
+        "saved": saved,
+        "page_type": classification.page_type,
+        "authority_score": classification.authority_score,
+        "source_id": source_id,
+        "pdf_links_found": len(scrape_result.pdf_links or []),
+        "pdf_links_sample": (scrape_result.pdf_links or [])[:10] if req.include_pdf_links else [],
+    }

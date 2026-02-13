@@ -19,10 +19,55 @@
 
   let input = "";
   let loading = false;
+  let chunkPresence = false;
   let inputEl: HTMLTextAreaElement | null = null;
   let messages: Msg[] = [
-    { role: "assistant", text: "Hola 👋 ¿En qué puedo ayudarte hoy?", ts: "" },
+    { role: "assistant", text: "Hola, ¿en qué puedo ayudarte hoy?", ts: "" },
   ];
+  const LONG_MESSAGE_THRESHOLD = 560;
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function splitAssistantMessage(text: string): string[] {
+    const clean = (text || "").trim();
+    if (!clean) return [""];
+    if (clean.length < LONG_MESSAGE_THRESHOLD && clean.split("\n").length <= 10) {
+      return [clean];
+    }
+    const target = Math.floor(clean.length * 0.55);
+    const punctuationMatches = Array.from(
+      clean.matchAll(/[.!?]\s+|\n\n/g),
+      (m) => (typeof m.index === "number" ? m.index + m[0].length : -1)
+    ).filter((idx) => idx >= 120 && idx <= clean.length - 120);
+    let cut = punctuationMatches.find((idx) => idx >= target) ?? -1;
+    if (cut < 0 && punctuationMatches.length > 0) {
+      cut = punctuationMatches[punctuationMatches.length - 1];
+    }
+    if (cut < 0) {
+      const newlineCut = clean.lastIndexOf("\n", target);
+      cut = newlineCut >= 120 ? newlineCut + 1 : target;
+    }
+    const first = clean.slice(0, cut).trim();
+    const second = clean.slice(cut).trim();
+    if (!first || !second) return [clean];
+    return [first, second];
+  }
+
+  async function appendAssistantMessage(text: string) {
+    const parts = splitAssistantMessage(text).filter(Boolean);
+    if (parts.length <= 1) {
+      messages = [...messages, { role: "assistant", text, ts: "" }];
+      return;
+    }
+    messages = [...messages, { role: "assistant", text: parts[0], ts: "" }];
+    scrollBottom();
+    chunkPresence = true;
+    await sleep(700);
+    chunkPresence = false;
+    messages = [...messages, { role: "assistant", text: parts[1], ts: "" }];
+  }
 
   function scrollBottom() {
     requestAnimationFrame(() => {
@@ -83,12 +128,14 @@
       const data = await response.json();
       sessionId = data?.session_id || sessionId;
       const answer = (data?.answer || "").toString().trim() || "No recibí respuesta del servidor.";
-      messages = [...messages, { role: "assistant", text: answer, ts: "" }];
+      loading = false;
+      await appendAssistantMessage(answer);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error de red";
       messages = [...messages, { role: "assistant", text: `Error al consultar el backend: ${message}`, ts: "" }];
     } finally {
       loading = false;
+      chunkPresence = false;
       scrollBottom();
       focusInput();
     }
@@ -129,6 +176,11 @@
               <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span>
             </span>
           </div>
+        </div>
+      {/if}
+      {#if chunkPresence}
+        <div class="row bot">
+          <div class="bubble presenceBubble" aria-live="polite">(...)</div>
         </div>
       {/if}
     </div>
@@ -193,5 +245,12 @@
       opacity: 1;
       transform: translateY(-2px) scale(1.1);
     }
+  }
+
+  .presenceBubble {
+    min-width: 58px;
+    text-align: center;
+    color: rgba(71, 85, 105, 0.92);
+    letter-spacing: 0.04em;
   }
 </style>

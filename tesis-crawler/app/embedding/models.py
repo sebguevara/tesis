@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
 from sqlalchemy import UniqueConstraint
 from sqlmodel import SQLModel, Field, Column, ARRAY, Text, JSON
-from pgvector.sqlalchemy import Vector
 
 
 def utc_now_naive() -> datetime:
@@ -30,24 +29,14 @@ class Document(SQLModel, table=True):
     authority_score: float = Field(default=0.5)
     original_filename: Optional[str] = Field(default=None)
     content_hash: str = Field(index=True)
+    content: Optional[str] = Field(default=None, sa_column=Column(Text))  # full cleaned text — pgai chunks this
     fetched_at: datetime = Field(default_factory=utc_now_naive)
-
-
-class Chunk(SQLModel, table=True):
-    __tablename__ = "chunks"
-    chunk_id: UUID = Field(default_factory=uuid4, primary_key=True)
-    doc_id: UUID = Field(foreign_key="documents.doc_id")
-    text: str
-    heading_path: List[str] = Field(sa_column=Column(ARRAY(Text)))
-    embedding: List[float] = Field(sa_column=Column(Vector(1536)))
-    meta: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
-
-
 class ConversationSession(SQLModel, table=True):
     __tablename__ = "conversation_sessions"
     session_id: str = Field(primary_key=True, index=True)
     created_at: datetime = Field(default_factory=utc_now_naive)
     last_activity_at: datetime = Field(default_factory=utc_now_naive)
+    session_state: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON))
 
 
 class ConversationMessage(SQLModel, table=True):

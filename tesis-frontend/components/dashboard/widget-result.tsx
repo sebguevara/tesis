@@ -53,7 +53,6 @@ export function WidgetResult({ crawlState, onReset }: WidgetResultProps) {
           WIDGET_SNIPPET({
             sourceId: payload.source_id,
             apiKey: payload.api_key,
-            widgetQueryUrl: payload.widget_query_url,
           }),
         );
         setSnippetReady(true);

@@ -279,22 +279,14 @@ export const MOCK_SCRAPING_STATUS = {
 export const WIDGET_SNIPPET = ({
   sourceId,
   apiKey,
-  widgetQueryUrl,
-  theme = "warm",
 }: {
   sourceId: string;
   apiKey: string;
-  widgetQueryUrl?: string;
-  theme?: string;
 }) =>
   `<!-- 4gentle Widget -->
 <script
   src="https://cdn.4gentle.io/widget.js"
-  data-project-id="${sourceId}"
   data-source-id="${sourceId}"
   data-api-key="${apiKey}"
-  data-api-url="${widgetQueryUrl || "https://api.4gentle.io/api/widget/query"}"
-  data-endpoint="${widgetQueryUrl || "https://api.4gentle.io/api/widget/query"}"
-  data-theme="${theme}"
   async
 ><\/script>`;

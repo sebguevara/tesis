@@ -44,6 +44,8 @@ class PDFService:
     """Downloads institutional PDFs and converts them to Markdown for RAG ingestion."""
 
     MAX_PDF_SIZE: int = (settings.MAX_PDF_SIZE_MB if hasattr(settings, "MAX_PDF_SIZE_MB") else 50) * 1024 * 1024
+    MAX_DOC_SIZE: int = (settings.PDF_DOC_MAX_SIZE_MB if hasattr(settings, "PDF_DOC_MAX_SIZE_MB") else 15) * 1024 * 1024
+    MAX_DOC_PAGES: int = int(getattr(settings, "PDF_DOC_MAX_PAGES", 120) or 120)
     DOWNLOAD_TIMEOUT: int = 90
     HEADING_FONT_THRESHOLD: float = 14.0  # Points; text larger than this is treated as heading
     MIN_TEXT_LENGTH: int = 50  # Minimum chars for a PDF to be considered valid
@@ -120,6 +122,9 @@ class PDFService:
                 if len(response.content) > self.MAX_PDF_SIZE:
                     logger.warning("PDF exceeds size limit after download: %s", url)
                     return None
+                if len(response.content) > self.MAX_DOC_SIZE:
+                    logger.info("PDF skipped by doc-size limit (%d bytes): %s", len(response.content), url)
+                    return None
 
                 return response.content
         except httpx.HTTPStatusError as exc:
@@ -139,6 +144,10 @@ class PDFService:
             return result
 
         result.page_count = len(doc)
+        if result.page_count > self.MAX_DOC_PAGES:
+            result.error = "too_many_pages"
+            doc.close()
+            return result
 
         # Extract metadata
         meta = doc.metadata or {}

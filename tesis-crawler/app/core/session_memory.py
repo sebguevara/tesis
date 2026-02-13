@@ -88,5 +88,52 @@ class SessionMemory:
         rows = list(reversed(rows))
         return [f"{msg.role.upper()}: {msg.text}" for msg in rows]
 
+    async def get_state(self, session_id: str) -> dict:
+        from sqlalchemy import select
+
+        from app.embedding.models import ConversationSession
+        from app.storage.db_client import async_session
+
+        sid = (session_id or "").strip()
+        if not sid:
+            return {}
+        async with async_session() as session:
+            row = (
+                await session.execute(
+                    select(ConversationSession).where(ConversationSession.session_id == sid)
+                )
+            ).scalar_one_or_none()
+            if row is None:
+                return {}
+            state = getattr(row, "session_state", None) or {}
+            if isinstance(state, dict):
+                return dict(state)
+            return {}
+
+    async def update_state(self, session_id: str, state: dict | None) -> dict:
+        from sqlalchemy import select
+
+        from app.embedding.models import ConversationSession, utc_now_naive
+        from app.storage.db_client import async_session
+
+        sid = (session_id or "").strip()
+        if not sid:
+            return {}
+        clean_state = dict(state or {})
+        async with async_session() as session:
+            row = (
+                await session.execute(
+                    select(ConversationSession).where(ConversationSession.session_id == sid)
+                )
+            ).scalar_one_or_none()
+            if row is None:
+                row = ConversationSession(session_id=sid, session_state=clean_state)
+                session.add(row)
+            else:
+                row.session_state = clean_state
+                row.last_activity_at = utc_now_naive()
+            await session.commit()
+        return clean_state
+
 
 session_memory = SessionMemory()

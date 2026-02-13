@@ -10,6 +10,7 @@ from app.api import auth, query, scrape, sources, status, widget
 from app.core.widget_origin import is_origin_allowed_globally
 from app.storage.db_client import init_db
 
+
 # Playwright on Windows requires Proactor event loop (subprocess support).
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())

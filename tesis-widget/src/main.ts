@@ -4,9 +4,7 @@ type WidgetInitOptions = {
   endpoint?: string;
   apiKey?: string;
   sourceId?: string;
-  projectId?: string;
   sessionId?: string;
-  theme?: string;
   initialQuestion?: string;
   metadata?: Record<string, unknown>;
 };
@@ -15,14 +13,12 @@ function applyWidgetConfig(widget: HTMLElement, options?: WidgetInitOptions) {
   if (!options) return;
   if (options.endpoint) widget.setAttribute("endpoint", options.endpoint);
   if (options.apiKey) widget.setAttribute("api-key", options.apiKey);
-  if (options.sourceId || options.projectId) widget.setAttribute("source-id", options.sourceId || options.projectId || "");
+  if (options.sourceId) widget.setAttribute("source-id", options.sourceId);
   if (options.sessionId) widget.setAttribute("session-id", options.sessionId);
 
   const metadata: Record<string, unknown> = {
     ...(options.metadata || {}),
   };
-  if (options.theme) metadata.theme = options.theme;
-  if (options.projectId) metadata.project_id = options.projectId;
   if (Object.keys(metadata).length > 0) widget.setAttribute("metadata", JSON.stringify(metadata));
 }
 
@@ -33,10 +29,8 @@ function parseScriptInitOptions(): WidgetInitOptions | undefined {
 
   const endpoint = ds.endpoint || script.getAttribute("data-endpoint") || undefined;
   const apiKey = ds.apiKey || script.getAttribute("data-api-key") || undefined;
-  const projectId = ds.projectId || script.getAttribute("data-project-id") || undefined;
   const sourceId = ds.sourceId || script.getAttribute("data-source-id") || undefined;
   const sessionId = ds.sessionId || script.getAttribute("data-session-id") || undefined;
-  const theme = ds.theme || script.getAttribute("data-theme") || undefined;
   const rawMetadata = ds.metadata || script.getAttribute("data-metadata");
   const initialQuestion = ds.initialQuestion || script.getAttribute("data-initial-question") || undefined;
 
@@ -53,10 +47,8 @@ function parseScriptInitOptions(): WidgetInitOptions | undefined {
   return {
     endpoint,
     apiKey,
-    projectId,
     sourceId,
     sessionId,
-    theme,
     initialQuestion,
     metadata,
   };

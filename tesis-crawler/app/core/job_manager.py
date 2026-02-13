@@ -17,6 +17,7 @@ class JobProgress(BaseModel):
     started_at: datetime = Field(default_factory=datetime.now)
     finished_at: Optional[datetime] = None
     last_updated_at: datetime = Field(default_factory=datetime.now)
+    update_seq: int = 0
     metrics: dict = Field(
         default_factory=lambda: {
             "total_results": 0,
@@ -56,6 +57,7 @@ class JobManager:
             current = self._jobs[job_id].model_dump()
             current.update(kwargs)
             current["last_updated_at"] = datetime.now()
+            current["update_seq"] = int(current.get("update_seq") or 0) + 1
             self._jobs[job_id] = JobProgress(**current)
 
     def increment_metric(self, job_id: str, key: str, amount: int = 1):
@@ -65,6 +67,8 @@ class JobManager:
         metrics = current.get("metrics", {})
         metrics[key] = metrics.get(key, 0) + amount
         current["metrics"] = metrics
+        current["last_updated_at"] = datetime.now()
+        current["update_seq"] = int(current.get("update_seq") or 0) + 1
         self._jobs[job_id] = JobProgress(**current)
 
     def get_job(self, job_id: str) -> Optional[JobProgress]:

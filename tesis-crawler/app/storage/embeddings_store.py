@@ -1,11 +1,3 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from app.embedding.models import Chunk
-
-
-class EmbeddingsStore:
-    def __init__(self, session: AsyncSession):
-        self.session = session
-
-    async def add_chunks(self, chunks: list[Chunk]):
-        self.session.add_all(chunks)
-        await self.session.commit()
+# embeddings_store.py
+# This module is no longer needed — pgai handles all embedding storage.
+# Kept as an empty placeholder to avoid breaking any stale imports.

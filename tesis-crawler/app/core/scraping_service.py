@@ -59,6 +59,34 @@ class ScrapingService:
             cache_mode=CacheMode.BYPASS,
         )
 
+    def _config_for_url(self, url: str) -> CrawlerRunConfig:
+        low = (url or "").lower()
+        if any(token in low for token in ("/carreras/", "/plan-de-estudios", "/distribucion-de-asignaturas")):
+            # Career pages often contain short curriculum rows (e.g., "Materia: ...")
+            # that get dropped by aggressive pruning.
+            relaxed_prune = PruningContentFilter(threshold=0.08, min_word_threshold=1)
+            relaxed_md = DefaultMarkdownGenerator(content_filter=relaxed_prune)
+            return CrawlerRunConfig(
+                target_elements=[
+                    "main",
+                    ".site-main",
+                    ".content-area",
+                    ".post-content",
+                    ".entry-content",
+                    ".elementor-widget-theme-post-content",
+                    ".elementor-tab-content",
+                    ".e-n-tabs-content",
+                    "article",
+                    "body",
+                ],
+                excluded_tags=["header", "footer", "nav", "aside", "form"],
+                excluded_selector=".post-navigation, .sharedaddy, .comments-area",
+                exclude_external_links=True,
+                markdown_generator=relaxed_md,
+                cache_mode=CacheMode.BYPASS,
+            )
+        return self.config
+
     async def scrape_page(self, url: str) -> ScrapeResult:
         """
         Scrape a page and return its title, markdown content, and discovered PDF links.
@@ -69,7 +97,7 @@ class ScrapingService:
 
         try:
             async with AsyncWebCrawler() as crawler:
-                crawl_result = await crawler.arun(url, config=self.config)
+                crawl_result = await crawler.arun(url, config=self._config_for_url(url))
 
                 if crawl_result.success and crawl_result.markdown:
                     result.title = crawl_result.metadata.get("title", "")

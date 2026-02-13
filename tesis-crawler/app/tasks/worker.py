@@ -1,9 +1,5 @@
 """
-Crawl Worker — Orchestrates HTML crawling (Phase 1) + PDF processing (Phase 2).
-
-Phase 1: BFS deep crawl of HTML pages, collecting PDF links along the way.
-Phase 2: Parallel download + conversion of discovered PDFs.
-Both phases use the PageClassifier to assign page_type and authority_score.
+Crawl Worker — institutional crawl with async HTML + PDF ingestion.
 """
 
 from datetime import datetime
@@ -11,9 +7,10 @@ import hashlib
 import json
 import logging
 import re
+import asyncio
 from pathlib import Path
 from urllib.parse import urlparse, urljoin
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler
@@ -22,7 +19,7 @@ from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.deep_crawling.filters import FilterChain, URLFilter, URLPatternFilter
 from app.config import settings
 from app.core.content_filters import should_index_page
-from app.core.domain_utils import domain_variants, normalize_domain
+from app.core.domain_utils import normalize_host_exact
 from app.core.page_classifier import PageClassifier
 from app.core.pdf_service import PDFService
 from app.core.scraping_service import ScrapingService
@@ -35,14 +32,21 @@ logger = logging.getLogger(__name__)
 class ExactHostFilter(URLFilter):
     def __init__(self, host: str, sample_limit: int = 50000):
         super().__init__()
-        self._allowed_hosts = domain_variants(host)
+        self._allowed_host = normalize_host_exact(host)
         self._sample_limit = sample_limit
         self.rejected_url_samples: list[str] = []
 
-    def apply(self, url: str) -> bool:
+    def is_allowed(self, url: str) -> bool:
         parsed = urlparse(url)
-        candidate_host = normalize_domain(parsed.netloc)
-        result = parsed.scheme.lower() == "https" and candidate_host in self._allowed_hosts
+        candidate_host = normalize_host_exact(parsed.netloc or parsed.hostname or "")
+        return (
+            parsed.scheme.lower() == "https"
+            and bool(self._allowed_host)
+            and candidate_host == self._allowed_host
+        )
+
+    def apply(self, url: str) -> bool:
+        result = self.is_allowed(url)
         if not result and len(self.rejected_url_samples) < self._sample_limit:
             self.rejected_url_samples.append(url)
         self._update_stats(result)
@@ -116,7 +120,7 @@ class CrawlWorker:
 
         # Use the classifier to check if this page type should be blocked
         classification = self.classifier.classify(url, title, normalized[:2000])
-        if classification.should_block:
+        if classification.should_block and classification.page_type == "news_blocked":
             return f"classifier_blocked:{classification.reason}"
 
         # Use smart content filter
@@ -163,7 +167,7 @@ class CrawlWorker:
         return result
 
     def _extract_pdf_links_from_html(self, html: str, base_url: str) -> list[str]:
-        """Extract PDF links from raw HTML content."""
+        """Extract PDF links from HTML/markdown content."""
         try:
             soup = BeautifulSoup(html, "html.parser")
             pdf_links: list[str] = []
@@ -180,9 +184,34 @@ class CrawlWorker:
                 if normalized not in seen:
                     seen.add(normalized)
                     pdf_links.append(absolute_url)
+            # Also parse markdown links when HTML parser doesn't catch links.
+            for match in re.findall(r"\[[^\]]+\]\(([^)]+\.pdf(?:\?[^)]*)?)\)", html, flags=re.IGNORECASE):
+                absolute_url = urljoin(base_url, match.strip())
+                normalized = absolute_url.split("#")[0].split("?")[0]
+                if normalized not in seen:
+                    seen.add(normalized)
+                    pdf_links.append(absolute_url)
             return pdf_links
         except Exception:
             return []
+
+    @staticmethod
+    def _extract_year_candidates(value: str) -> set[int]:
+        years: set[int] = set()
+        for raw in re.findall(r"(20\d{2})", value or ""):
+            try:
+                years.add(int(raw))
+            except ValueError:
+                continue
+        return years
+
+    @staticmethod
+    def _is_recent_pdf_url(url: str, current_year: int, lookback_years: int) -> bool:
+        years = CrawlWorker._extract_year_candidates(url)
+        if not years:
+            return False
+        min_year = current_year - max(0, lookback_years)
+        return any(min_year <= y <= current_year for y in years)
 
     def _write_debug_report(
         self,
@@ -246,15 +275,9 @@ class CrawlWorker:
             raise ValueError("start_url inválida")
         if parsed_start.scheme.lower() != "https":
             raise ValueError("start_url debe usar HTTPS")
+        start_host_exact = normalize_host_exact(parsed_start.netloc or parsed_start.hostname or "")
 
-        host_filter = ExactHostFilter(parsed_start.netloc)
-        current_year = datetime.now().year
-        stale_year_patterns = [f"*/{year}/*" for year in range(2000, current_year - 2)]
-        year_patterns: list[str] = []
-        if block_old_years:
-            year_patterns = ["*/201*/*", *stale_year_patterns]
-
-        # PDF no longer blocked! Only media and binary files are blocked.
+        host_filter = ExactHostFilter(parsed_start.netloc or parsed_start.hostname or "")
         block_filter = TrackingPatternFilter(
             patterns=[
                 "*/attachment/*",
@@ -288,13 +311,16 @@ class CrawlWorker:
                 "*.avi*",
                 "*.mov*",
                 "*.mkv*",
-                # Binary documents (not PDF!)
+                # Binary/documents are blocked from crawler traversal.
+                # PDFs are handled asynchronously when extracted from HTML pages.
+                "*.pdf*",
                 "*.doc*",
                 "*.docx*",
                 "*.xls*",
                 "*.xlsx*",
                 "*.ppt*",
                 "*.pptx*",
+                "*/wp-content/uploads/*",
                 # Archives
                 "*.zip*",
                 "*.rar*",
@@ -320,27 +346,6 @@ class CrawlWorker:
                 "*/gacetilla/*",
                 "*/efemeride/*",
                 "*/efemerides/*",
-                # ── NON-ACADEMIC CONTENT NOISE — hard blocked ──
-                "*/revista/*",
-                "*/revistas/*",
-                "*/viaje/*",
-                "*/viajes/*",
-                "*/simposio/*",
-                "*/simposios/*",
-                "*/jornada/*",
-                "*/jornadas/*",
-                "*/congreso/*",
-                "*/congresos/*",
-                "*/publicacion/*",
-                "*/publicaciones/*",
-                "*/intercambio/*",
-                "*/convocatoria/*",
-                "*/cuaderno-urbano*",
-                # WP navigation noise
-                "*/tag/*",
-                "*/author/*",
-                "*/category/*",
-                *year_patterns,
             ],
             reverse=True,
         )
@@ -360,263 +365,421 @@ class CrawlWorker:
         config.max_pages = crawl_budget_pages
         config.semaphore_count = max(1, concurrency)
 
-        # ═══════════════════════════════════════════════════════════════
-        # PHASE 1: HTML crawl + PDF link collection
-        # ═══════════════════════════════════════════════════════════════
-        collected_pdf_urls: set[str] = set()
+        # ── Initialize Metrics & Containers ──
+        failed_fetch_urls: list[str] = []
+        skipped_invalid_urls: list[str] = []
+        skipped_ingestion_rows: list[str] = []
+        metrics = {
+            "total_results": 0,
+            "processed_results": 0,
+            "finished_reason": "running",
+            "target_valid_pages": max_pages,
+            "crawl_budget_pages": crawl_budget_pages,
+            "accepted_valid_pages": 0,
+            "successful_results": 0,
+            "saved_docs": 0,
+            "saved_markdown_files": 0,
+            "skipped_invalid_content": 0,
+            "skipped_ingestion": 0,
+            "skipped_save_markdown": 0,
+            "skipped_processing_errors": 0,
+            "skipped_db_disabled": 0,
+            "blocked_by_host_filter": 0,
+            "blocked_by_allow_filter": 0,
+            "matched_allow_filter": 0,
+            "blocked_by_block_filter": 0,
+            # Phase 2 (PDF) metrics
+            "pdf_links_found": 0,
+            "pdf_processed": 0,
+            "pdf_saved": 0,
+            "pdf_skipped": 0,
+            "pdf_errors": 0,
+            "pdf_workers": 0,
+            "pdf_queue_size": 0,
+            "pdf_inflight": 0,
+            "pdf_pending_total": 0,
+            "last_processed_url": "",
+            "ingest_workers": 0,
+            "ingest_queue_size": 0,
+            "ingest_queue_maxsize": 0,
+            "ingest_inflight": 0,
+            "ingest_pending_total": 0,
+        }
+        metrics_lock = asyncio.Lock()
+        ingest_queue: asyncio.Queue[dict[str, Any] | None] = asyncio.Queue(
+            maxsize=max(50, max(1, concurrency) * 20)
+        )
+        pdf_queue: asyncio.Queue[str | None] = asyncio.Queue(
+            maxsize=max(30, max(1, concurrency) * 10)
+        )
+        ingest_workers = max(1, min(8, max(1, concurrency)))
+        pdf_workers = max(1, min(4, max(1, concurrency // 2 or 1)))
+        ingest_inflight = 0
+        pdf_inflight = 0
+        seen_pdf_urls: set[str] = set()
+        metrics["ingest_workers"] = ingest_workers
+        metrics["pdf_workers"] = pdf_workers
+        metrics["ingest_queue_maxsize"] = int(getattr(ingest_queue, "maxsize", 0) or 0)
+        current_year = datetime.now().year
+        pdf_lookback_years = int(getattr(settings, "PDF_LOOKBACK_YEARS", 5) or 5)
 
-        async with AsyncWebCrawler() as crawler:
-            crawl_dispatcher = SemaphoreDispatcher(
-                semaphore_count=max(1, concurrency),
-                max_session_permit=max(1, concurrency),
-            )
-            original_arun_many = crawler.arun_many
+        async def _sync_queue_metrics() -> None:
+            async with metrics_lock:
+                qsize = int(ingest_queue.qsize())
+                inflight = int(ingest_inflight)
+                pdf_qsize = int(pdf_queue.qsize())
+                pdf_flight = int(pdf_inflight)
+                metrics["ingest_queue_size"] = qsize
+                metrics["ingest_inflight"] = inflight
+                metrics["pdf_queue_size"] = pdf_qsize
+                metrics["pdf_inflight"] = pdf_flight
+                metrics["pdf_pending_total"] = pdf_qsize + pdf_flight
+                metrics["ingest_pending_total"] = qsize + inflight + pdf_qsize + pdf_flight
 
-            async def arun_many_with_dispatcher(
-                urls, config=None, dispatcher=None, **kwargs
-            ):
-                return await original_arun_many(
-                    urls=urls,
-                    config=config,
-                    dispatcher=dispatcher or crawl_dispatcher,
-                    **kwargs,
-                )
+        async def _apply_metric_delta(
+            *,
+            saved_docs: int = 0,
+            skipped_ingestion: int = 0,
+            skipped_processing_errors: int = 0,
+            skipped_db_disabled: int = 0,
+        ) -> None:
+            async with metrics_lock:
+                if saved_docs:
+                    metrics["saved_docs"] += int(saved_docs)
+                if skipped_ingestion:
+                    metrics["skipped_ingestion"] += int(skipped_ingestion)
+                if skipped_processing_errors:
+                    metrics["skipped_processing_errors"] += int(skipped_processing_errors)
+                if skipped_db_disabled:
+                    metrics["skipped_db_disabled"] += int(skipped_db_disabled)
 
-            crawler.arun_many = arun_many_with_dispatcher
-            result = await crawler.arun(start_url, config=config)
-
-            if isinstance(result, list):
-                failed_fetch_urls: list[str] = []
-                skipped_invalid_urls: list[str] = []
-                skipped_ingestion_rows: list[str] = []
-                metrics = {
-                    "total_results": len(result),
-                    "processed_results": 0,
-                    "finished_reason": "running",
-                    "target_valid_pages": max_pages,
-                    "crawl_budget_pages": crawl_budget_pages,
-                    "accepted_valid_pages": 0,
-                    "successful_results": 0,
-                    "saved_docs": 0,
-                    "saved_markdown_files": 0,
-                    "skipped_invalid_content": 0,
-                    "skipped_ingestion": 0,
-                    "skipped_save_markdown": 0,
-                    "skipped_processing_errors": 0,
-                    "skipped_db_disabled": 0,
-                    "blocked_by_host_filter": host_filter.stats.rejected_urls,
-                    "blocked_by_allow_filter": 0,
-                    "matched_allow_filter": 0,
-                    "blocked_by_block_filter": block_filter.stats.rejected_urls,
-                    # Phase 2 (PDF) metrics
-                    "pdf_links_found": 0,
-                    "pdf_processed": 0,
-                    "pdf_saved": 0,
-                    "pdf_skipped": 0,
-                    "pdf_errors": 0,
-                }
-
-                for res in result:
-                    metrics["processed_results"] += 1
-
-                    if not res.success:
-                        failed_fetch_urls.append(res.url or "")
-                        if progress_hook:
-                            progress_hook(metrics)
+        async def _ingest_consumer() -> None:
+            nonlocal ingest_inflight
+            while True:
+                item = await ingest_queue.get()
+                if item is None:
+                    ingest_queue.task_done()
+                    break
+                try:
+                    if not persist_to_db:
+                        await _apply_metric_delta(skipped_db_disabled=1)
                         continue
-
-                    metrics["successful_results"] += 1
-
-                    # ── Collect PDF links from the page ──
-                    if res.html:
-                        page_pdf_links = self._extract_pdf_links_from_html(
-                            res.html, res.url
+                    async with metrics_lock:
+                        ingest_inflight += 1
+                    await _sync_queue_metrics()
+                    async with async_session() as session:
+                        ingestion_result = await self.ingestor.process_and_save(
+                            url=str(item.get("url") or ""),
+                            title=str(item.get("title") or ""),
+                            content=str(item.get("markdown") or ""),
+                            session=session,
+                            page_type=str(item.get("page_type") or "institutional_info"),
+                            content_type="html",
+                            authority_score=float(item.get("authority_score") or 0.5),
+                            allowed_host_exact=start_host_exact,
                         )
-                        for pdf_url in page_pdf_links:
-                            # Only collect PDFs from the same host
-                            pdf_parsed = urlparse(pdf_url)
-                            pdf_host = normalize_domain(pdf_parsed.netloc)
-                            if pdf_host in domain_variants(parsed_start.netloc):
-                                collected_pdf_urls.add(pdf_url)
-
-                    # ── Skip PDF URLs in the HTML phase ──
-                    url_lower = (res.url or "").lower()
-                    if url_lower.endswith(".pdf") or ".pdf?" in url_lower:
-                        collected_pdf_urls.add(res.url)
-                        continue
-
-                    invalid_reason = self._invalid_reason(
-                        res.url,
-                        res.metadata.get("title", ""),
-                        res.markdown,
-                        min_content_words=min_content_words,
+                    if ingestion_result.get("saved"):
+                        await _apply_metric_delta(saved_docs=1)
+                    else:
+                        await _apply_metric_delta(skipped_ingestion=1)
+                        reason = ingestion_result.get("reason", "unknown")
+                        skipped_ingestion_rows.append(f"{item.get('url')}\t{reason}")
+                except Exception as exc:
+                    await _apply_metric_delta(skipped_processing_errors=1)
+                    skipped_ingestion_rows.append(
+                        f"{item.get('url')}\tprocessing_error:{exc.__class__.__name__}"
                     )
-                    if invalid_reason:
-                        metrics["skipped_invalid_content"] += 1
-                        skipped_invalid_urls.append(f"{res.url}\t{invalid_reason}")
-                        if progress_hook:
-                            progress_hook(metrics)
-                        continue
-                    metrics["accepted_valid_pages"] += 1
-                    if use_allow_filter and self._matches_allow_priority(
-                        res.url, res.metadata.get("title", "")
-                    ):
-                        metrics["matched_allow_filter"] += 1
-
-                    # ── Classify the page ──
-                    page_title = res.metadata.get("title", "")
-                    classification = self.classifier.classify_content(
-                        res.url, page_title, res.markdown
-                    )
-
-                    try:
-                        if save_markdown_files:
-                            saved_file, save_reason = self._save_markdown_to_disk(
-                                res.url,
-                                page_title,
-                                res.markdown,
-                            )
-                            if saved_file:
-                                metrics["saved_markdown_files"] += 1
-                            else:
-                                metrics["skipped_save_markdown"] += 1
-                                skipped_ingestion_rows.append(f"{res.url}\t{save_reason}")
-
-                        if persist_to_db:
-                            async with async_session() as session:
-                                ingestion_result = await self.ingestor.process_and_save(
-                                    url=res.url,
-                                    title=page_title,
-                                    content=res.markdown,
-                                    session=session,
-                                    page_type=classification.page_type,
-                                    content_type="html",
-                                    authority_score=classification.authority_score,
-                                )
-                            if ingestion_result.get("saved"):
-                                metrics["saved_docs"] += 1
-                            else:
-                                metrics["skipped_ingestion"] += 1
-                                reason = ingestion_result.get("reason", "unknown")
-                                skipped_ingestion_rows.append(f"{res.url}\t{reason}")
-                        else:
-                            metrics["skipped_db_disabled"] += 1
-                    except Exception as exc:  # noqa: BLE001
-                        metrics["skipped_processing_errors"] += 1
-                        skipped_ingestion_rows.append(
-                            f"{res.url}\tprocessing_error:{exc.__class__.__name__}"
-                        )
-                        if progress_hook:
-                            progress_hook(metrics)
-                        continue
-
+                finally:
+                    async with metrics_lock:
+                        ingest_inflight = max(0, ingest_inflight - 1)
+                    ingest_queue.task_done()
+                    await _sync_queue_metrics()
                     if progress_hook:
                         progress_hook(metrics)
 
-                    if (
-                        count_valid_pages_only
-                        and metrics["accepted_valid_pages"] >= max_pages
-                    ):
-                        metrics["finished_reason"] = "target_reached"
-                        break
+        async def _pdf_consumer() -> None:
+            nonlocal pdf_inflight
+            while True:
+                pdf_url = await pdf_queue.get()
+                if pdf_url is None:
+                    pdf_queue.task_done()
+                    break
+                try:
+                    async with metrics_lock:
+                        pdf_inflight += 1
+                    await _sync_queue_metrics()
 
-                if metrics["finished_reason"] == "running":
-                    metrics["finished_reason"] = "phase1_done"
-
-                metrics["pdf_links_found"] = len(collected_pdf_urls)
-                if progress_hook:
-                    progress_hook(metrics)
-
-                # ═══════════════════════════════════════════════════════
-                # PHASE 2: Process collected PDFs in parallel
-                # ═══════════════════════════════════════════════════════
-                if collected_pdf_urls and persist_to_db:
-                    logger.info(
-                        "Phase 2: Processing %d PDF URLs", len(collected_pdf_urls)
-                    )
-                    pdf_results = await self.pdf_service.process_batch(
-                        list(collected_pdf_urls),
-                        max_concurrent=settings.PDF_CONCURRENCY,
-                    )
-
-                    for pdf_result in pdf_results:
+                    result = await self.pdf_service.download_and_convert(pdf_url)
+                    async with metrics_lock:
                         metrics["pdf_processed"] += 1
 
-                        if not pdf_result.success:
+                    if not result or not result.success or not result.markdown_content.strip():
+                        async with metrics_lock:
                             metrics["pdf_errors"] += 1
-                            logger.debug(
-                                "PDF failed: %s (%s)",
-                                pdf_result.url,
-                                pdf_result.error,
+                        continue
+                    if not host_filter.is_allowed(result.url):
+                        async with metrics_lock:
+                            metrics["blocked_by_host_filter"] = int(metrics.get("blocked_by_host_filter", 0)) + 1
+                        if len(host_filter.rejected_url_samples) < 50000:
+                            host_filter.rejected_url_samples.append(result.url)
+                        continue
+
+                    if persist_to_db:
+                        async with async_session() as session:
+                            saved = await self.ingestor.process_pdf_and_save(
+                                url=result.url,
+                                title=result.title or result.original_filename or "Documento PDF",
+                                markdown_content=result.markdown_content,
+                                session=session,
+                                page_type="pdf_document",
+                                authority_score=0.7,
+                                original_filename=result.original_filename or None,
+                                pdf_metadata=result.metadata or None,
+                                allowed_host_exact=start_host_exact,
                             )
-                            if progress_hook:
-                                progress_hook(metrics)
-                            continue
-
-                        # Classify the PDF
-                        pdf_classification = self.classifier.classify(
-                            pdf_result.url, pdf_result.title
-                        )
-
-                        try:
-                            if save_markdown_files:
-                                self._save_markdown_to_disk(
-                                    pdf_result.url,
-                                    pdf_result.title,
-                                    pdf_result.markdown_content,
-                                )
-
-                            async with async_session() as session:
-                                ingestion_result = (
-                                    await self.ingestor.process_pdf_and_save(
-                                        url=pdf_result.url,
-                                        title=pdf_result.title,
-                                        markdown_content=pdf_result.markdown_content,
-                                        session=session,
-                                        page_type=pdf_classification.page_type,
-                                        authority_score=pdf_classification.authority_score,
-                                        original_filename=pdf_result.original_filename,
-                                        pdf_metadata=pdf_result.metadata,
-                                    )
-                                )
-                            if ingestion_result.get("saved"):
+                        if saved.get("saved"):
+                            async with metrics_lock:
                                 metrics["pdf_saved"] += 1
-                                metrics["saved_docs"] += 1
-                            else:
+                        else:
+                            async with metrics_lock:
                                 metrics["pdf_skipped"] += 1
-                                reason = ingestion_result.get("reason", "unknown")
-                                skipped_ingestion_rows.append(
-                                    f"{pdf_result.url}\tpdf:{reason}"
-                                )
-                        except Exception as exc:  # noqa: BLE001
-                            metrics["pdf_errors"] += 1
-                            logger.warning(
-                                "PDF ingestion error for %s: %s",
-                                pdf_result.url,
-                                exc,
-                            )
-                            skipped_ingestion_rows.append(
-                                f"{pdf_result.url}\tpdf_error:{exc.__class__.__name__}"
-                            )
+                    else:
+                        async with metrics_lock:
+                            metrics["pdf_skipped"] += 1
+                except Exception:
+                    async with metrics_lock:
+                        metrics["pdf_errors"] += 1
+                finally:
+                    async with metrics_lock:
+                        pdf_inflight = max(0, pdf_inflight - 1)
+                    pdf_queue.task_done()
+                    await _sync_queue_metrics()
+                    if progress_hook:
+                        progress_hook(metrics)
 
-                        if progress_hook:
-                            progress_hook(metrics)
+        consumers = [asyncio.create_task(_ingest_consumer()) for _ in range(ingest_workers)]
+        pdf_consumers = [asyncio.create_task(_pdf_consumer()) for _ in range(pdf_workers)]
 
-                metrics["finished_reason"] = (
-                    "completed" if metrics["finished_reason"] == "phase1_done"
-                    else metrics["finished_reason"]
-                )
+        def _res_get(res: Any, key: str, default: Any = None) -> Any:
+            if isinstance(res, dict):
+                return res.get(key, default)
+            return getattr(res, key, default)
 
+        def _res_title(res: Any) -> str:
+            if isinstance(res, dict):
+                metadata = res.get("metadata") or {}
+                if isinstance(metadata, dict):
+                    return str(metadata.get("title") or "")
+                return ""
+            metadata = getattr(res, "metadata", None) or {}
+            if isinstance(metadata, dict):
+                return str(metadata.get("title") or "")
+            return ""
+
+        # ── Define Hook for Streaming Processing ──
+        async def on_result_hook(res) -> None:
+            """Hook called for every page crawled."""
+            res_url = str(_res_get(res, "url", "") or "")
+            res_success = bool(_res_get(res, "success", False))
+            res_markdown = str(_res_get(res, "markdown", "") or "")
+            res_title = _res_title(res)
+            res_html = str(
+                _res_get(res, "html", "")
+                or _res_get(res, "cleaned_html", "")
+                or _res_get(res, "raw_html", "")
+                or ""
+            )
+
+            metrics["processed_results"] += 1
+            metrics["last_processed_url"] = res_url
+
+            # Update filter stats (approximate)
+            metrics["blocked_by_host_filter"] = max(
+                int(metrics.get("blocked_by_host_filter", 0)),
+                int(host_filter.stats.rejected_urls),
+            )
+            metrics["blocked_by_block_filter"] = block_filter.stats.rejected_urls
+
+            # Hard guardrail: never ingest out-of-domain URLs.
+            if not host_filter.is_allowed(res_url):
+                metrics["blocked_by_host_filter"] = int(metrics.get("blocked_by_host_filter", 0)) + 1
+                if len(host_filter.rejected_url_samples) < 50000:
+                    host_filter.rejected_url_samples.append(res_url)
                 if progress_hook:
                     progress_hook(metrics)
+                return
 
-                if debug_output_dir:
-                    self._write_debug_report(
-                        debug_output_dir=debug_output_dir,
-                        blocked_host_urls=host_filter.rejected_url_samples,
-                        blocked_block_urls=block_filter.rejected_url_samples,
-                        failed_fetch_urls=failed_fetch_urls,
-                        skipped_invalid_urls=skipped_invalid_urls,
-                        skipped_ingestion_rows=skipped_ingestion_rows,
-                        metrics=metrics,
+            if not res_success:
+                failed_fetch_urls.append(res_url)
+                if progress_hook:
+                    progress_hook(metrics)
+                return
+
+            metrics["successful_results"] += 1
+
+            # Validate Content
+            invalid_reason = self._invalid_reason(
+                res_url,
+                res_title,
+                res_markdown,
+                min_content_words=min_content_words,
+            )
+            if invalid_reason:
+                metrics["skipped_invalid_content"] += 1
+                skipped_invalid_urls.append(f"{res_url}\t{invalid_reason}")
+                if progress_hook:
+                    progress_hook(metrics)
+                return
+
+            metrics["accepted_valid_pages"] += 1
+            if use_allow_filter and self._matches_allow_priority(
+                res_url, res_title
+            ):
+                metrics["matched_allow_filter"] += 1
+            
+            if count_valid_pages_only and metrics["accepted_valid_pages"] >= max_pages:
+                metrics["finished_reason"] = "target_reached"
+
+            # Classify & Save
+            page_title = res_title
+            classification = self.classifier.classify_content(
+                res_url, page_title, res_markdown
+            )
+
+            try:
+                if save_markdown_files:
+                    saved_file, save_reason = self._save_markdown_to_disk(
+                        res_url,
+                        page_title,
+                        res_markdown,
                     )
+                    if saved_file:
+                        metrics["saved_markdown_files"] += 1
+                    else:
+                        metrics["skipped_save_markdown"] += 1
+                        skipped_ingestion_rows.append(f"{res_url}\t{save_reason}")
+
+                await ingest_queue.put(
+                    {
+                        "url": res_url,
+                        "title": page_title,
+                        "markdown": res_markdown,
+                        "page_type": classification.page_type,
+                        "authority_score": classification.authority_score,
+                    }
+                )
+                await _sync_queue_metrics()
+            except Exception as exc:
+                await _apply_metric_delta(skipped_processing_errors=1)
+                skipped_ingestion_rows.append(
+                    f"{res_url}\tprocessing_error:{exc.__class__.__name__}"
+                )
+
+            # Discover and enqueue recent PDF links (current year and previous year only).
+            pdf_links = self._extract_pdf_links_from_html(
+                res_html or res_markdown,
+                res_url,
+            )
+            if pdf_links:
+                for pdf_link in pdf_links:
+                    normalized_pdf = pdf_link.split("#")[0].strip()
+                    if not normalized_pdf or normalized_pdf in seen_pdf_urls:
+                        continue
+                    if not host_filter.is_allowed(normalized_pdf):
+                        metrics["blocked_by_host_filter"] = int(metrics.get("blocked_by_host_filter", 0)) + 1
+                        if len(host_filter.rejected_url_samples) < 50000:
+                            host_filter.rejected_url_samples.append(normalized_pdf)
+                        continue
+                    if not self._is_recent_pdf_url(
+                        normalized_pdf,
+                        current_year=current_year,
+                        lookback_years=pdf_lookback_years,
+                    ):
+                        metrics["pdf_skipped"] += 1
+                        continue
+                    seen_pdf_urls.add(normalized_pdf)
+                    metrics["pdf_links_found"] += 1
+                    await pdf_queue.put(normalized_pdf)
+                await _sync_queue_metrics()
+            
+            if progress_hook:
+                progress_hook(metrics)
+
+        # Register hook
+        config.hooks = {
+            "on_result": on_result_hook
+        }
+
+        try:
+            async with AsyncWebCrawler() as crawler:
+                crawl_dispatcher = SemaphoreDispatcher(
+                    semaphore_count=max(1, concurrency),
+                    max_session_permit=max(1, concurrency),
+                )
+                crawl_result = None
+                # Deep crawl is wired on crawler.arun (decorated by DeepCrawlDecorator).
+                # Keep arun here to preserve BFS/DFS traversal and enable streaming via config.stream.
+                stream_prev = getattr(config, "stream", False)
+                setattr(config, "stream", True)
+                try:
+                    crawl_result = await crawler.arun(start_url, config=config)
+
+                    if hasattr(crawl_result, "__aiter__"):
+                        async for res in crawl_result:
+                            if res is None:
+                                continue
+                            await on_result_hook(res)
+                    else:
+                        fallback_results = []
+                        if isinstance(crawl_result, list):
+                            fallback_results = crawl_result
+                        elif crawl_result is not None:
+                            fallback_results = [crawl_result]
+                        for res in fallback_results:
+                            if res is None:
+                                continue
+                            await on_result_hook(res)
+                except Exception:
+                    # Last-resort fallback keeps behavior compatible.
+                    crawl_result = await crawler.arun(start_url, config=config)
+                    if crawl_result is not None:
+                        if hasattr(crawl_result, "__aiter__"):
+                            async for res in crawl_result:
+                                if res is None:
+                                    continue
+                                await on_result_hook(res)
+                        else:
+                            await on_result_hook(crawl_result)
+                finally:
+                    setattr(config, "stream", stream_prev)
+        finally:
+            # Ensure all queued ingestions are flushed/stopped before completion.
+            await ingest_queue.join()
+            await pdf_queue.join()
+            await _sync_queue_metrics()
+            for _ in consumers:
+                await ingest_queue.put(None)
+            for _ in pdf_consumers:
+                await pdf_queue.put(None)
+            await asyncio.gather(*consumers, return_exceptions=True)
+            await asyncio.gather(*pdf_consumers, return_exceptions=True)
+            await _sync_queue_metrics()
+
+        # Finalize
+        if metrics["finished_reason"] == "running":
+            metrics["finished_reason"] = "completed"
+        metrics["total_results"] = metrics["processed_results"]
+        
+        if progress_hook:
+            progress_hook(metrics)
+
+        if debug_output_dir:
+            self._write_debug_report(
+                debug_output_dir=debug_output_dir,
+                blocked_host_urls=host_filter.rejected_url_samples,
+                blocked_block_urls=block_filter.rejected_url_samples,
+                failed_fetch_urls=failed_fetch_urls,
+                skipped_invalid_urls=skipped_invalid_urls,
+                skipped_ingestion_rows=skipped_ingestion_rows,
+                metrics=metrics,
+            )

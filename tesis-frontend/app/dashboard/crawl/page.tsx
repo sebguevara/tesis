@@ -34,6 +34,28 @@ export interface CrawlState {
     skipped_invalid_content: number;
     blocked_by_host_filter: number;
     blocked_by_block_filter: number;
+    ingest_workers?: number;
+    ingest_queue_size?: number;
+    ingest_inflight?: number;
+    ingest_pending_total?: number;
+    last_processed_url?: string;
+  } | null;
+  telemetry: {
+    server_time: string;
+    elapsed_seconds: number;
+    freshness_ms: number;
+    is_stale: boolean;
+    processed_per_sec: number;
+    saved_per_sec: number;
+    valid_per_sec: number;
+    current_url: string;
+    ingest_queue_size: number;
+    ingest_inflight: number;
+    ingest_pending_total: number;
+    ingest_workers: number;
+    update_seq: number;
+    in_discovery?: boolean;
+    discovery_note?: string;
   } | null;
 }
 
@@ -49,6 +71,7 @@ const initialState: CrawlState = {
   totalDurationSeconds: null,
   message: "",
   metrics: null,
+  telemetry: null,
 };
 
 interface BackendJobStatus {
@@ -64,6 +87,7 @@ interface BackendJobStatus {
   metrics: CrawlState["metrics"] & {
     successful_results?: number;
   };
+  telemetry?: CrawlState["telemetry"];
 }
 
 const DEFAULT_SCRAPE_CONFIG = {
@@ -129,6 +153,7 @@ export default function DashboardPage() {
     NotificationPermission | "unsupported"
   >("unsupported");
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const statusStreamRef = useRef<EventSource | null>(null);
   const notifiedCompletedJobsRef = useRef<Set<string>>(new Set());
   const notifiedFailedJobsRef = useRef<Set<string>>(new Set());
 
@@ -142,6 +167,10 @@ export default function DashboardPage() {
     return () => {
       if (pollTimerRef.current) {
         clearInterval(pollTimerRef.current);
+      }
+      if (statusStreamRef.current) {
+        statusStreamRef.current.close();
+        statusStreamRef.current = null;
       }
     };
   }, []);
@@ -218,6 +247,72 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const stopStatusStream = useCallback(() => {
+    if (statusStreamRef.current) {
+      statusStreamRef.current.close();
+      statusStreamRef.current = null;
+    }
+  }, []);
+
+  const applyJobStatus = useCallback(
+    (job: BackendJobStatus, url: string) => {
+      const mappedPhase = mapBackendPhase(job);
+      const message = buildInteractiveMessage(job);
+
+      setCrawlState((prev) => {
+        const startedAtMs =
+          parseIsoToMs(job.started_at) ?? prev.startedAtMs ?? Date.now();
+        const finishedAtMs =
+          job.status === "completed"
+            ? (parseIsoToMs(job.finished_at) ?? Date.now())
+            : null;
+        const totalDurationSeconds =
+          finishedAtMs != null
+            ? Math.max(0, Math.round((finishedAtMs - startedAtMs) / 1000))
+            : null;
+
+        return {
+          phase: mappedPhase,
+          url,
+          jobId: job.job_id,
+          progressPct: mapDisplayProgress(job),
+          pagesCrawled: Number(
+            job.pages_crawled ?? job.metrics?.accepted_valid_pages ?? 0,
+          ),
+          etaSeconds: Number(job.eta_seconds || 0),
+          startedAtMs,
+          finishedAtMs,
+          totalDurationSeconds,
+          message,
+          metrics: job.metrics || null,
+          telemetry: job.telemetry || null,
+        };
+      });
+
+      if (job.status === "completed") {
+        stopPolling();
+        stopStatusStream();
+        clearActiveCrawlCache();
+        if (!notifiedCompletedJobsRef.current.has(job.job_id)) {
+          notifiedCompletedJobsRef.current.add(job.job_id);
+          notifyCompleted(job);
+        }
+      } else if (job.status === "failed") {
+        stopPolling();
+        stopStatusStream();
+        clearActiveCrawlCache();
+        if (!notifiedFailedJobsRef.current.has(job.job_id)) {
+          notifiedFailedJobsRef.current.add(job.job_id);
+          toast.error("El crawl no pudo completarse", {
+            description: message,
+            duration: 7000,
+          });
+        }
+      }
+    },
+    [stopPolling, stopStatusStream],
+  );
+
   const pollJobStatus = useCallback(
     async (jobId: string, url: string): Promise<BackendJobStatus | null> => {
       try {
@@ -237,59 +332,11 @@ export default function DashboardPage() {
         }
 
         const job = payload as BackendJobStatus;
-        const mappedPhase = mapBackendPhase(job);
-        const message = buildInteractiveMessage(job);
-
-        setCrawlState((prev) => {
-          const startedAtMs =
-            parseIsoToMs(job.started_at) ?? prev.startedAtMs ?? Date.now();
-          const finishedAtMs =
-            job.status === "completed"
-              ? (parseIsoToMs(job.finished_at) ?? Date.now())
-              : null;
-          const totalDurationSeconds =
-            finishedAtMs != null
-              ? Math.max(0, Math.round((finishedAtMs - startedAtMs) / 1000))
-              : null;
-
-          return {
-            phase: mappedPhase,
-            url,
-            jobId: job.job_id,
-            progressPct: mapDisplayProgress(job),
-            pagesCrawled: Number(
-              job.pages_crawled ?? job.metrics?.accepted_valid_pages ?? 0,
-            ),
-            etaSeconds: Number(job.eta_seconds || 0),
-            startedAtMs,
-            finishedAtMs,
-            totalDurationSeconds,
-            message,
-            metrics: job.metrics || null,
-          };
-        });
-
-        if (job.status === "completed") {
-          stopPolling();
-          clearActiveCrawlCache();
-          if (!notifiedCompletedJobsRef.current.has(job.job_id)) {
-            notifiedCompletedJobsRef.current.add(job.job_id);
-            notifyCompleted(job);
-          }
-        } else if (job.status === "failed") {
-          stopPolling();
-          clearActiveCrawlCache();
-          if (!notifiedFailedJobsRef.current.has(job.job_id)) {
-            notifiedFailedJobsRef.current.add(job.job_id);
-            toast.error("El crawl no pudo completarse", {
-              description: message,
-              duration: 7000,
-            });
-          }
-        }
+        applyJobStatus(job, url);
         return job;
       } catch (error) {
         stopPolling();
+        stopStatusStream();
         const detail =
           error instanceof Error
             ? error.message
@@ -305,7 +352,35 @@ export default function DashboardPage() {
         return null;
       }
     },
-    [stopPolling],
+    [applyJobStatus, stopPolling, stopStatusStream],
+  );
+
+  const startStatusStream = useCallback(
+    (jobId: string, url: string) => {
+      stopStatusStream();
+      const es = new EventSource(`/api/crawl/status/${jobId}/stream`);
+      statusStreamRef.current = es;
+
+      es.addEventListener("status", (event) => {
+        try {
+          const payload = JSON.parse((event as MessageEvent).data) as BackendJobStatus;
+          applyJobStatus(payload, url);
+        } catch {
+          // Ignore malformed events; polling fallback will keep state alive.
+        }
+      });
+
+      es.onerror = () => {
+        stopStatusStream();
+        if (!pollTimerRef.current) {
+          void pollJobStatus(jobId, url);
+          pollTimerRef.current = setInterval(() => {
+            void pollJobStatus(jobId, url);
+          }, 2000);
+        }
+      };
+    },
+    [applyJobStatus, pollJobStatus, stopStatusStream],
   );
 
   useEffect(() => {
@@ -324,18 +399,17 @@ export default function DashboardPage() {
       totalDurationSeconds: null,
       message: "Reconectando con el proceso de crawl en curso...",
       metrics: null,
+      telemetry: null,
     });
 
     void (async () => {
       const job = await pollJobStatus(activeCrawl.jobId, activeCrawl.url);
       if (!job) return;
       if (job.status === "running" || job.status === "pending") {
-        pollTimerRef.current = setInterval(() => {
-          void pollJobStatus(activeCrawl.jobId, activeCrawl.url);
-        }, 5000);
+        startStatusStream(activeCrawl.jobId, activeCrawl.url);
       }
     })();
-  }, [pollJobStatus]);
+  }, [pollJobStatus, startStatusStream]);
 
   async function handleStartCrawl(url: string) {
     if (notificationPermission === "default") {
@@ -343,6 +417,7 @@ export default function DashboardPage() {
     }
 
     stopPolling();
+    stopStatusStream();
 
     const startedAtMs = Date.now();
     setCrawlState({
@@ -357,6 +432,7 @@ export default function DashboardPage() {
       totalDurationSeconds: null,
       message: "Iniciando el crawl. Esto puede tardar varios minutos.",
       metrics: null,
+      telemetry: null,
     });
 
     try {
@@ -396,9 +472,7 @@ export default function DashboardPage() {
 
       const job = await pollJobStatus(jobId, url);
       if (job && (job.status === "running" || job.status === "pending")) {
-        pollTimerRef.current = setInterval(() => {
-          void pollJobStatus(jobId, url);
-        }, 5000);
+        startStatusStream(jobId, url);
       }
     } catch (error) {
       const detail =
@@ -418,6 +492,7 @@ export default function DashboardPage() {
 
   function handleReset() {
     stopPolling();
+    stopStatusStream();
     clearActiveCrawlCache();
     setCrawlState(initialState);
   }

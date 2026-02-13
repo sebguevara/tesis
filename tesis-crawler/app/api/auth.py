@@ -124,9 +124,15 @@ async def unlink_source(req: LinkSourceRequest):
 
 @router.get("/auth/users/{clerk_user_id}")
 async def get_user(clerk_user_id: str):
-    user = await get_user_by_clerk_id((clerk_user_id or "").strip())
+    user_key = (clerk_user_id or "").strip()
+    user = await get_user_by_clerk_id(user_key)
     if not user:
-        raise HTTPException(status_code=404, detail="Usuario no existe")
+        # Auto-provision user on first read to avoid frontend dead-ends.
+        user = await upsert_user_from_clerk_event(
+            clerk_user_id=user_key,
+            email=None,
+            last_sign_in_at=None,
+        )
     return {"ok": True, "user": user}
 
 

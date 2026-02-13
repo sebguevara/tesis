@@ -23,6 +23,7 @@ interface ChatMessage {
 }
 
 const CHAT_SESSION_CACHE_KEY = "projects_chat_session_by_source_v1";
+const LONG_MESSAGE_THRESHOLD = 560;
 
 function readSessionCache(): Record<string, string> {
   if (typeof window === "undefined") return {};
@@ -39,6 +40,37 @@ function readSessionCache(): Record<string, string> {
 function writeSessionCache(cache: Record<string, string>) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(CHAT_SESSION_CACHE_KEY, JSON.stringify(cache));
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function splitAssistantMessage(content: string): string[] {
+  const clean = (content || "").trim();
+  if (!clean) return [""];
+  if (clean.length < LONG_MESSAGE_THRESHOLD && clean.split("\n").length <= 10) {
+    return [clean];
+  }
+
+  const target = Math.floor(clean.length * 0.55);
+  const punctuationMatches = Array.from(
+    clean.matchAll(/[.!?]\s+|\n\n/g),
+    (m) => (typeof m.index === "number" ? m.index + m[0].length : -1),
+  ).filter((idx) => idx >= 120 && idx <= clean.length - 120);
+
+  let cut = punctuationMatches.find((idx) => idx >= target) ?? -1;
+  if (cut < 0 && punctuationMatches.length > 0) {
+    cut = punctuationMatches[punctuationMatches.length - 1];
+  }
+  if (cut < 0) {
+    const newlineCut = clean.lastIndexOf("\n", target);
+    cut = newlineCut >= 120 ? newlineCut + 1 : target;
+  }
+  const first = clean.slice(0, cut).trim();
+  const second = clean.slice(cut).trim();
+  if (!first || !second) return [clean];
+  return [first, second];
 }
 
 function formatDate(dateValue: string | null): string {
@@ -87,6 +119,7 @@ export default function ProjectsPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [presenceBetweenChunks, setPresenceBetweenChunks] = useState(false);
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -201,6 +234,45 @@ export default function ProjectsPage() {
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsSending(true);
+    setPresenceBetweenChunks(false);
+
+    const appendAssistantResponse = async (answer: string) => {
+      const parts = splitAssistantMessage(answer).filter(Boolean);
+      if (parts.length <= 1) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: parts[0] || answer,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+        return;
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: parts[0],
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+      setPresenceBetweenChunks(true);
+      await sleep(700);
+      setPresenceBetweenChunks(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: parts[1],
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+    };
 
     try {
       const response = await fetch("/api/projects/chat", {
@@ -228,15 +300,8 @@ export default function ProjectsPage() {
           writeSessionCache(cache);
         }
       }
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: payload.answer || "No se obtuvo respuesta.",
-          createdAt: new Date().toISOString(),
-        },
-      ]);
+      setIsSending(false);
+      await appendAssistantResponse(payload.answer || "No se obtuvo respuesta.");
     } catch (error) {
       toast.error("Error en el chat del proyecto", {
         description:
@@ -253,6 +318,7 @@ export default function ProjectsPage() {
       ]);
     } finally {
       setIsSending(false);
+      setPresenceBetweenChunks(false);
       inputRef.current?.focus();
     }
   }
@@ -276,7 +342,6 @@ export default function ProjectsPage() {
       const snippet = WIDGET_SNIPPET({
         sourceId: payload.source_id,
         apiKey: payload.api_key,
-        widgetQueryUrl: payload.widget_query_url,
       });
       await navigator.clipboard.writeText(snippet);
       toast.success("Script copiado");
@@ -447,6 +512,11 @@ export default function ProjectsPage() {
                       <span className="h-2 w-2 rounded-full bg-muted-foreground/70 animate-bounce [animation-delay:-0.1s]" />
                       <span className="h-2 w-2 rounded-full bg-muted-foreground/70 animate-bounce" />
                     </span>
+                  </div>
+                ) : null}
+                {presenceBetweenChunks ? (
+                  <div className="w-fit max-w-[85%] rounded-2xl border border-border/40 bg-card px-4 py-3 text-sm text-foreground">
+                    (...)
                   </div>
                 ) : null}
               </div>

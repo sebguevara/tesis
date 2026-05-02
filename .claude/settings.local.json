@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(python -c:*)",
+      "Bash(python3:*)",
+      "Bash(docker exec:*)",
+      "Bash(head -3 docker exec tesis_db bash -c \"psql -c ''''SELECT usename FROM pg_user;''''\")",
+      "Bash(__NEW_LINE_239840ebd3ae6449__ docker exec tesis_db psql -U tesis -d tesis -c \"\nSELECT \n  \\(SELECT COUNT\\(*\\) FROM sources\\) AS sources,\n  \\(SELECT COUNT\\(*\\) FROM documents\\) AS documents,\n  \\(SELECT COUNT\\(*\\) FROM chunks\\) AS chunks,\n  \\(SELECT COUNT\\(*\\) FROM program_facts\\) AS program_facts,\n  \\(SELECT COUNT\\(*\\) FROM \"\"user\"\"\\) AS usuarios;\n\")",
+      "Bash(PGPASSWORD=tesis psql:*)"
     ]
   }
 }

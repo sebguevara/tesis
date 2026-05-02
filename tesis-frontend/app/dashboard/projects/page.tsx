@@ -303,16 +303,19 @@ export default function ProjectsPage() {
       setIsSending(false);
       await appendAssistantResponse(payload.answer || "No se obtuvo respuesta.");
     } catch (error) {
+      const detail =
+        error instanceof Error && error.message
+          ? error.message
+          : "No pude responder en este momento. Intenta nuevamente.";
       toast.error("Error en el chat del proyecto", {
-        description:
-          error instanceof Error ? error.message : "Error desconocido.",
+        description: detail,
       });
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "No pude responder en este momento. Intenta nuevamente.",
+          content: detail,
           createdAt: new Date().toISOString(),
         },
       ]);

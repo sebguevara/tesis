@@ -1,0 +1,661 @@
+{
+  "version": "1.0",
+  "site": "med.unne.edu.ar",
+  "created_at": "2026-05-02",
+  "description": "Golden set para medir calidad RAG sobre la Facultad de Medicina UNNE. Hechos verificados manualmente al 02-05-2026.",
+  "items": [
+    {
+      "id": "Q001",
+      "category": "factual_simple",
+      "difficulty": "easy",
+      "question": "¿Cuánto dura la carrera de Medicina?",
+      "expected_answer_summary": "La carrera de Medicina dura 6 años.",
+      "expected_facts": ["6 años"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["5 años", "7 años", "4 años", "8 años"],
+      "notes": "Dato en la cabecera de la página."
+    },
+    {
+      "id": "Q002",
+      "category": "factual_simple",
+      "difficulty": "easy",
+      "question": "¿Qué título otorga la carrera de Medicina?",
+      "expected_answer_summary": "Otorga el título de Médico.",
+      "expected_facts": ["Médico"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Doctor en Medicina", "Licenciado en Medicina"],
+      "notes": "Título de Grado: Médico."
+    },
+    {
+      "id": "Q003",
+      "category": "factual_simple",
+      "difficulty": "easy",
+      "question": "¿La carrera de Medicina es presencial o virtual?",
+      "expected_answer_summary": "La carrera es de modalidad presencial.",
+      "expected_facts": ["presencial"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": [
+        "virtual",
+        "a distancia",
+        "semipresencial",
+        "híbrida"
+      ],
+      "notes": "Modalidad: Presencial."
+    },
+    {
+      "id": "Q004",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿A qué Universidad pertenece la Facultad de Medicina?",
+      "expected_answer_summary": "Pertenece a la Universidad Nacional del Nordeste (UNNE).",
+      "expected_facts": ["Universidad Nacional del Nordeste"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/"],
+      "must_not_contain": [
+        "Universidad de Buenos Aires",
+        "UBA",
+        "Universidad Nacional de Rosario"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "Q005",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿Cuántos años de Práctica Obligatoria Final tiene la carrera de Medicina?",
+      "expected_answer_summary": "La Práctica Obligatoria Final corresponde al sexto año, con una carga horaria de 1600 horas.",
+      "expected_facts": ["sexto año", "1600"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["1000 horas", "2000 horas", "800 horas"],
+      "notes": "Sexto año, primer semestre, 1600 hs."
+    },
+    {
+      "id": "Q006",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿Cuál es la carga horaria de Anatomía Humana Normal en la carrera de Medicina?",
+      "expected_answer_summary": "Anatomía Humana Normal tiene una carga horaria de 180 horas.",
+      "expected_facts": ["180 horas"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["80 horas", "120 horas", "240 horas"],
+      "notes": "Materia del segundo semestre de primer año."
+    },
+    {
+      "id": "Q007",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿Cuántas horas tiene la materia Bioquímica?",
+      "expected_answer_summary": "Bioquímica tiene 120 horas.",
+      "expected_facts": ["120 horas"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["80 horas", "180 horas", "60 horas"],
+      "notes": ""
+    },
+    {
+      "id": "Q008",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿Qué planes de estudio están vigentes en Medicina?",
+      "expected_answer_summary": "Están vigentes el Plan 68/98 y el Plan 2000.",
+      "expected_facts": ["Plan 68/98", "Plan 2000"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Plan 2010", "Plan 2020"],
+      "notes": ""
+    },
+    {
+      "id": "Q009",
+      "category": "factual_simple",
+      "difficulty": "medium",
+      "question": "¿Qué materia se cursa en el primer semestre del primer año de Medicina?",
+      "expected_answer_summary": "En el primer semestre del primer año se cursa Medicina, Hombre y Sociedad (400 horas).",
+      "expected_facts": ["Medicina, Hombre y Sociedad"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Anatomía", "Bioquímica", "Histología"],
+      "notes": "Es la única materia del primer semestre del primer año."
+    },
+    {
+      "id": "Q010",
+      "category": "factual_simple",
+      "difficulty": "hard",
+      "question": "¿Cuál es la carga horaria de Medicina, Hombre y Sociedad?",
+      "expected_answer_summary": "Medicina, Hombre y Sociedad tiene 400 horas.",
+      "expected_facts": ["400 horas"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["100 horas", "200 horas", "300 horas"],
+      "notes": ""
+    },
+    {
+      "id": "Q011",
+      "category": "factual_simple",
+      "difficulty": "hard",
+      "question": "¿Cuál es la carga horaria de Inglés II?",
+      "expected_answer_summary": "Inglés II tiene 40 horas.",
+      "expected_facts": ["40 horas"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["80 horas", "60 horas", "120 horas"],
+      "notes": "Segundo año, primer semestre."
+    },
+    {
+      "id": "Q012",
+      "category": "factual_simple",
+      "difficulty": "easy",
+      "question": "¿Qué carrera estudia kinesiología en la Facultad?",
+      "expected_answer_summary": "La Licenciatura en Kinesiología y Fisiatría.",
+      "expected_facts": ["Kinesiología", "Fisiatría"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/carreras/licenciatura-en-kinesiologia-y-fisiatria/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q013",
+      "category": "listing",
+      "difficulty": "easy",
+      "question": "¿Qué carreras de grado ofrece la Facultad de Medicina?",
+      "expected_answer_summary": "Tres carreras de grado: Medicina, Licenciatura en Enfermería, y Licenciatura en Kinesiología y Fisiatría.",
+      "expected_facts": [
+        "Medicina",
+        "Licenciatura en Enfermería",
+        "Licenciatura en Kinesiología"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/",
+        "https://med.unne.edu.ar/carreras/medicina/",
+        "https://med.unne.edu.ar/carreras/licenciatura-en-enfermeria/",
+        "https://med.unne.edu.ar/carreras/licenciatura-en-kinesiologia-y-fisiatria/"
+      ],
+      "must_not_contain": [
+        "Odontología",
+        "Veterinaria",
+        "Bioquímica como carrera",
+        "Farmacia"
+      ],
+      "notes": "Las tres carreras de grado están listadas en el menú."
+    },
+    {
+      "id": "Q014",
+      "category": "listing",
+      "difficulty": "medium",
+      "question": "¿Qué materias se cursan en el primer año de Medicina?",
+      "expected_answer_summary": "Primer año: Medicina, Hombre y Sociedad (1er sem); Anatomía Humana Normal, Histología y Embriología, y Bioquímica (2do sem).",
+      "expected_facts": [
+        "Medicina, Hombre y Sociedad",
+        "Anatomía Humana Normal",
+        "Histología y Embriología",
+        "Bioquímica"
+      ],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Fisiología Humana", "Microbiología"],
+      "notes": "Fisiología y Microbiología son de segundo año."
+    },
+    {
+      "id": "Q015",
+      "category": "listing",
+      "difficulty": "medium",
+      "question": "¿Qué secretarías tiene la Facultad?",
+      "expected_answer_summary": "Académica, Asuntos Estudiantiles, Ciencia y Tecnología, Extensión Universitaria, Planeamiento y Gestión Administrativa, y Posgrado.",
+      "expected_facts": [
+        "Académica",
+        "Asuntos Estudiantiles",
+        "Ciencia y Tecnología",
+        "Extensión",
+        "Posgrado"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/gestion-academica-y-administrativa/"
+      ],
+      "must_not_contain": ["Secretaría de Hacienda", "Secretaría de Deportes"],
+      "notes": ""
+    },
+    {
+      "id": "Q016",
+      "category": "listing",
+      "difficulty": "medium",
+      "question": "¿Qué servicios ofrece la Facultad de Medicina a la comunidad?",
+      "expected_answer_summary": "Entre otros: Medicina Familiar, Medicina Genómica, Servicio Universitario de Kinesiología, Gabinete de Bienestar, Bioterio, CENPETROP, Biolinks, Museo Antonio Terraes.",
+      "expected_facts": ["Medicina Familiar", "Medicina Genómica", "Bioterio"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/"],
+      "must_not_contain": [],
+      "notes": "Listado del menú Servicios y la sección de Servicios en el home."
+    },
+    {
+      "id": "Q017",
+      "category": "listing",
+      "difficulty": "medium",
+      "question": "¿Qué trámites estudiantiles puedo realizar en la Facultad?",
+      "expected_answer_summary": "Inscripciones, Trámite de diplomas, Turnos Título Secundario, Readmisiones, Extensión de regularidad, Cancelación de Matrícula, Adscripciones, Ayudantes Alumnos, Extranjeros por convenio, Trámite de Pases.",
+      "expected_facts": [
+        "Inscripciones",
+        "diplomas",
+        "Readmisiones",
+        "Adscripciones",
+        "Pases"
+      ],
+      "ground_truth_urls": ["https://med.unne.edu.ar/comunidad/estudiantes/"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q018",
+      "category": "listing",
+      "difficulty": "hard",
+      "question": "¿Qué materias optativas hay en segundo año de Medicina?",
+      "expected_answer_summary": "Historia de la Medicina, Procedimientos y Técnicas en la Atención del Paciente, Metodología de la Investigación Científica y Nutrición Básica.",
+      "expected_facts": [
+        "Historia de la Medicina",
+        "Metodología de la Investigación",
+        "Nutrición Básica"
+      ],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Sexología", "Medicina del Deporte"],
+      "notes": "Sexología y Medicina del Deporte son optativas de tercer año."
+    },
+    {
+      "id": "Q019",
+      "category": "listing",
+      "difficulty": "hard",
+      "question": "¿Qué cursos de posgrado relacionados con kinesiología ofrece la Facultad?",
+      "expected_answer_summary": "Hay varios: Kinesiología Dermatofuncional y Estética, Desafíos y Tendencias Actuales de la Kinesiología Deportiva, Kinesiología y Fisioterapia Neurológica, entre otros.",
+      "expected_facts": ["Kinesiología"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/listado-de-ofertas-academicas/"
+      ],
+      "must_not_contain": [],
+      "notes": "Lista parcial; el sitio tiene muchas ofertas que cambian."
+    },
+    {
+      "id": "Q020",
+      "category": "listing",
+      "difficulty": "easy",
+      "question": "¿Qué redes sociales oficiales tiene la Facultad?",
+      "expected_answer_summary": "Facebook, Instagram, X (Twitter) y YouTube, todos como @fdmunne.",
+      "expected_facts": ["Facebook", "Instagram", "Youtube"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/"],
+      "must_not_contain": ["TikTok", "LinkedIn"],
+      "notes": ""
+    },
+    {
+      "id": "Q021",
+      "category": "authority",
+      "difficulty": "easy",
+      "question": "¿Quién es el decano de la Facultad de Medicina?",
+      "expected_answer_summary": "El decano es el Prof. Dr. Mario Germán Pagno.",
+      "expected_facts": ["Mario Germán Pagno"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/carreras/medicina/",
+        "https://med.unne.edu.ar/institucional/la-facultad/gestion-actual/"
+      ],
+      "must_not_contain": ["Scheinkman", "Gerometta"],
+      "notes": "Scheinkman es vice decano, Gerometta es secretaria académica."
+    },
+    {
+      "id": "Q022",
+      "category": "authority",
+      "difficulty": "easy",
+      "question": "¿Quién es el vice decano?",
+      "expected_answer_summary": "El vice decano es el Prof. Jorge Daniel Scheinkman.",
+      "expected_facts": ["Jorge Daniel Scheinkman"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Pagno", "Gerometta"],
+      "notes": ""
+    },
+    {
+      "id": "Q023",
+      "category": "authority",
+      "difficulty": "medium",
+      "question": "¿Quién es la secretaria académica?",
+      "expected_answer_summary": "La secretaria académica es la Prof. Dra. Rosana Gerometta.",
+      "expected_facts": ["Rosana Gerometta"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["Pagno", "Scheinkman"],
+      "notes": ""
+    },
+    {
+      "id": "Q024",
+      "category": "authority",
+      "difficulty": "medium",
+      "question": "¿Quiénes conforman las máximas autoridades de la Facultad?",
+      "expected_answer_summary": "El decano Prof. Dr. Mario Germán Pagno y el vice decano Prof. Jorge Daniel Scheinkman.",
+      "expected_facts": ["Pagno", "Scheinkman"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/la-facultad/gestion-actual/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q025",
+      "category": "authority",
+      "difficulty": "hard",
+      "question": "¿Quién está a cargo de la Secretaría Académica?",
+      "expected_answer_summary": "La Prof. Dra. Rosana Gerometta.",
+      "expected_facts": ["Rosana Gerometta"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/gestion-academica-y-administrativa/secretaria-academica/"
+      ],
+      "must_not_contain": [],
+      "notes": "Misma persona que Q023, distinto fraseo."
+    },
+    {
+      "id": "Q026",
+      "category": "requirements",
+      "difficulty": "medium",
+      "question": "¿Cómo me inscribo a una carrera de la Facultad?",
+      "expected_answer_summary": "El proceso de inscripción se realiza desde la página de Inscripciones del sitio (sección Comunidad > Estudiantes > Inscripciones).",
+      "expected_facts": ["Inscripciones"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/inscripciones/"
+      ],
+      "must_not_contain": [],
+      "notes": "El sistema debe redirigir a la página correcta. Acepta también que diga que no encuentra detalle del paso a paso si la página no lo describe textualmente."
+    },
+    {
+      "id": "Q027",
+      "category": "requirements",
+      "difficulty": "medium",
+      "question": "¿Cómo solicito un trámite de pase de otra Facultad?",
+      "expected_answer_summary": "El trámite de Pases se gestiona desde la sección Comunidad > Estudiantes > Trámite de Pases.",
+      "expected_facts": ["Pases"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/tramite-de-pases/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q028",
+      "category": "requirements",
+      "difficulty": "hard",
+      "question": "¿Qué tengo que hacer para ser ayudante alumno?",
+      "expected_answer_summary": "Hay un concurso de Ayudantes Alumnos. La inscripción se gestiona desde el portal de trámites.",
+      "expected_facts": ["Ayudantes Alumnos", "concurso"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/concurso-ayudantes-alumnos/",
+        "https://med.unne.edu.ar/portal-de-tramites/concurso-ayudantes-alumnos/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q029",
+      "category": "requirements",
+      "difficulty": "medium",
+      "question": "¿Dónde se cargan las actas de exámenes?",
+      "expected_answer_summary": "Las actas se cargan en SIU Guaraní. Para cuestiones del Plan 68/98 o Plan 2000 escribir a alumnado@med.unne.edu.ar.",
+      "expected_facts": ["SIU Guaraní"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/carreras/medicina/",
+        "https://med.unne.edu.ar/comunidad/docentes/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q030",
+      "category": "requirements",
+      "difficulty": "hard",
+      "question": "¿Cómo puedo solicitar una readmisión?",
+      "expected_answer_summary": "La readmisión se gestiona desde Comunidad > Estudiantes > Readmisiones (formulario en línea).",
+      "expected_facts": ["Readmisión"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/formularios/tramites-estudiantiles/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q031",
+      "category": "contact",
+      "difficulty": "medium",
+      "question": "¿A qué email escribo para trámites del Plan 2000?",
+      "expected_answer_summary": "Al email alumnado@med.unne.edu.ar.",
+      "expected_facts": ["alumnado@med.unne.edu.ar"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["informes@", "consultas@", "info@"],
+      "notes": ""
+    },
+    {
+      "id": "Q032",
+      "category": "contact",
+      "difficulty": "easy",
+      "question": "¿Cómo puedo contactar a la Facultad?",
+      "expected_answer_summary": "A través de la página de Contacto del sitio.",
+      "expected_facts": ["Contacto"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/contacto/"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q033",
+      "category": "contact",
+      "difficulty": "medium",
+      "question": "¿Tienen una revista científica?",
+      "expected_answer_summary": "Sí, la Revista de la Facultad de Medicina, accesible en revista.med.unne.edu.ar.",
+      "expected_facts": ["Revista"],
+      "ground_truth_urls": ["http://revista.med.unne.edu.ar/index.php/med"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q034",
+      "category": "dates",
+      "difficulty": "hard",
+      "question": "¿Cuándo es el período de adscripciones para el segundo semestre 2026?",
+      "expected_answer_summary": "Del 1 al 30 de abril de 2026.",
+      "expected_facts": ["abril", "2026"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/portal-de-tramites/adscripciones/"
+      ],
+      "must_not_contain": ["mayo", "marzo", "junio"],
+      "notes": "Dato sensible al tiempo. Revisar en cada actualización."
+    },
+    {
+      "id": "Q035",
+      "category": "dates",
+      "difficulty": "hard",
+      "question": "¿Cuándo abren las becas de investigación 2026?",
+      "expected_answer_summary": "Desde el 1 de julio del 2026 al 31 de julio de 2026.",
+      "expected_facts": ["julio", "2026"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/gestion-academica-y-administrativa/secretaria-de-ciencia-y-tecnologia/becas-de-investigacion/"
+      ],
+      "must_not_contain": ["agosto", "septiembre"],
+      "notes": ""
+    },
+    {
+      "id": "Q036",
+      "category": "dates",
+      "difficulty": "hard",
+      "question": "¿Cuándo es la elección de consejeros del Consejo Directivo?",
+      "expected_answer_summary": "Martes 28 de abril de 2026, de 09:00 a 18:00 horas.",
+      "expected_facts": ["28 de abril", "2026"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/elecciones-consejo-directivo/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q037",
+      "category": "typo_robust",
+      "difficulty": "medium",
+      "question": "cuanto dura la carea de medicna?",
+      "expected_answer_summary": "La carrera de Medicina dura 6 años.",
+      "expected_facts": ["6 años"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": ["5 años", "4 años"],
+      "notes": "Igual que Q001 con typos. Mide robustez del retrieval."
+    },
+    {
+      "id": "Q038",
+      "category": "typo_robust",
+      "difficulty": "medium",
+      "question": "cuales son las carreras k ofrecen?",
+      "expected_answer_summary": "Tres carreras de grado: Medicina, Licenciatura en Enfermería, y Licenciatura en Kinesiología y Fisiatría.",
+      "expected_facts": ["Medicina", "Enfermería", "Kinesiología"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q039",
+      "category": "typo_robust",
+      "difficulty": "hard",
+      "question": "kien es el decano dela facultad",
+      "expected_answer_summary": "El decano es el Prof. Dr. Mario Germán Pagno.",
+      "expected_facts": ["Mario Germán Pagno"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q040",
+      "category": "typo_robust",
+      "difficulty": "medium",
+      "question": "qe materias hay en primer año de medicina",
+      "expected_answer_summary": "Primer año: Medicina, Hombre y Sociedad; Anatomía Humana Normal; Histología y Embriología; Bioquímica.",
+      "expected_facts": [
+        "Medicina, Hombre y Sociedad",
+        "Anatomía",
+        "Bioquímica"
+      ],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q041",
+      "category": "typo_robust",
+      "difficulty": "medium",
+      "question": "como m inscrribo a medicna?",
+      "expected_answer_summary": "El proceso se inicia en la página de Inscripciones (Comunidad > Estudiantes > Inscripciones).",
+      "expected_facts": ["Inscripciones"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/inscripciones/"
+      ],
+      "must_not_contain": [],
+      "notes": ""
+    },
+    {
+      "id": "Q042",
+      "category": "conversational",
+      "difficulty": "medium",
+      "question": "Quiero estudiar Kinesiología, ¿qué carrera es?",
+      "expected_answer_summary": "La Licenciatura en Kinesiología y Fisiatría.",
+      "expected_facts": ["Kinesiología y Fisiatría"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/carreras/licenciatura-en-kinesiologia-y-fisiatria/"
+      ],
+      "must_not_contain": [],
+      "conversation_id": "C001",
+      "turn_number": 1,
+      "notes": "Inicio de conversación de 2 turnos."
+    },
+    {
+      "id": "Q043",
+      "category": "conversational",
+      "difficulty": "hard",
+      "question": "¿Y dónde me inscribo?",
+      "expected_answer_summary": "Las inscripciones se gestionan en Comunidad > Estudiantes > Inscripciones (válido también para Kinesiología).",
+      "expected_facts": ["Inscripciones"],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/inscripciones/"
+      ],
+      "must_not_contain": [],
+      "conversation_id": "C001",
+      "turn_number": 2,
+      "notes": "El sistema debe entender que '¿Y dónde me inscribo?' refiere a Kinesiología por contexto."
+    },
+    {
+      "id": "Q044",
+      "category": "conversational",
+      "difficulty": "medium",
+      "question": "¿Cuánto dura la carrera de Medicina?",
+      "expected_answer_summary": "6 años.",
+      "expected_facts": ["6 años"],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": [],
+      "conversation_id": "C002",
+      "turn_number": 1,
+      "notes": ""
+    },
+    {
+      "id": "Q045",
+      "category": "conversational",
+      "difficulty": "hard",
+      "question": "¿Y qué materias se cursan en el primer año?",
+      "expected_answer_summary": "Primer año de Medicina: Medicina, Hombre y Sociedad; Anatomía Humana Normal; Histología y Embriología; Bioquímica.",
+      "expected_facts": [
+        "Medicina, Hombre y Sociedad",
+        "Anatomía",
+        "Bioquímica",
+        "Histología"
+      ],
+      "ground_truth_urls": ["https://med.unne.edu.ar/carreras/medicina/"],
+      "must_not_contain": [],
+      "conversation_id": "C002",
+      "turn_number": 2,
+      "notes": "Pronombre implícito: 'el primer año' refiere a Medicina por contexto del turno previo."
+    },
+    {
+      "id": "Q046",
+      "category": "ambiguous",
+      "difficulty": "medium",
+      "question": "¿Cuándo abren?",
+      "expected_answer_summary": "Pregunta ambigua: el sistema debe pedir aclaración (qué se quiere consultar: inscripciones, becas, adscripciones, biblioteca, etc.).",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": ["las inscripciones abren el", "el período es"],
+      "expects_clarification": true,
+      "notes": "Refusal correctness: debe pedir contexto, no asumir."
+    },
+    {
+      "id": "Q047",
+      "category": "ambiguous",
+      "difficulty": "medium",
+      "question": "¿Cuáles son los requisitos?",
+      "expected_answer_summary": "Pregunta ambigua: el sistema debe preguntar a qué se refiere (inscripción, ayudantía, beca, pase, etc.).",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": [],
+      "expects_clarification": true,
+      "notes": ""
+    },
+    {
+      "id": "Q048",
+      "category": "ambiguous",
+      "difficulty": "easy",
+      "question": "información",
+      "expected_answer_summary": "Consulta vacía: debe pedir que se especifique sobre qué.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": [],
+      "expects_clarification": true,
+      "notes": ""
+    },
+    {
+      "id": "Q049",
+      "category": "out_of_scope",
+      "difficulty": "easy",
+      "question": "¿Cuál es el mejor libro para estudiar Anatomía?",
+      "expected_answer_summary": "Pregunta fuera de alcance: el sistema solo responde sobre la Facultad. Debe declinar o redirigir.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": ["Netter", "Gray", "recomiendo el libro"],
+      "expects_clarification": true,
+      "notes": "El asistente no debe recomendar bibliografía no presente en el sitio."
+    },
+    {
+      "id": "Q050",
+      "category": "out_of_scope",
+      "difficulty": "medium",
+      "question": "¿Cómo se trata la diabetes tipo 2?",
+      "expected_answer_summary": "Pregunta médica fuera de alcance del asistente institucional. Debe declinar.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": ["metformina", "insulina", "tratamiento incluye"],
+      "expects_clarification": true,
+      "notes": "Crítico: el asistente no debe dar consejo médico."
+    }
+  ]
+}

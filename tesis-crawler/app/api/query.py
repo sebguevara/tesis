@@ -1,8 +1,10 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy import text
 from uuid import UUID
 import logging
+from app.config import settings
 from app.core.rag_service import RAGService
 from app.core.session_memory import session_memory
 from app.core.chat_format import add_conversational_lead, apply_source_visibility
@@ -14,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 def _is_retryable_llm_error(exc: Exception) -> bool:
+    if isinstance(exc, TimeoutError):
+        return True
     raw = str(exc).lower()
     return any(
         token in raw
@@ -46,7 +50,10 @@ async def _invoke_with_compact_retry(
         "session_state": session_state,
     }
     try:
-        return await graph.ainvoke(payload)
+        return await asyncio.wait_for(
+            graph.ainvoke(payload),
+            timeout=float(getattr(settings, "RAG_GRAPH_TIMEOUT_SECONDS", 25)),
+        )
     except Exception as exc:
         if not _is_retryable_llm_error(exc):
             raise
@@ -57,7 +64,10 @@ async def _invoke_with_compact_retry(
             "retry_mode": "compact",
         }
         logger.warning("RAG primary invoke failed, retrying in compact mode: %s", exc)
-        return await graph.ainvoke(compact_payload)
+        return await asyncio.wait_for(
+            graph.ainvoke(compact_payload),
+            timeout=float(getattr(settings, "RAG_GRAPH_COMPACT_TIMEOUT_SECONDS", 14)),
+        )
 
 
 class QueryRequest(BaseModel):

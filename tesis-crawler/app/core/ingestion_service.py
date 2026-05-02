@@ -587,19 +587,33 @@ class IngestionService:
                 }
             )
 
-        director_matches = IngestionService._extract_fact_matches(
+        # High-confidence patterns: explicitly say "director/a de carrera", "dirección de carrera",
+        # "coordinador/a de carrera", or "responsable de carrera" — not bare "responsable".
+        director_matches_high = IngestionService._extract_fact_matches(
             content,
             [
-                r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
-                r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
-                r"\|\s*(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?|responsable)\s*\|\s*([^\|\n]{3,120})\|",
+                r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?\s+de\s+carrera|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
                 r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{3,120})",
-                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{3,120})",
-                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n|]{3,120})",
-                r"(?:^|\n)\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{3,120})",
+                r"\|\s*(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?\s+de\s+carrera)\s*\|\s*([^\|\n]{3,120})\|",
+                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n)(?:\s+de\s+carrera)[^\n]*\n+\s*([^\n|]{3,120})",
+                r"(?:^|\n)\s*(?:director(?:a)?|direcci[oó]n)(?:\s+de\s+carrera)[^\n]*\n+\s*([^\n|]{3,120})",
             ],
         )
-        if is_program_page and not director_matches:
+        # Lower-confidence fallback: generic "director", "coordinador" without "de carrera".
+        # Bare "responsable" is intentionally excluded — it captures unrelated roles (e.g. diplomas).
+        seen_high = {m.lower() for m in director_matches_high}
+        director_matches_low = IngestionService._extract_fact_matches(
+            content,
+            [
+                r"(?:director(?:a)?|coordinador(?:a)?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
+                r"\|\s*(?:director(?:a)?|coordinador(?:a)?)\s*\|\s*([^\|\n]{3,120})\|",
+                r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|coordinador(?:a)?)[^\n]*\n+\s*([^\n|]{3,120})",
+                r"(?:^|\n)\s*(?:director(?:a)?|coordinador(?:a)?)[^\n]*\n+\s*([^\n|]{3,120})",
+            ],
+        )
+        director_matches_low = [m for m in director_matches_low if m.lower() not in seen_high]
+
+        if is_program_page and not director_matches_high and not director_matches_low:
             canonical_root = bool(
                 re.search(r"/carreras/[^/]+/?$", (url or "").lower())
                 or re.search(r"/oferta-academica/[^/]+/?$", (url or "").lower())
@@ -607,9 +621,10 @@ class IngestionService:
             if canonical_root:
                 titled = IngestionService._extract_titled_person_lines(content)
                 if titled:
-                    director_matches = [titled[0]]
+                    director_matches_high = [titled[0]]
         if is_program_page:
-            for match in director_matches:
+            base_conf = 0.95 if "/carreras/" in (url or "").lower() else 0.82
+            for match in director_matches_high:
                 if not IngestionService._is_plausible_authority_person_name(match):
                     continue
                 facts.append(
@@ -617,7 +632,19 @@ class IngestionService:
                         "fact_key": "director",
                         "fact_value": match,
                         "evidence_text": match,
-                        "confidence": 0.9 if "/carreras/" in (url or "").lower() else 0.75,
+                        "confidence": base_conf,
+                    }
+                )
+            low_conf = 0.75 if "/carreras/" in (url or "").lower() else 0.6
+            for match in director_matches_low:
+                if not IngestionService._is_plausible_authority_person_name(match):
+                    continue
+                facts.append(
+                    {
+                        "fact_key": "director",
+                        "fact_value": match,
+                        "evidence_text": match,
+                        "confidence": low_conf,
                     }
                 )
 

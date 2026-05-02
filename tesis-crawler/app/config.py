@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     )
     RAG_LLM_TIMEOUT_SECONDS: float = float(os.getenv("RAG_LLM_TIMEOUT_SECONDS", "18"))
     RAG_LLM_MAX_RETRIES: int = int(os.getenv("RAG_LLM_MAX_RETRIES", "1"))
+    RAG_GRAPH_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_TIMEOUT_SECONDS", "25"))
+    RAG_GRAPH_COMPACT_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_COMPACT_TIMEOUT_SECONDS", "14"))
 
     # PDF processing
     PDF_STORAGE_DIR: str = os.getenv("PDF_STORAGE_DIR", "./data/pdf")

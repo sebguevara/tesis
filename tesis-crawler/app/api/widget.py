@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import uuid
 from urllib.parse import urlparse
 from uuid import UUID
@@ -22,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 def _is_retryable_llm_error(exc: Exception) -> bool:
+    if isinstance(exc, TimeoutError):
+        return True
     raw = str(exc).lower()
     return any(
         token in raw
@@ -54,7 +57,10 @@ async def _invoke_with_compact_retry(
         "session_state": session_state,
     }
     try:
-        return await graph.ainvoke(payload)
+        return await asyncio.wait_for(
+            graph.ainvoke(payload),
+            timeout=float(getattr(settings, "RAG_GRAPH_TIMEOUT_SECONDS", 25)),
+        )
     except Exception as exc:
         if not _is_retryable_llm_error(exc):
             raise
@@ -62,7 +68,10 @@ async def _invoke_with_compact_retry(
         compact_payload["history"] = (history or [])[-6:]
         compact_payload["session_state"] = dict(session_state or {}) | {"retry_mode": "compact"}
         logger.warning("Widget RAG primary invoke failed, retrying in compact mode: %s", exc)
-        return await graph.ainvoke(compact_payload)
+        return await asyncio.wait_for(
+            graph.ainvoke(compact_payload),
+            timeout=float(getattr(settings, "RAG_GRAPH_COMPACT_TIMEOUT_SECONDS", 14)),
+        )
 
 
 def _request_domain(request: Request) -> str:

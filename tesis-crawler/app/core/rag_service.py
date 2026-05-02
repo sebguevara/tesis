@@ -178,6 +178,15 @@ class RAGService:
     def _normalize_query_typos(query: str) -> str:
         q = query or ""
         replacements = (
+            # Common program abbreviations that users type
+            (r"\bkinesio\b", "kinesiologia"),
+            (r"\bkine\b", "kinesiologia"),
+            (r"\bkines\b", "kinesiologia"),
+            (r"\benfer\b", "enfermeria"),
+            (r"\benfermera\b", "enfermeria"),
+            (r"\benfermero\b", "enfermeria"),
+            (r"\bmedici\b", "medicina"),
+            # Typos
             (r"\bcarrea\b", "carrera"),
             (r"\bingrsantes\b", "ingresantes"),
             (r"\bingrersantes\b", "ingresantes"),
@@ -191,6 +200,7 @@ class RAGService:
             (r"\binscribirne\b", "inscribirme"),
             (r"\binscirpcion\b", "inscripcion"),
             (r"\bpapeeles\b", "papeles"),
+            (r"\bbilbioteca\b", "biblioteca"),
         )
         for pattern, repl in replacements:
             q = re.sub(pattern, repl, q, flags=re.IGNORECASE)
@@ -364,6 +374,33 @@ class RAGService:
             value,
             flags=re.IGNORECASE,
         ).strip()
+        # Strip "de la Facultad / de la Universidad / de la <sigla>" suffixes.
+        value = re.sub(
+            r"\s+de\s+(?:la|el|los|las)\s+(?:facultad|universidad|escuela|instituto)\b.*$",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        ).strip()
+        value = re.sub(
+            r"\s+de\s+la\s+(?:unne|unc|uba|utn|unl|unp|unse|unlp|unr|untref|unsam|uner|unco|unsa|unrc|unsj|unsl|unvm|unpa|unpsjb|uncuyo|unas|un[a-z]{2,4})\b.*$",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        ).strip()
+        # Strip conjugated-verb noise: "logró", "viene", "realizó", etc.
+        value = re.sub(
+            r"\s+(?:logr[oó]|viene|vino|abord[oó]|realiz[oó]|inici[oó]|comenz[oó]|alcanz[oó]|obtuvo|recibi[oó]|celebr[oó]|present[oó])\b.*$",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        ).strip()
+        # Strip "con la sociedad / con el / junto a / listado de / noticias"
+        value = re.sub(
+            r"\s+(?:con\s+la\s+sociedad|junto\s+a|listado\s+de|noticias|novedades|acreditaci[oó]n|acredit[oó])\b.*$",
+            "",
+            value,
+            flags=re.IGNORECASE,
+        ).strip()
         value = re.sub(
             r"\s+(?:programa|programa analitico|programa de examen|patologia|introduccion|resolucion)\b.*$",
             "",
@@ -395,6 +432,8 @@ class RAGService:
             flags=re.IGNORECASE,
         ).strip()
         value = re.sub(r"\s+", " ", value).strip(" .,:;-/")
+        # Strip trailing stopwords left by truncated regex matches (e.g. "… de la").
+        value = re.sub(r"(?:\s+(?:de|del|la|el|los|las|en|y|a|al|con))+$", "", value, flags=re.IGNORECASE).strip(" .,:;-/")
         return RAGService._clean_program_name(value)
 
     @staticmethod
@@ -402,7 +441,10 @@ class RAGService:
         value = re.sub(r"\s+", " ", (name or "").strip())
         if not value:
             return False
-        if len(value) < 4 or len(value) > 80:
+        if len(value) < 4 or len(value) > 60:
+            return False
+        # A career name realistically has at most 7 words.
+        if len(value.split()) > 7:
             return False
         low = RAGService._normalize_name_key(value)
         if not low:
@@ -425,9 +467,13 @@ class RAGService:
             "calendario",
             "materia",
             "pasantia",
-            "pasantia",
             "practica pre profesional",
-            "práctica pre profesional",
+            "acreditacion",
+            "logro",
+            "listado",
+            "noticias",
+            "novedades",
+            "articulos",
         )
         return not any(tok in low for tok in blocked)
 
@@ -449,15 +495,20 @@ class RAGService:
     @staticmethod
     def _career_name_from_url(url: str) -> str:
         low = (url or "").lower()
-        if "/carreras/" not in low:
-            return ""
-        tail = low.split("/carreras/", 1)[1].strip("/")
-        if not tail:
-            return ""
-        slug = tail.split("/", 1)[0].strip("- ")
-        if not slug:
-            return ""
-        return RAGService._clean_program_name(slug)
+        # Pattern 1: /carreras/<slug>/...
+        if "/carreras/" in low:
+            tail = low.split("/carreras/", 1)[1].strip("/")
+            if tail:
+                slug = tail.split("/", 1)[0].strip("- ")
+                if slug and slug not in {"carreras", "category", "tag", "page"}:
+                    return RAGService._clean_program_name(slug)
+        # Pattern 2: /carrera-de-<slug>/
+        m = re.search(r"/carrera-de-([a-z0-9áéíóúñü][a-z0-9áéíóúñü\-]+?)(?:/|$)", low)
+        if m:
+            slug = m.group(1).strip("- ")
+            if slug:
+                return RAGService._clean_program_name(slug)
+        return ""
 
     @staticmethod
     def _wants_only_careers(query: str) -> bool:
@@ -507,8 +558,12 @@ class RAGService:
             score += 35
         elif "/carreras" in low:
             score += 22
-        if any(tok in low for tok in ("/oferta-academica", "/ofertas-acad", "/ofertas-academicas", "/programas/")):
+        if any(tok in low for tok in ("/oferta-academica", "/ofertas-academicas", "/programas/")):
             score += 8
+        if "/ofertas-acad/" in low:
+            # These are specific course/seminar pages, not canonical career pages —
+            # never use them as source for authority/director info.
+            score -= 25
         if any(tok in low for tok in ("/introduccion-a-la-vida-universitaria", "/evento", "/agenda", "/noticia", "/novedad")):
             score -= 18
         return score
@@ -567,12 +622,16 @@ class RAGService:
             return []
         out: list[str] = []
         seen: set[str] = set()
+        # Each pattern caps at 5 words after the degree keyword to avoid greedy
+        # sentence capture (e.g. "Lic. en Enfermería Logró la Acreditación").
+        _W = r"[a-záéíóúñü]+"
+        _NAME5 = rf"{_W}(?:\s+{_W}){{0,4}}"
         patterns = (
-            r"\blicenciatura\s+en\s+[a-záéíóúñü\s]{3,80}\b",
-            r"\btecnicatura\s+en\s+[a-záéíóúñü\s]{3,80}\b",
-            r"\bdoctorado\s+en\s+[a-záéíóúñü\s]{3,80}\b",
-            r"\bespecializaci[oó]n\s+en\s+[a-záéíóúñü\s]{3,80}\b",
-            r"\bcarrera\s+de\s+[a-záéíóúñü\s]{3,80}\b",
+            rf"\blicenciatura\s+en\s+{_NAME5}",
+            rf"\btecnicatura\s+en\s+{_NAME5}",
+            rf"\bdoctorado\s+en\s+{_NAME5}",
+            rf"\bespecializaci[oó]n\s+en\s+{_NAME5}",
+            rf"\bcarrera\s+de\s+{_NAME5}",
             r"\bdise[ñn]o\s+gr[aá]fico\b",
             r"\barquitectura\b",
             r"\bmedicina\b",
@@ -601,14 +660,16 @@ class RAGService:
         seen_program_keys: set[str] = set()
         seen_urls: set[str] = set()
 
+        _W = r"[a-záéíóúñü]+"
+        _NAME5 = rf"{_W}(?:\s+{_W}){{0,4}}"
         name_pattern = re.compile(
-            r"\b("
-            r"medicina|"
-            r"licenciatura\s+en\s+[a-záéíóúñü\s]+|"
-            r"tecnicatura\s+en\s+[a-záéíóúñü\s]+|"
-            r"doctorado\s+en\s+[a-záéíóúñü\s]+|"
-            r"especializaci[oó]n\s+en\s+[a-záéíóúñü\s]+"
-            r")\b",
+            rf"\b("
+            rf"medicina|"
+            rf"licenciatura\s+en\s+{_NAME5}|"
+            rf"tecnicatura\s+en\s+{_NAME5}|"
+            rf"doctorado\s+en\s+{_NAME5}|"
+            rf"especializaci[oó]n\s+en\s+{_NAME5}"
+            rf")\b",
             flags=re.IGNORECASE,
         )
 
@@ -694,7 +755,7 @@ class RAGService:
             r"doctorado\s+en\s+[a-záéíóúñü\s]+|"
             r"especializaci[oó]n\s+en\s+[a-záéíóúñü\s]+|"
             r"enfermer[ií]a|"
-            r"kinesiolog[ií]a(?:\s+y\s+fisiatr[ií]a)?"
+            r"kinesio(?:log[ií]a(?:\s+y\s+fisiatr[ií]a)?)?"
             r")\b",
             flags=re.IGNORECASE,
         )
@@ -947,7 +1008,10 @@ class RAGService:
     ) -> dict:
         state = self._normalized_session_state(current_state)
 
-        mentions = self._extract_program_mentions_from_text(query)
+        # Normalize abbreviations BEFORE extracting mentions so that "kinesio",
+        # "kine", "enfer", etc. are resolved to the canonical program name.
+        normalized_query = self._normalize_query_typos(query)
+        mentions = self._extract_program_mentions_from_text(normalized_query)
         if mentions:
             state["active_program"] = mentions[0]
             state["active_program_confidence"] = 1.0
@@ -1015,6 +1079,13 @@ class RAGService:
                 "titulo",
                 "título",
                 "egreso",
+                "biblioteca",
+                "prestamo",
+                "préstamo",
+                "devolucion",
+                "devolución",
+                "pedir un libro",
+                "sacar un libro",
             )
         )
 
@@ -1166,6 +1237,18 @@ class RAGService:
     def _wants_dean(query: str) -> bool:
         q = (query or "").lower()
         return any(t in q for t in ("decano", "decana", "vicedecano", "vicedecana"))
+
+    @staticmethod
+    def _wants_vice_dean(query: str) -> bool:
+        q = (query or "").lower()
+        return bool(re.search(r"\b(?:vice\s*decan[oa]|vicedecan[oa])\b", q))
+
+    @staticmethod
+    def _wants_dean_only(query: str) -> bool:
+        q = (query or "").lower()
+        if RAGService._wants_vice_dean(q):
+            return False
+        return bool(re.search(r"\bdecan[oa]\b", q))
 
     @staticmethod
     def _looks_like_program_reply(query: str) -> bool:
@@ -1474,12 +1557,13 @@ class RAGService:
             return []
         candidates: list[str] = []
         for slug in slugs:
+            # Authority context must come from canonical career pages only.
+            # /ofertas-acad/ are specific courses/seminars — their coordinators
+            # are NOT career directors.
             candidates.extend(
                 [
                     urljoin(base, f"carreras/{slug}/"),
                     urljoin(base, f"carreras/{slug}"),
-                    urljoin(base, f"ofertas-acad/{slug}"),
-                    urljoin(base, f"oferta-academica/{slug}"),
                 ]
             )
         out: list[str] = []
@@ -1521,7 +1605,8 @@ class RAGService:
 
     @staticmethod
     def _query_has_specific_program(query: str) -> bool:
-        return len(RAGService._extract_program_mentions_from_text(query)) > 0
+        normalized = RAGService._normalize_query_typos(query)
+        return len(RAGService._extract_program_mentions_from_text(normalized)) > 0
 
     @staticmethod
     def _infer_program_from_history(history: list[str], current_query: str) -> str | None:
@@ -1792,7 +1877,7 @@ class RAGService:
         if "enfermeria" in base or "enfermería" in base:
             variants.add("licenciatura en enfermeria")
             variants.add("enfermeria")
-        if "kinesiologia" in base or "kinesiología" in base:
+        if any(t in base for t in ("kinesiologia", "kinesiología", "kinesio", "kine")):
             variants.add("licenciatura en kinesiologia y fisiatria")
             variants.add("kinesiologia y fisiatria")
         return sorted([v for v in variants if v], key=len, reverse=True)
@@ -2262,22 +2347,35 @@ class RAGService:
 
         if self._is_authority_query(q):
             candidates: list[tuple[int, str, str]] = []
+            wants_vice_dean = self._wants_vice_dean(q)
+            wants_dean_only = self._wants_dean_only(q)
             for d in docs:
                 low_url = d["url"].lower()
                 value = ""
                 if "/wp-content/uploads/" in low_url or ".pdf" in low_url:
                     continue
-                patterns = (
-                    r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
-                    r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
-                    r"(?:direcci[oó]n\s+de\s+(?:la\s+)?carrera)\s*(?:es|:|-)?\s*([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
-                    r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
-                    r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{2,120})",
-                    r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n|]{2,120})",
-                    r"(?:^|\n)\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{2,120})",
-                    r"(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*[:\-]\s*([^\n|]{3,120})",
-                    r"(?:decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]{3,120})",
-                )
+                if wants_vice_dean:
+                    patterns = (
+                        r"(?:vice\s*decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]{3,120})",
+                        r"(?:^|\n)\s*#{1,6}\s*(?:vice\s*decano(?:a)?|vicedecano(?:a)?)\s*\n+\s*([^\n|]{2,120})",
+                    )
+                elif wants_dean_only:
+                    patterns = (
+                        r"(?:(?<!vice\s)(?<!vice)decano(?:a)?)\s*[:\-]\s*([^\n|]{3,120})",
+                        r"(?:^|\n)\s*#{1,6}\s*(?:(?<!vice\s)(?<!vice)decano(?:a)?)\s*\n+\s*([^\n|]{2,120})",
+                    )
+                else:
+                    patterns = (
+                        r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
+                        r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]{3,120})",
+                        r"(?:direcci[oó]n\s+de\s+(?:la\s+)?carrera)\s*(?:es|:|-)?\s*([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
+                        r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
+                        r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{2,120})",
+                        r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n|]{2,120})",
+                        r"(?:^|\n)\s*(?:director(?:a)?|direcci[oó]n(?:\s+de\s+carrera)?|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable(?:\s+de\s+carrera)?)\s*\n+\s*([^\n|]{2,120})",
+                        r"(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*[:\-]\s*([^\n|]{3,120})",
+                        r"(?:decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]{3,120})",
+                    )
                 for p in patterns:
                     m = re.search(p, d["text"], flags=re.IGNORECASE)
                     if not m:
@@ -2340,9 +2438,13 @@ class RAGService:
             if candidates:
                 candidates.sort(key=lambda x: x[0], reverse=True)
                 label = (
-                    "decano/a"
-                    if self._wants_dean(q)
-                    else ("secretario/a académico/a" if self._wants_secretary(q) else "director/a de carrera")
+                    "vicedecano/a"
+                    if self._wants_vice_dean(q)
+                    else (
+                        "decano/a"
+                        if self._wants_dean(q)
+                        else ("secretario/a académico/a" if self._wants_secretary(q) else "director/a de carrera")
+                    )
                 )
                 pname = program_name or "la carrera"
                 return f"El/la {label} de {pname} es {candidates[0][1]}. Fuente: {candidates[0][2]}"
@@ -2408,6 +2510,80 @@ class RAGService:
                 )
         return None
 
+    async def _llm_resolve_program(
+        self,
+        query: str,
+        source_id: str,
+        history: list[str] | None = None,
+    ) -> str | None:
+        """
+        Ask the LLM to map the user's program reference (abbreviation, informal name,
+        partial name) to the canonical program name available in this source.
+        This replaces brittle regex-based abbreviation lists and works for any institution.
+        """
+        if not source_id:
+            return None
+        try:
+            UUID(source_id)
+        except ValueError:
+            return None
+        try:
+            async with async_session() as session:
+                rows = (
+                    await session.execute(
+                        text(
+                            """
+                            SELECT DISTINCT program_name
+                            FROM program_facts
+                            WHERE source_id = CAST(:source_id AS uuid)
+                              AND program_name IS NOT NULL
+                              AND program_name != '__general__'
+                            ORDER BY program_name
+                            LIMIT 30
+                            """
+                        ),
+                        {"source_id": source_id},
+                    )
+                ).scalars().all()
+        except Exception:
+            return None
+        available = [str(r).strip() for r in rows if r and str(r).strip()]
+        if not available:
+            return None
+        programs_str = "\n".join(f"- {p}" for p in available)
+        recent = "\n".join((history or [])[-4:])
+        history_section = f"\nConversación reciente:\n{recent}\n" if recent else ""
+        prompt = (
+            f"Programas académicos disponibles en esta institución:\n{programs_str}\n"
+            f"{history_section}\n"
+            f"Mensaje del usuario: \"{query}\"\n\n"
+            "Identificá a qué programa se refiere el usuario. Puede usar el nombre completo, "
+            "una abreviatura, un nombre informal o parte del nombre. "
+            "Respondé ÚNICAMENTE con el nombre exacto del programa tal como aparece en la lista, "
+            "o con la palabra 'ninguno' si no hay coincidencia clara."
+        )
+        try:
+            res = await self.llm.ainvoke(prompt)
+            resolved = (res.content or "").strip().strip("\"'").strip()
+            if not resolved or resolved.lower() in {"ninguno", "none", "no", "n/a", "no sé"}:
+                return None
+            norm_resolved = self._normalize_program_for_lookup(resolved)
+            # Exact match first
+            for prog in available:
+                if self._normalize_program_for_lookup(prog) == norm_resolved:
+                    return prog
+            # Substring match as fallback
+            for prog in available:
+                p_norm = self._normalize_program_for_lookup(prog)
+                if norm_resolved and (norm_resolved in p_norm or p_norm in norm_resolved):
+                    return prog
+            # Return as-is if it looks plausible (LLM might have reformatted slightly)
+            if len(resolved) > 4:
+                return resolved
+            return None
+        except Exception:
+            return None
+
     async def _answer_from_program_facts(
         self,
         source_id: str,
@@ -2461,9 +2637,15 @@ class RAGService:
             return None
 
         source_uuid = str(UUID(source_id))
-        program_mentions = self._extract_program_mentions_from_text(query)
+        normalized_query = self._normalize_query_typos(query)
+        program_mentions = self._extract_program_mentions_from_text(normalized_query)
         inferred_program = normalized_state.get("active_program") or self._infer_program_from_history(history, query)
         program_name = program_mentions[0] if program_mentions else inferred_program
+        # If the query clearly needs a specific program but we couldn't extract one via
+        # regex (e.g. the user wrote "kinesio", "arq", "infor", or any informal name),
+        # ask the LLM to resolve it — this works for any institution without hardcoding.
+        if not program_name and (is_authority or is_duration or is_year_subjects):
+            program_name = await self._llm_resolve_program(query, source_id, history)
         program_variants = self._program_lookup_variants(program_name or "")
         program_exact = program_variants[0] if program_variants else ""
         like_seed = ""
@@ -2503,13 +2685,17 @@ class RAGService:
                     title = str(row.get("title") or "").strip()
                     content = str(row.get("content") or "").strip()
                     block = f"URL: {url}\nTitulo: {title}\nContenido: {content[:8000]}"
-                    candidates = self._extract_program_names_from_text(f"{title}\n{content}")
-                    if not candidates:
-                        by_context, _ = self._extract_program_names_from_context([block])
-                        candidates = by_context
-                    if not candidates:
-                        candidate = self._career_name_from_url(url)
-                        candidates = [candidate] if candidate else []
+                    # Prefer the URL slug when the URL contains /carreras/ — it is
+                    # the most reliable source and avoids capturing noisy page titles
+                    # like "Licenciatura en Enfermería Logró la Acreditación".
+                    url_candidate = self._career_name_from_url(url)
+                    if url_candidate:
+                        candidates = [url_candidate]
+                    else:
+                        candidates = self._extract_program_names_from_text(f"{title}\n{content}")
+                        if not candidates:
+                            by_context, _ = self._extract_program_names_from_context([block])
+                            candidates = by_context
                     for candidate in candidates:
                         candidate = self._sanitize_career_name(candidate)
                         if not self._is_plausible_career_name(candidate):
@@ -2920,7 +3106,7 @@ class RAGService:
                 break
         return contexts
 
-    async def _retrieve_program_page_context(self, source_url: str, query: str, *, force: bool = False) -> list[str]:
+    async def _retrieve_program_page_context(self, source_url: str, query: str, *, force: bool = False, authority_only: bool = False) -> list[str]:
         if not self.ENABLE_RUNTIME_SCRAPE and not force:
             return []
         if not self._is_valid_https_source(source_url):
@@ -2935,14 +3121,18 @@ class RAGService:
             return []
         candidates: list[str] = []
         for slug in slugs:
-            candidates.extend(
-                [
-                    urljoin(base, f"carreras/{slug}/"),
-                    urljoin(base, f"carreras/{slug}"),
-                    urljoin(base, f"ofertas-acad/{slug}"),
-                    urljoin(base, f"oferta-academica/{slug}"),
-                ]
-            )
+            career_paths = [
+                urljoin(base, f"carreras/{slug}/"),
+                urljoin(base, f"carreras/{slug}"),
+            ]
+            # For authority/director queries, only try canonical /carreras/ paths.
+            # /ofertas-acad/ pages are specific courses/seminars — their coordinators
+            # are NOT career directors.
+            extra_paths = [] if authority_only else [
+                urljoin(base, f"ofertas-acad/{slug}"),
+                urljoin(base, f"oferta-academica/{slug}"),
+            ]
+            candidates.extend(career_paths + extra_paths)
         out: list[str] = []
         seen: set[str] = set()
         for candidate in candidates:
@@ -2978,6 +3168,10 @@ class RAGService:
         history: list[str],
         session_state: dict | None,
     ) -> str | None:
+        # Keep response latency predictable for admin/tramite flows:
+        # these should come from indexed documents, not on-demand crawling.
+        if self._is_admissions_query(query) or self._is_tramites_query(query):
+            return None
         if not source_id:
             return None
         try:
@@ -3001,13 +3195,18 @@ class RAGService:
         if active_program and not self._query_has_specific_program(resolved_query):
             resolved_query = f"{resolved_query} {active_program}".strip()
 
+        is_authority = self._is_authority_query(resolved_query)
         contexts: list[str] = []
         program_contexts = await self._retrieve_program_page_context(
-            source_url, resolved_query, force=True
+            source_url, resolved_query, force=True, authority_only=is_authority
         )
-        source_contexts = await self._retrieve_from_source(
-            source_url, resolved_query, force=True
-        )
+        # For authority/director queries skip broad site discovery: it finds course/seminar
+        # pages (/ofertas-acad/) whose coordinators are NOT career directors.
+        source_contexts: list[str] = []
+        if not is_authority:
+            source_contexts = await self._retrieve_from_source(
+                source_url, resolved_query, force=True
+            )
         if program_contexts:
             contexts.extend(program_contexts)
         if source_contexts:
@@ -3219,22 +3418,35 @@ class RAGService:
 
         if RAGService._is_authority_query(q):
             candidates: list[tuple[int, str, str]] = []
+            wants_vice_dean = RAGService._wants_vice_dean(q)
+            wants_dean_only = RAGService._wants_dean_only(q)
             for block in context_blocks:
                 src = RAGService._extract_url_from_block(block)
                 low_src = (src or "").lower()
-                direct_patterns = (
-                    r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]+)",
-                    r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]+)",
-                    r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
-                    r"(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*[:\-]\s*([^\n|]+)",
-                    r"(?:decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]+)",
-                    r"\|\s*(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?|responsable)\s*\|\s*([^\|\n]+)\|",
-                    r"\|\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\|\s*([^\|\n]+)\|",
-                    r"(?:^|\n)\s*#{1,4}\s*(?:director(?:a)?|coordinador(?:a)?|direcci[oó]n)\s*(?:de\s+carrera)?\s*\n+\s*([^\n]+)",
-                    r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n]+)",
-                    r"(?:^|\n)\s*#{1,4}\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\n+\s*([^\n]+)",
-                    r"(?:^|\n)\s*#{1,4}\s*(?:decano(?:a)?|vicedecano(?:a)?)\s*\n+\s*([^\n]+)",
-                )
+                if wants_vice_dean:
+                    direct_patterns = (
+                        r"(?:vice\s*decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]+)",
+                        r"(?:^|\n)\s*#{1,4}\s*(?:vice\s*decano(?:a)?|vicedecano(?:a)?)\s*\n+\s*([^\n]+)",
+                    )
+                elif wants_dean_only:
+                    direct_patterns = (
+                        r"(?:(?<!vice\s)(?<!vice)decano(?:a)?)\s*[:\-]\s*([^\n|]+)",
+                        r"(?:^|\n)\s*#{1,4}\s*(?:(?<!vice\s)(?<!vice)decano(?:a)?)\s*\n+\s*([^\n]+)",
+                    )
+                else:
+                    direct_patterns = (
+                        r"(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?(?:\s+de\s+carrera)?|responsable\s+de\s+carrera)\s*[:\-]\s*([^\n|]+)",
+                        r"(?:director(?:a)?|coordinador(?:a)?|responsable(?:\s+acad[eé]mic[oa])?|jef(?:e|a)\s+de\s+carrera)\s*[:\-]\s*([^\n|]+)",
+                        r"(?:director(?:a)?\s+de\s+(?:la\s+)?carrera(?:\s+de)?[^\n:|]{0,90}?)\s+(?:es\s+)?([A-ZÁÉÍÓÚÑ][^\n|]{2,120})",
+                        r"(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*[:\-]\s*([^\n|]+)",
+                        r"(?:decano(?:a)?|vicedecano(?:a)?)\s*[:\-]\s*([^\n|]+)",
+                        r"\|\s*(?:director(?:a)?\s+de\s+carrera|direcci[oó]n\s+de\s+carrera|coordinador(?:a)?|responsable)\s*\|\s*([^\|\n]+)\|",
+                        r"\|\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\|\s*([^\|\n]+)\|",
+                        r"(?:^|\n)\s*#{1,4}\s*(?:director(?:a)?|coordinador(?:a)?|direcci[oó]n)\s*(?:de\s+carrera)?\s*\n+\s*([^\n]+)",
+                        r"(?:^|\n)\s*#{1,6}\s*(?:director(?:a)?|direcci[oó]n|coordinador(?:a)?|responsable)[^\n]*\n+\s*([^\n]+)",
+                        r"(?:^|\n)\s*#{1,4}\s*(?:secretario(?:a)?\s+acad[eé]mic[oa])\s*\n+\s*([^\n]+)",
+                        r"(?:^|\n)\s*#{1,4}\s*(?:decano(?:a)?|vicedecano(?:a)?)\s*\n+\s*([^\n]+)",
+                    )
                 value = ""
                 for pattern in direct_patterns:
                     match = re.search(pattern, block, flags=re.IGNORECASE)
@@ -3308,8 +3520,17 @@ class RAGService:
                 if not ranked:
                     return None
                 best = ranked[0]
+                label = (
+                    "vicedecano/a"
+                    if RAGService._wants_vice_dean(q)
+                    else (
+                        "decano/a"
+                        if RAGService._wants_dean(q)
+                        else ("secretario/a académico/a" if RAGService._wants_secretary(q) else "director/a de carrera")
+                    )
+                )
                 return (
-                    f"La autoridad indicada en el sitio es {best['value']}. "
+                    f"El/la {label} es {best['value']}. "
                     f"Fuente: {best['src'] or 'contexto recuperado'}"
                 )
         return None
@@ -3774,7 +3995,10 @@ class RAGService:
             and not self._is_admissions_query(resolved_query)
             and not self._is_tramites_query(resolved_query)
         )
-        if allow_live_fetch and source_url and (
+        # For authority/director queries, broad site discovery (_retrieve_from_source)
+        # finds course/seminar pages (/ofertas-acad/) whose coordinators are NOT career
+        # directors. Skip it entirely — authority data must come from /carreras/ pages only.
+        if allow_live_fetch and not self._is_authority_query(resolved_query) and source_url and (
             not contexts or self._needs_source_fallback(contexts, resolved_query)
         ):
             fallback_contexts = await self._retrieve_from_source(source_url, resolved_query)
@@ -3795,7 +4019,8 @@ class RAGService:
         if allow_live_fetch and source_url and self._query_has_specific_program(
             resolved_query
         ):
-            program_contexts = await self._retrieve_program_page_context(source_url, resolved_query)
+            _authority_only = self._is_authority_query(resolved_query)
+            program_contexts = await self._retrieve_program_page_context(source_url, resolved_query, authority_only=_authority_only)
             if program_contexts:
                 contexts = self._rank_context_blocks([*program_contexts, *contexts], resolved_query)[
                     :max_contexts
@@ -3861,6 +4086,7 @@ class RAGService:
                     "response": "Para darte el dato correcto necesito la carrera exacta (por ejemplo, Medicina o Licenciatura en Enfermería)."
                 }
 
+        facts_context_block: str | None = None
         if self.USE_PROGRAM_FACTS:
             facts_answer = await self._answer_from_program_facts(
                 source_id,
@@ -3869,7 +4095,15 @@ class RAGService:
                 session_state=session_state,
             )
             if facts_answer:
-                return {"response": facts_answer}
+                # Program/career listings are returned directly — they're already well-formatted
+                # and adding LLM overhead doesn't add value.
+                if re.match(r"^Carrera", facts_answer):
+                    return {"response": facts_answer}
+                # For factual data (director, duration, subjects, etc.), inject as structured
+                # context so the LLM generates a natural conversational response instead of
+                # a hardcoded template string.
+                facts_context_block = f"[DATOS ESTRUCTURADOS]\n{facts_answer}"
+
         doc_answer = await self._answer_from_documents(
             source_id,
             query,
@@ -3887,7 +4121,7 @@ class RAGService:
             "tramites",
             "program_count",
             "programs_overview",
-        }:
+        } and not facts_context_block:
             fallback_answer = await self._fallback_answer_from_live_source(
                 source_id=source_id,
                 query=query,
@@ -3896,7 +4130,8 @@ class RAGService:
             )
             if fallback_answer:
                 return {"response": fallback_answer}
-            return {"response": self.NO_INFO_RESPONSE}
+            if not context_blocks:
+                return {"response": self.NO_INFO_RESPONSE}
         if self._is_duration_query(query):
             inferred_program = state_program
             if not self._query_has_specific_program(query) and not inferred_program:
@@ -3909,14 +4144,20 @@ class RAGService:
                 return {
                     "response": "¿A qué carrera te referís exactamente?"
                 }
-        if not context_blocks:
+
+        # Build effective context: structured facts (if any) + retrieved documents
+        effective_contexts = (
+            [facts_context_block, *context_blocks] if facts_context_block else context_blocks
+        )
+        if not effective_contexts:
             return {"response": self.NO_INFO_RESPONSE}
+
         extracted = self._extract_answer_from_context(query, context_blocks)
-        if extracted:
+        if extracted and not facts_context_block:
             return {"response": extracted}
 
         history = "\n".join(history_blocks).strip()
-        prompt_contexts = list(context_blocks)
+        prompt_contexts = list(effective_contexts)
         prompt = ""
         while True:
             context = "\n\n---\n\n".join(prompt_contexts)

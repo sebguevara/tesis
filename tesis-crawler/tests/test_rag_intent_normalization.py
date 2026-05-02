@@ -138,3 +138,28 @@ def test_program_doc_relevance_penalizes_other_career_slug() -> None:
     )
     assert med_score > enf_score
     assert enf_score < 40
+
+
+def test_authority_extraction_prefers_vicedecano_when_asked() -> None:
+    block = """
+URL: https://med.unne.edu.ar/carreras/medicina
+Titulo: Medicina
+Contenido:
+Decano: Prof. Dr. Mario German Pagno
+Vicedecano: Prof. Dr. Juan Perez
+"""
+    answer = RAGService._extract_answer_from_context("quien es el vicedecano?", [block])
+    assert answer is not None
+    low = answer.lower()
+    assert "vicedecano" in low
+    assert "juan perez" in low
+    assert "mario german pagno" not in low
+
+
+def test_biblioteca_typo_is_normalized() -> None:
+    fixed = RAGService._normalize_query_typos("El tema de la bilbioteca, como hago para pedir un libro?")
+    assert "biblioteca" in fixed.lower()
+
+
+def test_biblioteca_query_is_classified_as_tramites() -> None:
+    assert RAGService._is_tramites_query("como hago para pedir un libro en la biblioteca?")

@@ -1,3 +1,4 @@
+import logging
 import re
 import unicodedata
 from typing import Any, Dict, List, TypedDict
@@ -8,15 +9,30 @@ from uuid import UUID
 import httpx
 from bs4 import BeautifulSoup
 from langgraph.graph import END, StateGraph
-from langchain_openai import ChatOpenAI
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from sqlalchemy import text
 
 from app.config import settings
 from app.core.content_filters import is_institutional_news, is_non_academic_noise
 from app.core.domain_utils import domain_variants, normalize_domain
 from app.core.scraping_service import ScrapingService
+from app.embedding.models import EMBEDDING_DIM
 from app.llm.prompts import SYSTEM_RAG
 from app.storage.db_client import async_session
+
+
+CHUNKS_TABLE = "chunks"
+CHUNKS_TEXT_COL = "text"
+CHUNKS_SEQ_COL = "chunk_id"
+EMBEDDING_MODEL = "text-embedding-3-large"
+
+
+def _vec_to_pg_literal(vec) -> str:
+    """Format a Python list/sequence as a pgvector literal: '[0.1,0.2,...]'."""
+    return "[" + ",".join(f"{float(x):.7f}" for x in vec) + "]"
+
+
+logger = logging.getLogger(__name__)
 
 
 class AgentState(TypedDict):
@@ -63,103 +79,25 @@ class RAGService:
             timeout=float(getattr(settings, "RAG_LLM_TIMEOUT_SECONDS", 18)),
             max_retries=int(getattr(settings, "RAG_LLM_MAX_RETRIES", 1)),
         )
+        self.embedder = OpenAIEmbeddings(
+            model=EMBEDDING_MODEL,
+            api_key=settings.OPENAI_API_KEY,
+            dimensions=EMBEDDING_DIM,
+        )
         self.scraper = ScrapingService()
+
+    async def _embed_query(self, query: str) -> str:
+        """Embed the query and return a pgvector literal ready for SQL casting."""
+        vec = await self.embedder.aembed_query(query or "")
+        return _vec_to_pg_literal(vec)
 
     @staticmethod
     async def _resolve_embeddings_relation() -> tuple[str, str, str] | None:
         """
-        Resolve embeddings relation and columns across environments:
-        - chunks(text, chunk_id)
-        - documents_embeddings(chunk, chunk_seq)
-        - documents_embedding(chunk, chunk_seq)
-        - documents_embedding_store(chunk, chunk_seq)
-        - ai.vectorizer_status target/view relations
+        Returns (relation, text_col, seq_col) for the chunks table.
+        Constant after pgai removal — kept as a function so call-sites are stable.
         """
-        async with async_session() as session:
-            row = (
-                await session.execute(
-                    text(
-                        """
-                        SELECT
-                          to_regclass('public.chunks')::text AS chunks_table,
-                          to_regclass('public.documents_embeddings')::text AS documents_embeddings_table,
-                          to_regclass('public.documents_embedding')::text AS documents_embedding_table,
-                          to_regclass('public.documents_embedding_store')::text AS documents_embedding_store_table,
-                          COALESCE(
-                            (SELECT to_regclass(target_table)::text FROM ai.vectorizer_status ORDER BY id DESC LIMIT 1),
-                            ''
-                          ) AS vectorizer_target_table,
-                          COALESCE(
-                            (SELECT to_regclass(view)::text FROM ai.vectorizer_status ORDER BY id DESC LIMIT 1),
-                            ''
-                          ) AS vectorizer_view_table
-                        """
-                    )
-                )
-            ).mappings().first()
-            if not row:
-                return None
-
-            candidates: list[tuple[str, str, str]] = []
-            if row.get("chunks_table"):
-                candidates.append(("chunks", "text", "chunk_id"))
-            if row.get("documents_embeddings_table"):
-                candidates.append(("documents_embeddings", "chunk", "chunk_seq"))
-            if row.get("documents_embedding_table"):
-                candidates.append(("documents_embedding", "chunk", "chunk_seq"))
-            if row.get("documents_embedding_store_table"):
-                candidates.append(("documents_embedding_store", "chunk", "chunk_seq"))
-
-            for dynamic_relation in (
-                str(row.get("vectorizer_view_table") or "").strip(),
-                str(row.get("vectorizer_target_table") or "").strip(),
-            ):
-                if not dynamic_relation:
-                    continue
-                relation_name = dynamic_relation.split(".", 1)[-1]
-                candidates.append((relation_name, "chunk", "chunk_seq"))
-
-            checked: set[str] = set()
-            for relation_name, default_text_col, default_seq_col in candidates:
-                if relation_name in checked:
-                    continue
-                checked.add(relation_name)
-                cols = (
-                    await session.execute(
-                        text(
-                            """
-                            SELECT column_name
-                            FROM information_schema.columns
-                            WHERE table_schema = 'public' AND table_name = :table_name
-                            ORDER BY ordinal_position
-                            """
-                        ),
-                        {"table_name": relation_name},
-                    )
-                ).scalars().all()
-                colset = {str(c) for c in cols}
-                if not colset:
-                    continue
-                text_col = (
-                    default_text_col
-                    if default_text_col in colset
-                    else ("chunk" if "chunk" in colset else ("text" if "text" in colset else "content"))
-                )
-                if text_col not in colset:
-                    continue
-                if default_seq_col in colset:
-                    seq_col = default_seq_col
-                elif "chunk_seq" in colset:
-                    seq_col = "chunk_seq"
-                elif "chunk_id" in colset:
-                    seq_col = "chunk_id"
-                elif "id" in colset:
-                    seq_col = "id"
-                else:
-                    seq_col = text_col
-                return (relation_name, text_col, seq_col)
-
-        return None
+        return (CHUNKS_TABLE, CHUNKS_TEXT_COL, CHUNKS_SEQ_COL)
 
     def build_graph(self):
         workflow = StateGraph(AgentState)
@@ -3643,7 +3581,7 @@ class RAGService:
                   AND COALESCE(d.title, '') NOT ILIKE '%prensa%'
                   AND COALESCE(d.title, '') NOT ILIKE '%comunicado%'
                   AND COALESCE(d.title, '') NOT ILIKE '%agenda%'
-                ORDER BY de.embedding <=> ai.openai_embed('text-embedding-3-large', :resolved_query, dimensions => 1536)
+                ORDER BY de.embedding <=> CAST(:query_vec AS vector)
                 LIMIT :k
                 """
             )
@@ -3819,17 +3757,23 @@ class RAGService:
         async with async_session() as session:
             vector_rows = []
             if vector_stmt is not None:
-                vector_rows = (
-                    await session.execute(
-                        vector_stmt,
-                        {
-                            "resolved_query": resolved_query,
-                            "k": self.VECTOR_K,
-                            "domain_1": domain_1,
-                            "domain_2": domain_2,
-                        },
-                    )
-                ).mappings().all()
+                try:
+                    query_vec = await self._embed_query(resolved_query)
+                except Exception:
+                    logger.exception("Failed to embed query for vector search")
+                    query_vec = None
+                if query_vec is not None:
+                    vector_rows = (
+                        await session.execute(
+                            vector_stmt,
+                            {
+                                "query_vec": query_vec,
+                                "k": self.VECTOR_K,
+                                "domain_1": domain_1,
+                                "domain_2": domain_2,
+                            },
+                        )
+                    ).mappings().all()
 
             lexical_rows = []
             if lexical_stmt is not None:

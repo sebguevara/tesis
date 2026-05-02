@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import pgai
 
 import psycopg
 from psycopg import sql
@@ -11,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
 from app.config import settings
+import app.embedding.models  # noqa: F401  -- ensure all models are registered before create_all
 
 
 logger = logging.getLogger(__name__)
@@ -58,123 +58,31 @@ def _ensure_database_exists_sync() -> None:
                     pass
 
 
-async def _setup_vectorizer(conn) -> None:
-    """Create a pgai vectorizer on the documents table if not already present."""
-    vectorizer = None
-    needs_recreate = False
-    try:
-        vectorizer = (
-            await conn.execute(
-                text(
-                    """
-                    SELECT id, name, trigger_name
-                    FROM ai.vectorizer
-                    WHERE source_schema = 'public' AND source_table = 'documents'
-                    ORDER BY id DESC
-                    LIMIT 1
-                    """
-                )
-            )
-        ).mappings().first()
-    except Exception:
-        # ai.vectorizer may not exist yet if extension just enabled
-        vectorizer = None
-
-    if vectorizer:
-        try:
-            health = (
-                await conn.execute(
-                    text(
-                        """
-                        SELECT
-                          EXISTS (
-                            SELECT 1
-                            FROM pg_trigger t
-                            JOIN pg_class c ON c.oid = t.tgrelid
-                            JOIN pg_namespace n ON n.oid = c.relnamespace
-                            WHERE n.nspname = 'public'
-                              AND c.relname = 'documents'
-                              AND t.tgname = :trigger_name
-                              AND NOT t.tgisinternal
-                          ) AS trigger_exists,
-                          COALESCE(
-                            (SELECT to_regclass(target_table)::text FROM ai.vectorizer_status WHERE id = :id),
-                            ''
-                          ) AS target_table,
-                          COALESCE(
-                            (SELECT to_regclass(view)::text FROM ai.vectorizer_status WHERE id = :id),
-                            ''
-                          ) AS view_table
-                        """
-                    ),
-                    {"id": int(vectorizer["id"]), "trigger_name": str(vectorizer["trigger_name"])},
-                )
-            ).mappings().first()
-        except Exception:
-            health = None
-
-        if health and bool(health.get("trigger_exists")) and (
-            (health.get("target_table") or "") or (health.get("view_table") or "")
-        ):
-            logger.info("pgai vectorizer for 'documents' is healthy, skipping creation.")
-            return
-
-        logger.warning(
-            "Found broken pgai vectorizer '%s' (missing trigger/destination). Recreating.",
-            vectorizer["name"],
+async def _ensure_chunks_indexes(conn) -> None:
+    """Create HNSW (vector) and GIN (FTS) indexes on chunks. Idempotent."""
+    await conn.execute(
+        text(
+            """
+            CREATE INDEX IF NOT EXISTS chunks_embedding_hnsw_idx
+            ON chunks USING hnsw (embedding vector_cosine_ops)
+            """
         )
-        needs_recreate = True
-        try:
-            await conn.execute(
-                text("SELECT ai.drop_vectorizer(:name, drop_all => true)"),
-                {"name": str(vectorizer["name"])},
-            )
-        except Exception as exc:
-            logger.warning("Could not drop broken pgai vectorizer: %s", exc)
-
-    try:
-        result = await conn.execute(
-            text("""
-                SELECT count(*) FROM ai.vectorizer
-                WHERE source_table = 'documents'
-            """)
+    )
+    await conn.execute(
+        text(
+            """
+            CREATE INDEX IF NOT EXISTS chunks_text_fts_idx
+            ON chunks USING gin (to_tsvector('spanish', text))
+            """
         )
-        count = result.scalar()
-        if (count and count > 0) and not needs_recreate:
-            logger.info("pgai vectorizer for 'documents' already exists, skipping creation.")
-            return
-    except Exception:
-        # Table ai.vectorizer might not exist yet if extension just enabled
-        pass
-
-    try:
-        await conn.execute(text("""
-            SELECT ai.create_vectorizer(
-                'public.documents'::regclass,
-                loading       => ai.loading_column('content'),
-                embedding     => ai.embedding_openai('text-embedding-3-large', 1536),
-                chunking      => ai.chunking_character_text_splitter(1500, 200),
-                formatting    => ai.formatting_python_template('$chunk'),
-                enqueue_existing => true,
-                if_not_exists => true
-            );
-        """))
-        logger.info("pgai vectorizer for 'documents' created successfully.")
-    except Exception as exc:
-        logger.warning("Could not create pgai vectorizer: %s", exc)
+    )
 
 
 async def init_db():
     await asyncio.to_thread(_ensure_database_exists_sync)
     async with engine.begin() as conn:
-        # Enable core extensions
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector CASCADE"))
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS ai CASCADE"))
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vectorscale CASCADE"))
-
-        # Create tables
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(SQLModel.metadata.create_all)
-        # Backward-compatible schema bump for existing environments.
         await conn.execute(
             text(
                 """
@@ -183,9 +91,7 @@ async def init_db():
                 """
             )
         )
-
-        # Setup pgai vectorizer (auto-generates embeddings via vectorizer-worker)
-        await _setup_vectorizer(conn)
+        await _ensure_chunks_indexes(conn)
 
 
 async def get_session():

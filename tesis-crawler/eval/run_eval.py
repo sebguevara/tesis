@@ -82,6 +82,7 @@ def call_widget_query(
     payload: dict[str, Any] = {
         "question": question,
         "source_id": source_id,
+        "debug": True,
     }
     if session_id:
         payload["session_id"] = session_id
@@ -186,9 +187,11 @@ def main() -> int:
                     print(f"  [{qid}] ERROR ({elapsed_ms:.0f}ms): {err}")
                     answer = ""
                     received_session_id = session_id
+                    context_chunks: list[str] = []
                 else:
                     answer = (response or {}).get("answer", "") if response else ""
                     received_session_id = (response or {}).get("session_id") or session_id
+                    context_chunks = list((response or {}).get("context_chunks") or [])
                     if len(group) > 1 and received_session_id:
                         # Para multiturno, usamos el session_id que devolvió el server
                         session_id = received_session_id
@@ -208,6 +211,7 @@ def main() -> int:
                     "expects_clarification": item.get("expects_clarification", False),
                     "session_id": received_session_id,
                     "answer": answer,
+                    "context_chunks": context_chunks,
                     "raw_response": response,
                     "error": err,
                     "elapsed_ms": elapsed_ms,

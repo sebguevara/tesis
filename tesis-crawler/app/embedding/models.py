@@ -1,8 +1,12 @@
 from uuid import UUID, uuid4
 from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
-from sqlalchemy import UniqueConstraint
-from sqlmodel import SQLModel, Field, Column, ARRAY, Text, JSON
+from sqlalchemy import UniqueConstraint, ForeignKey, Index
+from sqlmodel import SQLModel, Field, Column, ARRAY, Text, JSON, Integer
+from pgvector.sqlalchemy import Vector
+
+
+EMBEDDING_DIM = 1536
 
 
 def utc_now_naive() -> datetime:
@@ -29,8 +33,28 @@ class Document(SQLModel, table=True):
     authority_score: float = Field(default=0.5)
     original_filename: Optional[str] = Field(default=None)
     content_hash: str = Field(index=True)
-    content: Optional[str] = Field(default=None, sa_column=Column(Text))  # full cleaned text — pgai chunks this
+    content: Optional[str] = Field(default=None, sa_column=Column(Text))  # full cleaned text
     fetched_at: datetime = Field(default_factory=utc_now_naive)
+
+
+class Chunk(SQLModel, table=True):
+    __tablename__ = "chunks"
+    __table_args__ = (
+        UniqueConstraint("doc_id", "chunk_id", name="uq_chunks_doc_seq"),
+        Index("chunks_doc_id_idx", "doc_id"),
+    )
+    id: Optional[int] = Field(default=None, primary_key=True)
+    doc_id: UUID = Field(
+        sa_column=Column(ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False, index=True)
+    )
+    chunk_id: int = Field(sa_column=Column(Integer, nullable=False))  # 0-based seq within doc
+    text: str = Field(sa_column=Column(Text, nullable=False))
+    context: Optional[str] = Field(default=None, sa_column=Column(Text))  # filled by Stage 2 contextual retrieval
+    embedding: Any = Field(sa_column=Column(Vector(EMBEDDING_DIM), nullable=False))
+    token_count: Optional[int] = Field(default=None)
+    created_at: datetime = Field(default_factory=utc_now_naive)
+
+
 class ConversationSession(SQLModel, table=True):
     __tablename__ = "conversation_sessions"
     session_id: str = Field(primary_key=True, index=True)

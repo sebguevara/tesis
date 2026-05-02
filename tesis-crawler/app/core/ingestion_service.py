@@ -3,14 +3,22 @@ import logging
 import re
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
-from sqlalchemy import delete, select
+from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sqlalchemy import delete, select, text as sa_text
 from app.config import settings
 from app.core.content_filters import should_index_page
 from app.core.domain_utils import domain_variants, normalize_domain, normalize_host_exact
-from app.embedding.models import Document, ProgramFact, Source, utc_now_naive
+from app.embedding.models import Chunk, Document, EMBEDDING_DIM, ProgramFact, Source, utc_now_naive
 
 
 logger = logging.getLogger(__name__)
+
+
+# Stage 0 baseline: same chunk shape pgai had (1500/200 chars). Stage 2 lowers these.
+DEFAULT_CHUNK_SIZE = 1500
+DEFAULT_CHUNK_OVERLAP = 200
+EMBEDDING_MODEL = "text-embedding-3-large"
 
 
 class IngestionService:
@@ -117,7 +125,46 @@ class IngestionService:
         return 1 <= years <= 12
 
     def __init__(self):
-        pass  # No splitters needed — pgai handles chunking + embedding
+        self.splitter = RecursiveCharacterTextSplitter(
+            chunk_size=DEFAULT_CHUNK_SIZE,
+            chunk_overlap=DEFAULT_CHUNK_OVERLAP,
+            length_function=len,
+            separators=["\n\n", "\n", ". ", " ", ""],
+        )
+        self.embedder = OpenAIEmbeddings(
+            model=EMBEDDING_MODEL,
+            api_key=settings.OPENAI_API_KEY,
+            dimensions=EMBEDDING_DIM,
+        )
+
+    async def _replace_chunks_for_doc(self, session, doc_id, content: str) -> int:
+        """
+        Re-chunk and re-embed a document. Deletes existing chunks for the doc
+        and inserts fresh ones. Returns the number of chunks written.
+        """
+        await session.execute(
+            sa_text("DELETE FROM chunks WHERE doc_id = :doc_id"),
+            {"doc_id": str(doc_id)},
+        )
+        chunk_texts = [c.strip() for c in self.splitter.split_text(content or "") if c and c.strip()]
+        if not chunk_texts:
+            return 0
+        embeddings = await self.embedder.aembed_documents(chunk_texts)
+        now = utc_now_naive()
+        for idx, (chunk_text, vec) in enumerate(zip(chunk_texts, embeddings)):
+            session.add(
+                Chunk(
+                    doc_id=doc_id,
+                    chunk_id=idx,
+                    text=chunk_text,
+                    context=None,
+                    embedding=vec,
+                    token_count=None,
+                    created_at=now,
+                )
+            )
+        await session.flush()
+        return len(chunk_texts)
 
     @staticmethod
     def _canonicalize_url(raw_url: str) -> str:
@@ -800,8 +847,14 @@ class IngestionService:
                 doc.original_filename = original_filename
             doc.fetched_at = utc_now_naive()
 
-        # Save full cleaned text — pgai vectorizer handles chunking + embedding
         doc.content = clean_content
+        await session.flush()
+
+        try:
+            await self._replace_chunks_for_doc(session, doc.doc_id, clean_content)
+        except Exception:
+            logger.exception("Failed to embed chunks for %s", canonical_url)
+            raise
 
         await session.execute(
             delete(ProgramFact)

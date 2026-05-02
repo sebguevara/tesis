@@ -48,7 +48,7 @@ async def _invoke_with_compact_retry(
     history: list[str],
 ) -> dict:
     graph = rag.build_graph()
-    payload = {
+    payload: dict = {
         "query": question,
         "context": [],
         "response": "",
@@ -149,6 +149,7 @@ class WidgetQueryRequest(BaseModel):
     source_id: str | None = Field(default=None, description="UUID o dominio de la fuente scrapeada")
     session_id: str | None = Field(default=None)
     metadata: dict | None = Field(default=None, description="Metadata contextual del widget")
+    debug: bool = Field(default=False, description="Si true, devuelve los chunks de contexto usados (para evaluación)")
 
 
 @router.post("/widget/query")
@@ -247,13 +248,16 @@ async def widget_query(
         )
         answer = apply_source_visibility(answer)
         await session_memory.append_assistant(session_id, answer, source_id=auth.source_id)
-        return {
+        body: dict = {
             "session_id": session_id,
             "source_id": str(auth.source_id),
             "user_id": auth.clerk_user_id,
             "answer": answer,
             "metadata_received": bool(metadata),
         }
+        if req.debug:
+            body["context_chunks"] = result.get("context") or []
+        return body
     except HTTPException:
         raise
     except Exception:

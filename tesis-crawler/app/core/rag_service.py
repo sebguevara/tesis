@@ -15,6 +15,7 @@ from sqlalchemy import text
 from app.config import settings
 from app.core.content_filters import is_institutional_news, is_non_academic_noise
 from app.core.domain_utils import domain_variants, normalize_domain
+from app.core.reranker import rerank as cross_encoder_rerank
 from app.core.scraping_service import ScrapingService
 from app.embedding.models import EMBEDDING_DIM
 from app.llm.prompts import SYSTEM_RAG
@@ -100,13 +101,246 @@ class RAGService:
         return (CHUNKS_TABLE, CHUNKS_TEXT_COL, CHUNKS_SEQ_COL)
 
     def build_graph(self):
+        # Stage 3: hybrid (vector + FTS) → RRF → cross-encoder reranker → LLM.
+        # Old fast-paths / regex extraction / URL hints / live-fetch fallback live
+        # in retrieve_legacy + generate_legacy and can be re-enabled by swapping
+        # the two add_node lines below.
         workflow = StateGraph(AgentState)
-        workflow.add_node("retrieve", self.retrieve)
-        workflow.add_node("generate", self.generate)
+        workflow.add_node("retrieve", self.retrieve_v3)
+        workflow.add_node("generate", self.generate_v3)
         workflow.set_entry_point("retrieve")
         workflow.add_edge("retrieve", "generate")
         workflow.add_edge("generate", END)
         return workflow.compile()
+
+    # ── Stage 3: hybrid retrieval + RRF + cross-encoder reranker ────────────
+    HYBRID_TOP_K_PER_LIST = 30
+    HYBRID_RRF_C = 60
+    HYBRID_RRF_TOP = 50
+    HYBRID_FINAL_TOP = 8
+
+    @staticmethod
+    def _rrf_fuse(
+        ranked_lists: list[list[str]],
+        c: int = HYBRID_RRF_C,
+        top_n: int = HYBRID_RRF_TOP,
+    ) -> list[str]:
+        """Reciprocal Rank Fusion: each item's score = sum of 1/(c + rank) across lists."""
+        scores: dict[str, float] = {}
+        for items in ranked_lists:
+            for rank, item_id in enumerate(items):
+                scores[item_id] = scores.get(item_id, 0.0) + 1.0 / (c + rank + 1)
+        ordered = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
+        return [k for k, _ in ordered[:top_n]]
+
+    async def retrieve_v3(self, state: AgentState):
+        """
+        Hybrid retrieval (Stage 3):
+          1. Dense (pgvector cosine) top-30
+          2. Sparse (Postgres FTS spanish) top-30
+          3. Reciprocal Rank Fusion → top-50
+          4. Cross-encoder reranker → top-8
+
+        No URL hints, no regex extraction, no SQL exclusion of /noticia/* — content
+        filtering happens at ingestion time and is trusted here.
+        """
+        query = (state.get("query") or "").strip()
+        source_id = (state.get("source_id") or "").strip()
+        if not query or not source_id:
+            return {"context": []}
+        try:
+            UUID(source_id)
+        except ValueError:
+            return {"context": []}
+
+        source_scope = await self._resolve_source_scope(source_id)
+        if not source_scope:
+            return {"context": []}
+        domain_1, domain_2, _source_url = source_scope
+
+        try:
+            query_vec = await self._embed_query(query)
+        except Exception:
+            logger.exception("Embedding query failed in retrieve_v3")
+            return {"context": []}
+
+        # Pull top-K from each retriever, joining chunks → documents → sources.
+        # Selecting both text and context so the prepended-context Stage 2 chunks
+        # can be presented to the LLM with full situational signal.
+        vector_sql = text(
+            """
+            SELECT
+              c.id::text AS cid,
+              d.canonical_url AS url,
+              COALESCE(d.title, '') AS title,
+              c.text AS chunk_text,
+              COALESCE(c.context, '') AS chunk_context,
+              d.fetched_at AS fetched_at
+            FROM chunks c
+            JOIN documents d ON d.doc_id = c.doc_id
+            JOIN sources s ON s.source_id = d.source_id
+            WHERE (lower(s.domain) = :domain_1 OR lower(s.domain) = :domain_2)
+              AND c.embedding IS NOT NULL
+            ORDER BY c.embedding <=> CAST(:query_vec AS vector)
+            LIMIT :k
+            """
+        )
+        fts_sql = text(
+            """
+            SELECT
+              c.id::text AS cid,
+              d.canonical_url AS url,
+              COALESCE(d.title, '') AS title,
+              c.text AS chunk_text,
+              COALESCE(c.context, '') AS chunk_context,
+              d.fetched_at AS fetched_at
+            FROM chunks c
+            JOIN documents d ON d.doc_id = c.doc_id
+            JOIN sources s ON s.source_id = d.source_id
+            WHERE (lower(s.domain) = :domain_1 OR lower(s.domain) = :domain_2)
+              AND to_tsvector('spanish', COALESCE(d.title, '') || ' ' || c.text)
+                  @@ websearch_to_tsquery('spanish', :q)
+            ORDER BY ts_rank(
+                to_tsvector('spanish', COALESCE(d.title, '') || ' ' || c.text),
+                websearch_to_tsquery('spanish', :q)
+            ) DESC
+            LIMIT :k
+            """
+        )
+
+        async with async_session() as session:
+            vec_rows = (
+                await session.execute(
+                    vector_sql,
+                    {
+                        "query_vec": query_vec,
+                        "k": self.HYBRID_TOP_K_PER_LIST,
+                        "domain_1": domain_1,
+                        "domain_2": domain_2,
+                    },
+                )
+            ).mappings().all()
+            try:
+                fts_rows = (
+                    await session.execute(
+                        fts_sql,
+                        {
+                            "q": query,
+                            "k": self.HYBRID_TOP_K_PER_LIST,
+                            "domain_1": domain_1,
+                            "domain_2": domain_2,
+                        },
+                    )
+                ).mappings().all()
+            except Exception:
+                logger.exception("FTS query failed; continuing with dense only")
+                fts_rows = []
+
+        by_cid: dict[str, dict] = {}
+        for row in [*vec_rows, *fts_rows]:
+            cid = str(row.get("cid") or "")
+            if not cid or cid in by_cid:
+                continue
+            by_cid[cid] = dict(row)
+
+        if not by_cid:
+            return {"context": []}
+
+        fused_cids = self._rrf_fuse(
+            [
+                [str(r.get("cid") or "") for r in vec_rows if r.get("cid")],
+                [str(r.get("cid") or "") for r in fts_rows if r.get("cid")],
+            ],
+            c=self.HYBRID_RRF_C,
+            top_n=self.HYBRID_RRF_TOP,
+        )
+
+        # Build candidate texts for the cross-encoder. Use context + chunk text
+        # together so the reranker scores the same situated text we indexed.
+        candidates: list[tuple[str, str]] = []
+        for cid in fused_cids:
+            row = by_cid.get(cid)
+            if not row:
+                continue
+            ctx_part = (row.get("chunk_context") or "").strip()
+            chunk_part = (row.get("chunk_text") or "").strip()
+            if not chunk_part:
+                continue
+            text_for_rerank = f"{ctx_part}\n\n{chunk_part}".strip() if ctx_part else chunk_part
+            candidates.append((cid, text_for_rerank))
+
+        if not candidates:
+            return {"context": []}
+
+        try:
+            ranked = await cross_encoder_rerank(
+                query,
+                [c[1] for c in candidates],
+                top_k=self.HYBRID_FINAL_TOP,
+            )
+        except Exception:
+            logger.exception("Cross-encoder rerank failed; using RRF order as fallback")
+            ranked = [(i, 0.0) for i in range(min(self.HYBRID_FINAL_TOP, len(candidates)))]
+
+        # Format the final contexts as before so generate_* can consume them.
+        contexts: list[str] = []
+        for idx, _score in ranked:
+            cid = candidates[idx][0]
+            row = by_cid.get(cid) or {}
+            url = (row.get("url") or "").strip()
+            title = (row.get("title") or "").strip()
+            ctx_part = (row.get("chunk_context") or "").strip()
+            chunk_part = (row.get("chunk_text") or "").strip()
+            fetched = row.get("fetched_at")
+            fetched_str = str(fetched) if fetched is not None else ""
+            content_block = f"{ctx_part}\n\n{chunk_part}".strip() if ctx_part else chunk_part
+            contexts.append(
+                f"URL: {url}\nTitulo: {title}\nFetchedAt: {fetched_str}\nContenido: {content_block}"
+            )
+
+        return {"context": contexts}
+
+    async def generate_v3(self, state: AgentState):
+        """
+        Stage 3: simple LLM generation over the hybrid+rerank context.
+        No regex extraction, no fact-templated answers, no live fetch fallback.
+        Trust the prompt's anti-hallucination rules to handle "no info" cases.
+        """
+        query = (state.get("query") or "").strip()
+        contexts = list(state.get("context") or [])
+        history = list(state.get("history") or [])
+
+        if not contexts:
+            return {"response": self.NO_INFO_RESPONSE}
+
+        # Cap total context characters to keep the prompt manageable.
+        joined: list[str] = []
+        running = 0
+        for block in contexts:
+            block = (block or "").strip()
+            if not block:
+                continue
+            if running + len(block) > self.MAX_CONTEXT_CHARS_TOTAL:
+                break
+            joined.append(block)
+            running += len(block)
+
+        history_blocks = self._history_for_prompt(history)
+        history_text = "\n".join(history_blocks).strip()
+        context_text = "\n\n---\n\n".join(joined)
+
+        prompt = (
+            f"{SYSTEM_RAG}\n\n"
+            f"Historial reciente:\n{history_text}\n\n"
+            f"Contexto recuperado:\n{context_text}\n\n"
+            f"Pregunta del usuario:\n{query}"
+        )
+        # Defensive truncation if the prompt is still too long.
+        if len(prompt) > self.MAX_PROMPT_CHARS:
+            prompt = prompt[: self.MAX_PROMPT_CHARS]
+
+        res = await self.llm.ainvoke(prompt)
+        return {"response": (res.content or "").strip()}
 
     @staticmethod
     def _normalize_text(value: str) -> str:

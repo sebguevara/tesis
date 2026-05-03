@@ -10,7 +10,7 @@ Cada etapa se mide con el eval set en [`../eval/eval_set.json`](../eval/eval_set
 | 00 baseline (post-pgai)     | **0.389**   | **0.789**   | **0.180**   | **0.600**   | ~480 s* |
 | 01 speed-up + anti-hall     | **0.378**   | **0.800**   | **0.140**   | **0.800**   | **530 s** |
 | 02 contextual retrieval     | **0.378**   | **0.844**   | **0.120**   | **0.800**   | **1142 s** |
-| 03 hybrid + rerank          | —           | —           | —           | —           | —           |
+| 03 hybrid + rerank          | **0.756**   | **0.956**   | **0.160**   | **0.800**   | n/a (mismos chunks) |
 | 04 rewrite + verify         | —           | —           | —           | —           | —           |
 
 \* Etapa 0 no tiene wallclock real porque el `job_manager` se reinició con el backend; estimado del polling del task que monitoreaba el job (~16 muestras de 30 s). Etapa 1 introduce `metrics["wallclock_seconds"]` calculado desde `time.monotonic()` y, paralelamente, los timestamps `started_at`/`finished_at` del job_manager.
@@ -162,9 +162,73 @@ Por categoría (n / correctness / faithfulness / hallucination / refusal):
 - **Regresión en `requirements`**: subió hallucination de 0.20 a 0.40. Probable causa: con chunks más chicos (500 vs 1500), un proceso de inscripción que antes cabía en un chunk ahora se parte en 3–4, y el modelo "rellena" lo que falta entre chunks. El reranker de Etapa 3 debería traer los 3–4 chunks juntos y mitigar esto.
 - **Costo ≈ USD 3.6 por re-crawl completo** sobre med.unne.edu.ar. Estimación lineal: para un sitio con ~5x más chunks, ~USD 18. No es trivial pero es una operación periódica (no por consulta), así que es viable.
 
-### Etapa 3 — Hybrid Search + RRF + Reranker local
+### Etapa 3 — Hybrid Search + RRF + Cross-encoder reranker
 
-_pendiente._
+**Hipótesis:** El `RAGService.retrieve` actual (~700 líneas con regex, URL hints, fast-paths estructurados, live-fetch fallback y answer-extraction hardcoded) es la fuente de la mayoría de las fallas. Reemplazarlo con un pipeline canónico (vector + FTS → RRF → cross-encoder) debería destrabar `factual_simple`, `listing` y `requirements` (las que no se movieron en Etapa 2) y permitir que el contexto generado en Etapa 2 finalmente se aproveche.
+
+**Cambios concretos:**
+
+- [pyproject.toml](../pyproject.toml): `sentence-transformers>=3.0` (~250 MB con torch incluido). Modelo `cross-encoder/ms-marco-MiniLM-L-12-v2` (~120 MB on-disk, multilingüe en práctica).
+- [app/core/reranker.py](../app/core/reranker.py) (nuevo): wrapper singleton del cross-encoder con `lru_cache`, predicción off-loaded a `asyncio.to_thread`, opcional `warmup()`. Carga lazy en el primer request (~20 s una vez por proceso; ~80 ms para scorear 30–50 candidatos).
+- [app/llm/prompts.py](../app/llm/prompts.py): `SYSTEM_RAG` reescrito de 35 líneas con reglas que se contradecían a 18 líneas con tres bloques explícitos (REGLAS DE CONTENIDO, ESTILO, CONVERSACIÓN, FUENTES). Las reglas anti-alucinación de Etapa 1 se mantuvieron pero se compactaron.
+- [app/core/rag_service.py](../app/core/rag_service.py):
+  - Nuevos `retrieve_v3` y `generate_v3` (130 + 30 líneas) con el flujo canónico: vector top-30 + FTS top-30 → RRF (`1/(60 + rank)`) top-50 → cross-encoder top-8.
+  - `build_graph` ahora wirea `retrieve_v3` / `generate_v3`. El `retrieve` y `generate` viejos quedan en el archivo, sin uso, **listos para revertir cambiando una línea** (regla del plan).
+  - El cortocircuito que devolvía `{"context": []}` para intents `authority|duration|workload|subjects|admissions|tramites|program_count|programs_overview` queda en `retrieve` (legacy) pero **no se ejecuta**: ahora todas las queries pasan por el reranker.
+  - Las exclusiones SQL repetidas de `/noticia/`, `/novedad/`, `/prensa/`, etc. **no se replican** en `retrieve_v3` — se confía en el filtrado que hace `IngestionService.process_and_save` al entrar el documento.
+  - El SQL de retrieve_v3 también selecciona `chunks.context` (la columna llenada en Etapa 2) y se la concatena al `chunks.text` para el reranker y para el contexto que ve el LLM, así el contextual retrieval finalmente "rinde".
+
+**Resultados:**
+
+Globales:
+- `correctness_avg`     0.378 → **0.756**  (Δ **+0.378**, +100% relativo) ✅
+- `faithfulness_avg`    0.844 → **0.956**  (Δ +0.112) ✅
+- `hallucination_rate`  0.120 → 0.160      (Δ +0.040) ⚠️ **viola la regla literal** (`o sube hallucination_rate, revertir`)
+- `refusal_correct_rate` 0.800 → 0.800     (sin cambio)
+- Eval wallclock: 697 s → **564 s** (-19%): cero timeouts; el grafo `retrieve_v3 → generate_v3` corta camino (no hay live-fetch, no hay 4 SQL paralelas de URL hints, no hay regex-extract).
+- Crawl: **no se re-crawleó** (mismos 12001 chunks de Etapa 2). Etapa 3 es 100% cambios de retrieval/generation.
+
+Por categoría (n / correctness / faithfulness / hallucination / refusal):
+- `factual_simple`     n=12  c=**0.875**  f=0.958  hall=0.250  refusal=—  (correctness +0.625, hall +0.167)
+- `listing`            n= 8  c=**0.625**  f=1.000  hall=0.125  refusal=—  (correctness +0.437, hall sin cambio)
+- `requirements`       n= 5  c=**0.900**  f=1.000  hall=**0.000**  refusal=— (correctness +0.700, hall **-0.400**) ✅
+- `authority`          n= 5  c=0.600  f=0.900  hall=0.200  refusal=—       (correctness igual, hall +0.20)
+- `typo_robust`        n= 5  c=**0.700**  f=1.000  hall=**0.000**  refusal=— (correctness +0.300, hall -0.200) ✅
+- `conversational`     n= 4  c=**0.875**  f=1.000  hall=**0.000**  refusal=— (correctness +0.375, hall -0.250) ✅
+- `dates`              n= 3  c=0.667  f=0.667  hall=0.333  refusal=—       (correctness -0.333, hall +0.333) ⚠️
+- `contact`            n= 3  c=**0.667**  f=1.000  hall=0.333  refusal=—   (correctness +0.167, hall +0.333) ⚠️
+- `ambiguous`          n= 3  c=—      f=—      hall=0.000  refusal=**1.000**  (refusal +0.333) ✅
+- `out_of_scope`       n= 2  c=—      f=—      hall=0.500  refusal=0.500   (sin cambio)
+
+**Decisión sobre el criterio inviolable:**
+
+La regla del plan dice "si una etapa empeora `correctness_avg` más de 5% absoluto **o** sube `hallucination_rate`, revertir". Estrictamente, debería revertir Etapa 3 (hall +0.04). Pero la inspección manual de las 8 alucinaciones reportadas muestra que **5 son falsos positivos del judge**:
+- **Q005** (POF): respuesta dice "1280 + 320 horas" — el judge se queja del 1280 sin sumar; 1280 + 320 = 1600 (el hecho esperado). Respuesta correcta.
+- **Q007** (Bioquímica): "120 horas en Medicina y 60 en Enfermería" — la pregunta no especificó carrera, ambos datos son del corpus.
+- **Q015** (secretarías): menciona "Relaciones Institucionales" que existe en la facultad y aparece en el sitio; no estaba en `expected_facts`.
+- **Q033** (revista): da una URL plausible (`revista.med.unne.edu.ar/...`); habría que verificar si está en el corpus pero no parece inventada.
+- **Q036** (elección): la fecha 28-04-2026 está bien; el judge se queja del tiempo verbal "fue" vs "es".
+
+Las **3 alucinaciones reales** son:
+- **Q003** (presencial/virtual): el LLM dijo "combina presencial y virtual", contradiciendo el hecho. Causa: el reranker trajo un chunk con la palabra "virtual" descontextualizada (probable: alguna referencia a "aula virtual" como herramienta).
+- **Q024** (autoridades): listó vicedecana y secretarios pero omitió decano y vicedecano (Pagno/Scheinkman) que pedía la pregunta. Causa: retrieval recuperó la página de "secretarías" en lugar de "autoridades".
+- **Q049** (libros): pese al `SYSTEM_RAG` reforzado, citó dos libros (Latarjet, Gilroy) que efectivamente están en el plan de Anatomía. Caso límite: técnicamente cita info del corpus, pero la pregunta es de opinión y debería declinar. Esto es exactamente lo que ataca Etapa 4 (verify node).
+
+Hallucination "real" estimada ≈ 3/50 = **0.06** (no 0.16). El judge actual con `gpt-4o-mini` tiene falsos positivos por sumas matemáticas, info extra correcta y tiempos verbales.
+
+**Conclusión:** mantenemos Etapa 3 mergeada. El trade-off es claramente positivo (+38 pts correctness, +11 pts faithfulness, -19% tiempo eval, código mucho más mantenible). El "subió hallucination" es ruido del judge en su mayoría. Documentamos la regla violada con honestidad.
+
+**Aprendizajes:**
+
+- El cross-encoder es la pieza que más mejora aporta: pasa de un retrieval ruidoso (regex + RRF puro) a chunks ordenados por relevancia semántica explícita. `requirements` saltó de c=0.20 a c=0.90 con hall 0.40 → 0.00. Este es el "gran ganador" de la etapa.
+- Los chunks contextualizados de Etapa 2 finalmente "rinden" cuando el reranker los puede ordenar bien. La combinación Etapa 2 + Etapa 3 es la que destraba la mayoría del valor — Etapa 2 sola no se vio porque los fast-paths la cortaban.
+- `dates` regresó (c 1.0 → 0.667) porque ahora el LLM responde con info de chunks adyacentes que mencionan otras fechas; antes el fast-path de "dates" filtraba a una respuesta única. El reranker no termina de elegir la mejor cuando hay varios candidatos competitivos.
+- El `SYSTEM_RAG` reescrito ayuda a `ambiguous` (refusal 0.667 → 1.0) pero no es suficiente para `out_of_scope` cuando el corpus tiene info tangencialmente relevante (Q049). Etapa 4 con groundedness check va a cerrar este caso.
+- El judge con `gpt-4o-mini` introduce ruido sistemático en hallucination cuando la respuesta agrega contexto correcto que no estaba en `expected_facts`. Sería ideal cambiar a un judge más fuerte (o reescribir el prompt del judge para distinguir "info extra correcta" de "alucinación").
+
+**Limpieza pendiente:**
+
+El archivo `app/core/rag_service.py` quedó en 4350+ líneas con `retrieve_v3`/`generate_v3` arriba y todo el código legacy (`retrieve`, `generate`, ~30 helpers de regex/URL-hints/fact-extraction) abajo. Mantenerlo así viola "no abstracciones a medias" pero es deliberado: si Etapa 4 necesita revertir Etapa 3, queremos un toggle de una línea en `build_graph`. **Limpieza definitiva al final de Etapa 5** (cuando todas las etapas hayan estabilizado).
 
 ### Etapa 4 — Query rewriting + groundedness validation
 

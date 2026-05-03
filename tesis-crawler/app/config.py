@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     OPENAI_CHAT_MODEL: str = os.getenv("OPENAI_CHAT_MODEL")
     OPENAI_CONTEXT_MODEL: str = os.getenv("OPENAI_CONTEXT_MODEL", "gpt-4o-mini")
+    # Stage 5 refinement: gpt-4o-mini fails to flag medical advice / opinion
+    # answers in the verify node (groundedness=1.0 even when out-of-scope).
+    # gpt-4o catches them. Cost is ~3x but verify only runs once per query,
+    # not per chunk — affordable.
+    OPENAI_VERIFY_MODEL: str = os.getenv("OPENAI_VERIFY_MODEL", "gpt-4o")
     SITE_MD_DIR: str = os.getenv("SITE_MD_DIR")
     WIDGET_TEST_ORIGIN: str = os.getenv("WIDGET_TEST_ORIGIN", "")
     WIDGET_DEV_API_KEY: str = os.getenv("WIDGET_DEV_API_KEY", "")

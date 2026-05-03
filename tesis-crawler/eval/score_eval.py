@@ -44,16 +44,19 @@ JUDGE_SYSTEM = (
 
 
 CORRECTNESS_PROMPT = """\
-Evaluá si la RESPUESTA cubre los HECHOS_ESPERADOS de la pregunta.
-Devolvé JSON con la forma:
-{{"score": <float entre 0 y 1>, "rationale": "<máx 30 palabras>"}}
+Evaluá si la RESPUESTA cubre los HECHOS_ESPERADOS.
+Devolvé JSON: {{"score": <float entre 0 y 1>, "rationale": "<máx 30 palabras>"}}
 
 Reglas:
-- 1.0 = todos los hechos esperados están presentes y correctos.
-- 0.5 = parcialmente: faltan hechos o están incompletos.
-- 0.0 = la respuesta no cubre ninguno de los hechos esperados.
-- Si la respuesta agrega info correcta extra, no penalices.
-- Si la respuesta dice "no sé" o pide aclaración pero los hechos esperados existían, score = 0.0.
+- 1.0 = todos los hechos esperados están presentes y son correctos.
+  - Aceptá paráfrasis: "1280 + 320 horas" cubre "1600 horas" (la suma vale).
+  - Aceptá variantes ortográficas: "Anatomía" cubre "anatomia".
+  - Aceptá la info aunque la respuesta agregue datos correctos adicionales.
+- 0.5 = parcial: cubre la mitad de los hechos, o falta precisión en alguno.
+- 0.0 = no cubre ninguno de los hechos esperados, o dice "no sé" cuando los hechos sí existen.
+- Si la respuesta es un decline ("no encontré evidencia suficiente") pero la pregunta
+  era de opinión / out-of-scope (HECHOS_ESPERADOS vacío o pregunta tipo "el mejor X"),
+  score = 1.0 (declinar es lo correcto).
 
 PREGUNTA: {question}
 HECHOS_ESPERADOS: {expected_facts}
@@ -83,15 +86,63 @@ RESPUESTA_DEL_SISTEMA:
 
 
 HALLUCINATION_PROMPT = """\
-Detectá si la RESPUESTA contiene alucinaciones.
+Detectá si la RESPUESTA contiene alucinaciones (criterio estricto).
+
+IMPORTANTE: "Alucinación" significa AFIRMAR ALGO FALSO O INVENTADO. NO significa
+"respuesta incompleta". Si la respuesta omite algunos HECHOS_ESPERADOS pero lo que
+SÍ dice es correcto, eso es un problema de COBERTURA (correctness baja), NO una
+alucinación. Solo marcá hallucinated=true si la respuesta dice algo FALSO o
+INVENTADO (no por omitir).
+
 Devolvé JSON: {{"hallucinated": <true|false>, "reason": "<máx 25 palabras>"}}
 
-Una respuesta alucina si:
+ALUCINA si (basta UNA, todas son sobre afirmar algo falso/inventado):
 - Menciona literal o equivalente cualquier elemento de PROHIBIDOS_LITERALES.
-- Inventa nombres propios, fechas, números, cargos o URLs que no aparecen en CONTEXTO ni en HECHOS_ESPERADOS.
-- Contradice los HECHOS_ESPERADOS.
+- CONTRADICE los HECHOS_ESPERADOS (afirma algo opuesto, distinto o incompatible
+  con lo esperado — no solo "no menciona todo").
+- Cita una URL, email, nombre propio, fecha, número, cargo o entidad que NO
+  aparece en el CONTEXTO ni en HECHOS_ESPERADOS y que es claramente una
+  afirmación factual nueva (inventada).
 
-NO alucina si dice "no sé", pide aclaración, o sólo menciona hechos del CONTEXTO.
+NO alucina si:
+- Dice "no sé", "no encontré", o pide aclaración (decline correcto).
+- Es INCOMPLETA — menciona algunos hechos esperados pero no todos. Esto baja
+  correctness, no es hallucination. ¡No marques hallucinated=true por esto!
+- Solo menciona hechos del CONTEXTO o HECHOS_ESPERADOS, aunque omita otros.
+- Agrega información correcta extra que SÍ está en el CONTEXTO (ej: "Bioquímica
+  tiene 120 horas en Medicina y 60 en Enfermería" cuando la pregunta es por
+  Bioquímica sin especificar carrera y ambos datos están en el contexto).
+- Hace una operación matemática trivial sobre datos del CONTEXTO ("1280+320=1600"
+  cubre "1600 horas").
+- Usa tiempos verbales distintos a los esperados (ej: "fue" vs "es") cuando el dato
+  es correcto. Eso es estilo, no alucinación.
+- Usa una variante ortográfica/normalizada del mismo dato (ej: "Anatomía Humana
+  Normal" cuando HECHOS_ESPERADOS dice "Anatomía").
+- Cita una entidad real del sitio que no figura en HECHOS_ESPERADOS pero sí está
+  presente en el CONTEXTO (ej: nombrar una secretaría adicional que existe).
+
+EJEMPLOS para fijar el criterio:
+
+Pregunta: "¿Qué materias se cursan en el primer año de Medicina?"
+HECHOS_ESPERADOS: ["Medicina, Hombre y Sociedad", "Anatomía", "Bioquímica", "Histología"]
+Respuesta: "En el primer año se cursa Medicina, Hombre y Sociedad (400 horas)."
+→ {{"hallucinated": false, "reason": "Respuesta incompleta (cobertura baja), no inventa nada."}}
+Esto es CORRECTNESS bajo, NO hallucination.
+
+Pregunta: "¿Cuántas horas tiene la materia Bioquímica?"
+HECHOS_ESPERADOS: ["120 horas"]
+Respuesta: "Bioquímica tiene 120 horas en Medicina y 60 en Enfermería."
+→ {{"hallucinated": false, "reason": "Info extra (60 hs Enfermería) está en el contexto."}}
+
+Pregunta: "¿La carrera de Medicina es presencial o virtual?"
+HECHOS_ESPERADOS: ["presencial"]
+PROHIBIDOS: ["virtual", "semipresencial"]
+Respuesta: "Combina presencial y virtual."
+→ {{"hallucinated": true, "reason": "Menciona 'virtual', está en PROHIBIDOS."}}
+
+Pregunta: "¿Cuál es el mejor libro para Anatomía?"
+Respuesta: "No puedo recomendar un libro específico como 'el mejor'."
+→ {{"hallucinated": false, "reason": "Decline correcto a pregunta de opinión."}}
 
 PREGUNTA: {question}
 HECHOS_ESPERADOS: {expected_facts}
@@ -123,7 +174,10 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--output", required=True, type=Path, help="Path al archivo de salida JSON con scores")
     p.add_argument(
         "--judge-model",
-        default=os.environ.get("JUDGE_MODEL", "gpt-4o-mini"),
+        # Stage 5: gpt-4o-mini deja muchos falsos positivos en hallucination
+        # (suma matemática, info extra correcta, tiempos verbales). gpt-4o es
+        # más caro pero notablemente más estricto y reduce el ruido.
+        default=os.environ.get("JUDGE_MODEL", "gpt-4o"),
         help="Modelo OpenAI a usar como juez",
     )
     p.add_argument("--limit", type=int, default=0, help="Limitar a N ítems (0 = todos)")

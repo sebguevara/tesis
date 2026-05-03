@@ -8,13 +8,16 @@ import json
 import logging
 import re
 import asyncio
+import time
 from pathlib import Path
 from urllib.parse import urlparse, urljoin
 from typing import Callable, Optional, Any
+from xml.etree import ElementTree as ET
 
+import httpx
 from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler
-from crawl4ai.async_dispatcher import SemaphoreDispatcher
+from crawl4ai.async_dispatcher import MemoryAdaptiveDispatcher, SemaphoreDispatcher
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.deep_crawling.filters import FilterChain, URLFilter, URLPatternFilter
 from app.config import settings
@@ -85,11 +88,92 @@ class CrawlWorker:
         "/trámites",
     )
 
+    SITEMAP_PATHS = ("/sitemap_index.xml", "/sitemap.xml")
+    SITEMAP_NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
     def __init__(self):
         self.scraper = ScrapingService()
         self.ingestor = IngestionService()
         self.classifier = PageClassifier()
         self.pdf_service = PDFService()
+
+    @classmethod
+    async def _fetch_sitemap_urls(cls, start_url: str, host_filter: "ExactHostFilter") -> list[str]:
+        """
+        Try to discover the site's sitemap and return up to a few thousand URLs.
+        Walks one level of <sitemapindex> if present. Returns [] on any failure.
+        """
+        parsed = urlparse(start_url)
+        if not parsed.scheme or not parsed.netloc:
+            return []
+        base = f"{parsed.scheme}://{parsed.netloc}"
+        seen: set[str] = set()
+        urls: list[str] = []
+
+        async def _fetch(url: str) -> str | None:
+            try:
+                async with httpx.AsyncClient(
+                    follow_redirects=True,
+                    timeout=httpx.Timeout(15.0),
+                    headers={"User-Agent": "tesis-crawler/0.1 (sitemap-discovery)"},
+                ) as client:
+                    resp = await client.get(url)
+                if resp.status_code != 200 or not (resp.content or b"").strip():
+                    return None
+                return resp.text
+            except Exception:
+                return None
+
+        def _parse(xml_text: str) -> tuple[list[str], list[str]]:
+            """Return (page_urls, child_sitemap_urls)."""
+            try:
+                root = ET.fromstring(xml_text)
+            except ET.ParseError:
+                return [], []
+            tag = root.tag.split("}")[-1]
+            child_sitemaps: list[str] = []
+            page_urls: list[str] = []
+            if tag == "sitemapindex":
+                for sm in root.findall("sm:sitemap", cls.SITEMAP_NS):
+                    loc = sm.find("sm:loc", cls.SITEMAP_NS)
+                    if loc is not None and loc.text:
+                        child_sitemaps.append(loc.text.strip())
+            elif tag == "urlset":
+                for u in root.findall("sm:url", cls.SITEMAP_NS):
+                    loc = u.find("sm:loc", cls.SITEMAP_NS)
+                    if loc is not None and loc.text:
+                        page_urls.append(loc.text.strip())
+            return page_urls, child_sitemaps
+
+        candidates: list[str] = [base + p for p in cls.SITEMAP_PATHS]
+        explored: set[str] = set()
+
+        while candidates and len(urls) < 5000:
+            current = candidates.pop(0)
+            if current in explored:
+                continue
+            explored.add(current)
+            xml_text = await _fetch(current)
+            if not xml_text:
+                continue
+            page_urls, child_sitemaps = _parse(xml_text)
+            for child in child_sitemaps:
+                if child not in explored:
+                    candidates.append(child)
+            for u in page_urls:
+                if u in seen:
+                    continue
+                if not host_filter.is_allowed(u):
+                    continue
+                low = u.lower()
+                if low.endswith(".pdf") or ".pdf?" in low:
+                    continue  # PDFs flow through the dedicated PDF queue
+                seen.add(u)
+                urls.append(u)
+                if len(urls) >= 5000:
+                    break
+
+        return urls
 
     @classmethod
     def _matches_allow_priority(cls, url: str, title: str = "") -> bool:
@@ -267,6 +351,7 @@ class CrawlWorker:
         min_content_words: int = 5,
         count_valid_pages_only: bool = True,
         block_old_years: bool = True,
+        use_sitemap_seed: bool = False,
         debug_output_dir: Optional[str] = None,
         progress_hook: Optional[Callable[[dict], None]] = None,
     ):
@@ -351,11 +436,28 @@ class CrawlWorker:
         )
         filter_chain_parts = [host_filter]
         filter_chain_parts.append(block_filter)
-        deep_crawl = BFSDeepCrawlStrategy(
-            max_depth=max(1, max_depth),
-            include_external=False,
-            filter_chain=FilterChain(filter_chain_parts),
-        )
+
+        # Stage 1: optional sitemap-first seeding. Faster but trades recall
+        # (the sitemap may not list every page). Off by default; flip on with
+        # use_sitemap_seed=true on POST /api/scrape.
+        sitemap_urls: list[str] = []
+        if use_sitemap_seed:
+            sitemap_urls = await self._fetch_sitemap_urls(start_url, host_filter)
+            sitemap_urls = [u for u in sitemap_urls if block_filter.apply(u)]
+        use_sitemap_seed = use_sitemap_seed and len(sitemap_urls) > 0
+        if use_sitemap_seed:
+            logger.info(
+                "Sitemap discovery found %d URLs for %s — using sitemap seeding",
+                len(sitemap_urls), start_url,
+            )
+
+        deep_crawl = None
+        if not use_sitemap_seed:
+            deep_crawl = BFSDeepCrawlStrategy(
+                max_depth=max(1, max_depth),
+                include_external=False,
+                filter_chain=FilterChain(filter_chain_parts),
+            )
 
         config = self.scraper.config
         config.deep_crawl_strategy = deep_crawl
@@ -369,12 +471,16 @@ class CrawlWorker:
         failed_fetch_urls: list[str] = []
         skipped_invalid_urls: list[str] = []
         skipped_ingestion_rows: list[str] = []
+        crawl_started_at = time.monotonic()
         metrics = {
             "total_results": 0,
             "processed_results": 0,
             "finished_reason": "running",
             "target_valid_pages": max_pages,
             "crawl_budget_pages": crawl_budget_pages,
+            "seeding_strategy": "sitemap" if use_sitemap_seed else "bfs",
+            "sitemap_urls_found": len(sitemap_urls) if use_sitemap_seed else 0,
+            "wallclock_seconds": 0.0,
             "accepted_valid_pages": 0,
             "successful_results": 0,
             "saved_docs": 0,
@@ -412,7 +518,8 @@ class CrawlWorker:
         pdf_queue: asyncio.Queue[str | None] = asyncio.Queue(
             maxsize=max(30, max(1, concurrency) * 10)
         )
-        ingest_workers = max(1, min(8, max(1, concurrency)))
+        # Stage 1: scale ingest workers with concurrency (was capped at 8).
+        ingest_workers = max(1, min(16, max(1, concurrency)))
         pdf_workers = max(1, min(4, max(1, concurrency // 2 or 1)))
         ingest_inflight = 0
         pdf_inflight = 0
@@ -712,23 +819,45 @@ class CrawlWorker:
 
         try:
             async with AsyncWebCrawler() as crawler:
-                crawl_dispatcher = SemaphoreDispatcher(
-                    semaphore_count=max(1, concurrency),
-                    max_session_permit=max(1, concurrency),
-                )
-                crawl_result = None
-                # Deep crawl is wired on crawler.arun (decorated by DeepCrawlDecorator).
-                # Keep arun here to preserve BFS/DFS traversal and enable streaming via config.stream.
+                # SemaphoreDispatcher works for arun() (BFS) but lacks the
+                # streaming interface arun_many() needs. MemoryAdaptiveDispatcher
+                # supports both — use it on the sitemap path.
+                if use_sitemap_seed:
+                    crawl_dispatcher = MemoryAdaptiveDispatcher(
+                        max_session_permit=max(1, concurrency),
+                    )
+                else:
+                    crawl_dispatcher = SemaphoreDispatcher(
+                        semaphore_count=max(1, concurrency),
+                        max_session_permit=max(1, concurrency),
+                    )
                 stream_prev = getattr(config, "stream", False)
                 setattr(config, "stream", True)
                 try:
-                    crawl_result = await crawler.arun(start_url, config=config)
+                    if use_sitemap_seed:
+                        # Sitemap path: feed discovered URLs directly to arun_many.
+                        # Cap at the crawl budget to bound work.
+                        seed_urls = sitemap_urls[: max(1, crawl_budget_pages)]
+                        crawl_result = await crawler.arun_many(
+                            seed_urls,
+                            config=config,
+                            dispatcher=crawl_dispatcher,
+                        )
+                    else:
+                        # BFS path: deep_crawl_strategy wires the traversal off start_url.
+                        crawl_result = await crawler.arun(start_url, config=config)
 
                     if hasattr(crawl_result, "__aiter__"):
                         async for res in crawl_result:
                             if res is None:
                                 continue
                             await on_result_hook(res)
+                            if (
+                                count_valid_pages_only
+                                and metrics["accepted_valid_pages"] >= max_pages
+                            ):
+                                metrics["finished_reason"] = "target_reached"
+                                break
                     else:
                         fallback_results = []
                         if isinstance(crawl_result, list):
@@ -739,8 +868,12 @@ class CrawlWorker:
                             if res is None:
                                 continue
                             await on_result_hook(res)
-                except Exception:
-                    # Last-resort fallback keeps behavior compatible.
+                except Exception as primary_exc:
+                    logger.exception(
+                        "Primary crawl path failed (use_sitemap_seed=%s); falling back to arun(start_url): %s",
+                        use_sitemap_seed,
+                        primary_exc,
+                    )
                     crawl_result = await crawler.arun(start_url, config=config)
                     if crawl_result is not None:
                         if hasattr(crawl_result, "__aiter__"):
@@ -769,7 +902,8 @@ class CrawlWorker:
         if metrics["finished_reason"] == "running":
             metrics["finished_reason"] = "completed"
         metrics["total_results"] = metrics["processed_results"]
-        
+        metrics["wallclock_seconds"] = round(time.monotonic() - crawl_started_at, 2)
+
         if progress_hook:
             progress_hook(metrics)
 

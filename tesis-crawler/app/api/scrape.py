@@ -23,7 +23,7 @@ router = APIRouter(tags=["Scrape"])
 class ScrapeRequest(BaseModel):
     url: HttpUrl
     max_pages: int = 100
-    concurrency: int = Field(default=10, ge=1, le=50)
+    concurrency: int = Field(default=20, ge=1, le=50)
     max_depth: int = Field(default=5, ge=1, le=10)
     persist_to_db: bool = True
     save_markdown_files: bool = False
@@ -31,6 +31,10 @@ class ScrapeRequest(BaseModel):
     min_content_words: int = Field(default=5, ge=1, le=200)
     count_valid_pages_only: bool = True
     block_old_years: bool = True
+    # Stage 1: opt-in. BFS discovery surfaces more URLs than the sitemap on
+    # WordPress sites that don't list every page; sitemap-first is faster
+    # but has lower recall. Keep BFS as the default for quality.
+    use_sitemap_seed: bool = False
     clerk_user_id: str | None = None
 
     @field_validator("url")
@@ -175,6 +179,7 @@ async def run_scrape_task(
     min_content_words: int,
     count_valid_pages_only: bool,
     block_old_years: bool,
+    use_sitemap_seed: bool = False,
     clerk_user_id: str | None = None,
 ):
     worker = CrawlWorker()
@@ -367,6 +372,7 @@ async def run_scrape_task(
             min_content_words=min_content_words,
             count_valid_pages_only=count_valid_pages_only,
             block_old_years=block_old_years,
+            use_sitemap_seed=use_sitemap_seed,
             debug_output_dir=debug_output_dir,
             progress_hook=on_progress,
         )
@@ -454,6 +460,7 @@ async def start_scraping(req: ScrapeRequest, bt: BackgroundTasks):
         req.min_content_words,
         req.count_valid_pages_only,
         req.block_old_years,
+        req.use_sitemap_seed,
         (req.clerk_user_id or "").strip() or None,
     )
     return {"job_id": job_id, "status": "accepted"}

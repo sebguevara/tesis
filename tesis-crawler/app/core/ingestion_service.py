@@ -803,7 +803,16 @@ class IngestionService:
         )
         existing_doc = existing_by_url.scalar_one_or_none()
         if existing_doc is not None and existing_doc.content_hash == doc_hash:
-            return {"saved": False, "reason": "duplicate_content"}
+            # Hash unchanged: skip re-chunking, but only if we actually have
+            # chunks for this doc (defensive against partial ingestions).
+            chunk_count_row = await session.execute(
+                sa_text("SELECT COUNT(*) FROM chunks WHERE doc_id = :doc_id"),
+                {"doc_id": str(existing_doc.doc_id)},
+            )
+            if int(chunk_count_row.scalar() or 0) > 0:
+                existing_doc.fetched_at = utc_now_naive()
+                await session.commit()
+                return {"saved": False, "reason": "duplicate_content"}
 
         existing_same_hash = await session.execute(
             select(Document)

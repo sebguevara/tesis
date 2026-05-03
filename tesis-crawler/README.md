@@ -98,12 +98,12 @@ Hay también un wrapper `eval/run_baseline.sh` que automatiza esto.
 
 | Métrica | Etapa 0 baseline | **Etapa 5 final** | Mejora |
 |---|---|---|---|
-| `correctness_avg` | 0.389 | **0.672** | **+73% rel** |
-| `faithfulness_avg` | 0.789 | **1.000** | **+27% rel** (perfecto) |
-| `hallucination_rate` | 0.180 | **0.040** | **-78% rel** ✅ (objetivo `< 0.10`) |
+| `correctness_avg` | 0.389 | **0.678** | **+74% rel** |
+| `faithfulness_avg` | 0.789 | **0.967** | **+23% rel** |
+| `hallucination_rate` | 0.180 | **0.000** | **-100% rel** ✅✅ (objetivo era `< 0.10`) |
 | `refusal_correct_rate` | 0.600 | 0.800 | +33% rel |
 
-**9 de 10 categorías** llegan a **0% hallucination**: `ambiguous`, `authority`, `contact`, `conversational`, `dates`, `listing`, `out_of_scope`, `requirements`, `typo_robust`. Solo `factual_simple` queda en 0.167 (2/12 — uno es retrieval ambiguo de Q003 presencial/virtual y otro es falso positivo del judge en Q005 POF horas que en realidad responde correcto).
+**Las 10 categorías llegan a 0% hallucination**: `ambiguous`, `authority`, `contact`, `conversational`, `dates`, `factual_simple`, `listing`, `out_of_scope`, `requirements`, `typo_robust`.
 
 ## Arquitectura del grafo RAG (Etapas 3 + 4)
 

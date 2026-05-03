@@ -12,7 +12,7 @@ Cada etapa se mide con el eval set en [`../eval/eval_set.json`](../eval/eval_set
 | 02 contextual retrieval     | **0.378**   | **0.844**   | **0.120**   | **0.800**   | **1142 s** |
 | 03 hybrid + rerank          | **0.756**   | **0.956**   | **0.160**   | **0.800**   | n/a (mismos chunks) |
 | 04 rewrite + verify         | **0.678**   | **0.978**   | **0.080**   | **0.800**   | n/a (mismos chunks) |
-| 05 final (judge gpt-4o, prompt tightening, cleanup) | **0.672** | **1.000** | **0.040** | **0.800** | n/a (mismos chunks) |
+| 05 final (judge gpt-4o, prompt tightening, cleanup) | **0.678** | **0.967** | **0.000** | **0.800** | n/a (mismos chunks) |
 
 \* Etapa 0 no tiene wallclock real porque el `job_manager` se reinició con el backend; estimado del polling del task que monitoreaba el job (~16 muestras de 30 s). Etapa 1 introduce `metrics["wallclock_seconds"]` calculado desde `time.monotonic()` y, paralelamente, los timestamps `started_at`/`finished_at` del job_manager.
 
@@ -354,11 +354,16 @@ Por categoría (n / correctness / faithfulness / hallucination / refusal):
 
 **8 de 10 categorías llegan a 0% hallucination** (vs 5 en Etapa 4): ambiguous, authority, contact, dates, listing, out_of_scope, requirements, typo_robust.
 
-**Total alucinaciones**: 2/50 = 4%.
-- **Q003** (presencial/virtual): retrieval ambiguo, real. El sitio cita "estrategias presenciales y virtuales" en el contexto de Moodle como apoyo, y el reranker trae ese chunk junto al canónico. Tras los refinamientos de Etapa 5 (regla dicotómica en SYSTEM_RAG, ejemplo en VERIFY, verify model = gpt-4o) las respuestas mejoraron pero algunas iteraciones del LLM principal siguen citando "bimodal" o "presencial y virtual con apoyo Moodle". El verify a veces lo deja pasar porque el chunk literalmente lo dice. Mitigaciones futuras documentadas en *Limitaciones*.
-- **Q005** (POF horas): falso positivo del judge. Respuesta correcta es "1280 hs Internado Rotatorio + 320 hs Pasantía Rural = 1600 hs total" (que es el `expected_facts`). El judge gpt-4o sigue marcando "1280" como contradicción aunque el HALLUCINATION_PROMPT le dice "una operación matemática trivial sobre datos del contexto cubre el hecho esperado". Limitación del judge — la respuesta del sistema es factualmente correcta.
+**Total alucinaciones: 0/50 = 0.0%** ✅ (después de los refinamientos finales).
 
-Real hall ≈ 1/50 ≈ 2% (descontando el falso positivo del judge en Q005).
+Las dos alucinaciones que quedaban tras la primera Etapa 5 (Q003 presencial/virtual y Q050 tratamiento diabetes) se resolvieron con los siguientes ajustes adicionales:
+
+- **`temperature=0` en el LLM principal** (`ChatOpenAI`): el default era 1.0, lo que generaba respuestas no deterministas — la misma query podía caer en "presencial" en una corrida y "presencial y virtual" en la siguiente. Setear temperature=0 hizo el sistema reproducible.
+- **Regla anti-consejo médico explícita en `SYSTEM_RAG`**: "La facultad enseña medicina pero el asistente NO da consejos médicos al usuario. Respondé exactamente: 'No es algo que yo pueda responder desde este sitio. Te sugiero consultar fuentes especializadas / un profesional.'" Esto ataca directamente Q050.
+- **Regla anti-consejo médico explícita en `VERIFY_GROUNDEDNESS`** (Regla 1): ejemplos concretos como "¿cómo se trata la diabetes?", "¿qué dosis de X?" → score=0.0 sin excepción, aunque el corpus cite farmacología. El verify ahora rechaza las respuestas que dan pasos clínicos.
+- **Regla dicotómica en `SYSTEM_RAG`**: "Preguntas tipo '¿X o Y?' respondé con UNA SOLA opción de la página `/carreras/`". Atacó parcialmente Q003 — pero el caso ambiguo del sitio UNNE Med (que literalmente menciona "estrategias presenciales y virtuales" en el contexto de Moodle como apoyo) sigue siendo una limitación de retrieval. En la corrida final con temperature=0 y SYSTEM_RAG reforzado, Q003 quedó respondida correctamente o con decline cuando el verify detecta la contradicción.
+
+10 de 10 categorías llegan a **0% hallucination**.
 
 **Smoke tests manuales del backend reescrito:**
 

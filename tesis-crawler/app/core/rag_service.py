@@ -12,13 +12,21 @@ from langgraph.graph import END, StateGraph
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from sqlalchemy import text
 
+from openai import AsyncOpenAI
+
 from app.config import settings
 from app.core.content_filters import is_institutional_news, is_non_academic_noise
 from app.core.domain_utils import domain_variants, normalize_domain
 from app.core.reranker import rerank as cross_encoder_rerank
 from app.core.scraping_service import ScrapingService
 from app.embedding.models import EMBEDDING_DIM
-from app.llm.prompts import SYSTEM_RAG
+from app.llm.prompts import (
+    REWRITE_QUERY_SYSTEM,
+    REWRITE_QUERY_USER,
+    SYSTEM_RAG,
+    VERIFY_GROUNDEDNESS_SYSTEM,
+    VERIFY_GROUNDEDNESS_USER,
+)
 from app.storage.db_client import async_session
 
 
@@ -36,13 +44,17 @@ def _vec_to_pg_literal(vec) -> str:
 logger = logging.getLogger(__name__)
 
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     query: str
     context: List[str]
     response: str
     history: List[str]
     source_id: str | None
     session_state: Dict[str, Any] | None
+    # Stage 4 additions
+    resolved_query: str
+    groundedness: float
+    unsupported_claims: List[str]
 
 
 class RAGService:
@@ -85,6 +97,9 @@ class RAGService:
             api_key=settings.OPENAI_API_KEY,
             dimensions=EMBEDDING_DIM,
         )
+        # Helper LLM (cheaper, faster) for rewrite + verify nodes (Stage 4).
+        self.helper_model = str(getattr(settings, "OPENAI_CONTEXT_MODEL", "gpt-4o-mini"))
+        self._openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
         self.scraper = ScrapingService()
 
     async def _embed_query(self, query: str) -> str:
@@ -101,16 +116,21 @@ class RAGService:
         return (CHUNKS_TABLE, CHUNKS_TEXT_COL, CHUNKS_SEQ_COL)
 
     def build_graph(self):
-        # Stage 3: hybrid (vector + FTS) → RRF → cross-encoder reranker → LLM.
-        # Old fast-paths / regex extraction / URL hints / live-fetch fallback live
-        # in retrieve_legacy + generate_legacy and can be re-enabled by swapping
-        # the two add_node lines below.
+        # Stage 4: rewrite → retrieve → generate → verify.
+        # Stage 3: hybrid (vector + FTS) → RRF → cross-encoder reranker → LLM
+        # is preserved as retrieve_v3 + generate_v3.
+        # Legacy retrieve/generate are still in this file (un-wired) for
+        # one-line revert if needed.
         workflow = StateGraph(AgentState)
+        workflow.add_node("rewrite", self.rewrite_v4)
         workflow.add_node("retrieve", self.retrieve_v3)
         workflow.add_node("generate", self.generate_v3)
-        workflow.set_entry_point("retrieve")
+        workflow.add_node("verify", self.verify_v4)
+        workflow.set_entry_point("rewrite")
+        workflow.add_edge("rewrite", "retrieve")
         workflow.add_edge("retrieve", "generate")
-        workflow.add_edge("generate", END)
+        workflow.add_edge("generate", "verify")
+        workflow.add_edge("verify", END)
         return workflow.compile()
 
     # ── Stage 3: hybrid retrieval + RRF + cross-encoder reranker ────────────
@@ -144,7 +164,8 @@ class RAGService:
         No URL hints, no regex extraction, no SQL exclusion of /noticia/* — content
         filtering happens at ingestion time and is trusted here.
         """
-        query = (state.get("query") or "").strip()
+        # Prefer the rewritten (autocontained) query if Stage 4 produced one.
+        query = (state.get("resolved_query") or state.get("query") or "").strip()
         source_id = (state.get("source_id") or "").strip()
         if not query or not source_id:
             return {"context": []}
@@ -306,6 +327,8 @@ class RAGService:
         No regex extraction, no fact-templated answers, no live fetch fallback.
         Trust the prompt's anti-hallucination rules to handle "no info" cases.
         """
+        # Show the user-visible query in the LLM prompt (not the rewrite),
+        # so the answer references what the user actually asked.
         query = (state.get("query") or "").strip()
         contexts = list(state.get("context") or [])
         history = list(state.get("history") or [])
@@ -341,6 +364,163 @@ class RAGService:
 
         res = await self.llm.ainvoke(prompt)
         return {"response": (res.content or "").strip()}
+
+    # ── Stage 4: query rewriting + groundedness verification ────────────
+    REWRITE_HISTORY_MAX_ITEMS = 6
+    REWRITE_HISTORY_MAX_CHARS = 1500
+    VERIFY_GROUNDEDNESS_THRESHOLD = 0.6
+    VERIFY_NO_EVIDENCE_RESPONSE = (
+        "No encontré evidencia suficiente en el sitio para responder con seguridad. "
+        "¿Podés reformular la pregunta o ser más específico (carrera, año, trámite)?"
+    )
+
+    @staticmethod
+    def _looks_like_no_info_response(response: str) -> bool:
+        """Skip groundedness check if the answer already declined / asked for clarification."""
+        if not response:
+            return True
+        low = response.lower()
+        markers = (
+            "no tengo información",
+            "no tengo informacion",
+            "no encontré",
+            "no encontre",
+            "no llegué a",
+            "no llegue a",
+            "para responder bien",
+            "decime la carrera",
+            "decime primero la carrera",
+            "podés reformular",
+            "podes reformular",
+            "podrías especificar",
+            "podrias especificar",
+            "podrías indicar",
+            "podrias indicar",
+            "necesito más detalles",
+            "necesito mas detalles",
+            "necesitaría que aclares",
+            "necesitaria que aclares",
+            "no puedo brindar información",
+            "no puedo brindar informacion",
+            "lamentablemente no",
+            "lo siento, pero no",
+            RAGService.NO_INFO_RESPONSE.lower(),
+        )
+        return any(m in low for m in markers)
+
+    async def _helper_json_call(self, system: str, user: str, max_tokens: int = 200) -> dict:
+        """Single JSON-mode call to the helper model (gpt-4o-mini by default)."""
+        try:
+            resp = await self._openai_client.chat.completions.create(
+                model=self.helper_model,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0,
+                response_format={"type": "json_object"},
+                max_tokens=max_tokens,
+            )
+            raw = (resp.choices[0].message.content or "").strip()
+            if not raw:
+                return {}
+            import json as _json
+            return _json.loads(raw)
+        except Exception:
+            logger.exception("helper json call failed")
+            return {}
+
+    async def rewrite_v4(self, state: AgentState):
+        """
+        Stage 4 — query rewriting.
+        If there's no history, pass the query through. Otherwise, ask the
+        helper LLM to rewrite the query as a self-contained question using the
+        recent turns as context. Falls back silently to the original query
+        on any failure.
+        """
+        query = (state.get("query") or "").strip()
+        history = list(state.get("history") or [])
+        if not query:
+            return {"resolved_query": ""}
+        if not history:
+            return {"resolved_query": query}
+
+        # Compact the history we pass to the rewriter — last few turns only.
+        recent = history[-self.REWRITE_HISTORY_MAX_ITEMS :]
+        joined_history = "\n".join(recent)
+        if len(joined_history) > self.REWRITE_HISTORY_MAX_CHARS:
+            joined_history = joined_history[-self.REWRITE_HISTORY_MAX_CHARS :]
+
+        payload = await self._helper_json_call(
+            REWRITE_QUERY_SYSTEM,
+            REWRITE_QUERY_USER.format(history=joined_history, current=query),
+            max_tokens=160,
+        )
+        rewritten = (payload.get("query") or "").strip()
+        if not rewritten:
+            return {"resolved_query": query}
+        # Defensive: keep the rewrite reasonable in length.
+        if len(rewritten) > 400:
+            rewritten = rewritten[:400].rsplit(" ", 1)[0]
+        return {"resolved_query": rewritten}
+
+    async def verify_v4(self, state: AgentState):
+        """
+        Stage 4 — groundedness verification.
+        Replace the response with a "no evidence" message when the helper LLM
+        judges the answer as not supported by the recovered context. Conversational
+        replies and explicit declines bypass the check.
+        """
+        response = (state.get("response") or "").strip()
+        # Question shown to the user is always state["query"]; verify against that.
+        question = (state.get("query") or "").strip()
+        contexts = list(state.get("context") or [])
+
+        if not response or not question:
+            return {}
+        if self._looks_like_no_info_response(response):
+            return {"groundedness": 1.0, "unsupported_claims": []}
+
+        # Build a context excerpt; cap to ~6k chars so the verify call is cheap.
+        joined = "\n\n---\n\n".join(b for b in contexts if b)
+        if len(joined) > 6000:
+            joined = joined[:6000] + "\n[…]"
+        if not joined.strip():
+            joined = "(sin contexto recuperado)"
+
+        payload = await self._helper_json_call(
+            VERIFY_GROUNDEDNESS_SYSTEM,
+            VERIFY_GROUNDEDNESS_USER.format(
+                question=question,
+                context=joined,
+                answer=response,
+            ),
+            max_tokens=300,
+        )
+        try:
+            score = float(payload.get("groundedness", 1.0))
+        except (TypeError, ValueError):
+            score = 1.0
+        score = max(0.0, min(1.0, score))
+        unsupported = payload.get("unsupported_claims") or []
+        if not isinstance(unsupported, list):
+            unsupported = []
+
+        logger.info(
+            "verify_v4: groundedness=%.2f unsupported=%d question=%r",
+            score, len(unsupported), question[:80],
+        )
+        if score < self.VERIFY_GROUNDEDNESS_THRESHOLD:
+            return {
+                "response": self.VERIFY_NO_EVIDENCE_RESPONSE,
+                "groundedness": score,
+                "unsupported_claims": [str(c)[:200] for c in unsupported[:5]],
+            }
+
+        return {
+            "groundedness": score,
+            "unsupported_claims": [str(c)[:200] for c in unsupported[:5]],
+        }
 
     @staticmethod
     def _normalize_text(value: str) -> str:

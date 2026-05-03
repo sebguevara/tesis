@@ -22,6 +22,122 @@ FUENTES:
 
 
 
+REWRITE_QUERY_SYSTEM = (
+    "Sos un asistente que reescribe preguntas conversacionales para que sean "
+    "autocontenidas y aptas para búsqueda. Devolvés SIEMPRE un JSON con una "
+    "sola clave \"query\" (string en español rioplatense neutro). "
+    "Sin emojis, sin markdown, sin comentarios."
+)
+
+REWRITE_QUERY_USER = """\
+A continuación tenés HISTORY (los últimos turnos de la conversación) y CURRENT
+(la pregunta actual del usuario, posiblemente ambigua o referencial).
+
+Devolvé un JSON: {{"query": "<pregunta autocontenida>"}}
+
+Reglas:
+- Si CURRENT ya es autocontenida (menciona la carrera/tema sin ambigüedad), devolvela tal cual.
+- Si CURRENT usa pronombres ("y los requisitos?", "y de kinesio?", "cuándo abren?")
+  o abreviaturas ("kinesio", "enfer"), reescribila INCORPORANDO la información del HISTORY
+  para que tenga sentido sola.
+- No agregues información que no esté en HISTORY o CURRENT.
+- No inventes carreras, fechas ni cargos. Si HISTORY no permite resolver la ambigüedad,
+  devolvé CURRENT tal cual.
+- Mantené la intención original (no convertir una pregunta en una afirmación).
+
+HISTORY:
+\"\"\"
+{history}
+\"\"\"
+
+CURRENT: {current}
+"""
+
+
+VERIFY_GROUNDEDNESS_SYSTEM = (
+    "Sos un evaluador estricto de si una respuesta de un asistente RAG está "
+    "respaldada por el contexto que le pasaron. Devolvés SIEMPRE un JSON con "
+    "claves \"groundedness\" (float 0..1) y \"unsupported_claims\" (lista de "
+    "strings). Sin emojis, sin markdown, sin comentarios."
+)
+
+VERIFY_GROUNDEDNESS_USER = """\
+Sos un evaluador estricto de si una respuesta de un asistente RAG sobre el sitio
+de una facultad universitaria es válida.
+
+Devolvé JSON: {{"groundedness": <float 0..1>, "unsupported_claims": ["<afirmación 1>", ...]}}
+
+Las reglas se evalúan EN ORDEN. La primera que aplica decide el score.
+
+REGLA 1 — OUT-OF-SCOPE / OPINIÓN (score=0.0 SIEMPRE).
+La PREGUNTA pide al asistente algo que NO le corresponde a un sitio institucional, INCLUSO
+si el CONTEXTO menciona el tema. Casos:
+  • "¿cuál es el mejor libro / texto / autor / atlas para estudiar X?" → opinión.
+  • "¿qué libro me recomendás / sugerís?" → opinión.
+  • "¿cuál es la mejor universidad?" / comparaciones de calidad → opinión.
+  • Consejos médicos, diagnósticos, tratamientos, fármacos, dosis (incluso si el contexto
+    cita una bibliografía médica) → fuera de alcance.
+  • Opiniones políticas, religiosas, predicciones, juicios de valor → fuera de alcance.
+
+Si la pregunta cae en alguno de estos casos Y la RESPUESTA da igual una recomendación o
+opinión (cita libros, sugiere tratamientos, recomienda autores, da consejos), score=0.0.
+NO importa si los libros / autores aparecen en el CONTEXTO: el rol del asistente es
+informar sobre la facultad, no recomendar materiales de estudio.
+
+Solo evade esta regla si la RESPUESTA explícitamente declina ("no tengo información",
+"no es algo sobre lo que pueda recomendar", "es una decisión personal").
+
+REGLA 2 — CONTRADICCIÓN (score=0.0).
+La RESPUESTA afirma algo que el CONTEXTO contradice de forma explícita.
+Ejemplo típico: contexto dice "modalidad presencial" y respuesta dice
+"combina presencial y virtual" → contradicción → 0.0.
+
+REGLA 3 — AFIRMACIONES SIN RESPALDO (score bajo).
+La RESPUESTA incluye nombres propios, fechas, números, URLs, cargos, montos, plazos,
+emails u otros hechos concretos que NO aparecen literal ni claramente parafraseados en
+el CONTEXTO.
+  • Si solo 1 dato menor no está, score=0.4–0.6.
+  • Si la mayoría no está, score=0.0–0.3.
+
+REGLA 4 — DECLINE / ACLARACIÓN (score=1.0).
+La RESPUESTA dice explícitamente "no tengo información", "no encontré", "necesito que
+me aclares" o pide más detalles. No afirma nada falso → 1.0.
+
+REGLA 5 — RESPALDADA (score=1.0).
+TODAS las afirmaciones factuales aparecen en el CONTEXTO o son paráfrasis directas.
+
+NOTAS:
+- Frases conversacionales ("hola", "te ayudo con eso") no son afirmaciones factuales.
+- Listá en "unsupported_claims" las frases problemáticas (máx 5; vacío si todo OK).
+
+EJEMPLOS:
+
+Pregunta: "¿Cuál es el mejor libro para estudiar Anatomía?"
+Contexto: incluye chunk con bibliografía obligatoria de la cátedra (Latarjet, Gilroy).
+Respuesta: "Los libros recomendados son Latarjet y Gilroy."
+→ {{"groundedness": 0.0, "unsupported_claims": ["recomendar libros de estudio (opinión / out-of-scope)"]}}
+
+Pregunta: "¿La carrera de Medicina es presencial o virtual?"
+Contexto: "Modalidad: Presencial."
+Respuesta: "Combina presencial y virtual."
+→ {{"groundedness": 0.0, "unsupported_claims": ["combina presencial y virtual (contradice 'Presencial')"]}}
+
+Pregunta: "¿Cuánto dura la carrera de Medicina?"
+Contexto: "Duración de la carrera: 6 años."
+Respuesta: "La carrera de Medicina dura 6 años."
+→ {{"groundedness": 1.0, "unsupported_claims": []}}
+
+Ahora evaluá:
+
+PREGUNTA: {question}
+
+CONTEXTO_RECUPERADO:
+{context}
+
+RESPUESTA_DEL_SISTEMA: {answer}
+"""
+
+
 CONTEXTUALIZE_CHUNK_SYSTEM = (
     "Sos un asistente que escribe contexto situacional para fragmentos de páginas "
     "institucionales (universidades, facultades). Devolvés SIEMPRE un JSON con "

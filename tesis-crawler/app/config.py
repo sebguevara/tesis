@@ -26,8 +26,10 @@ class Settings(BaseSettings):
     )
     RAG_LLM_TIMEOUT_SECONDS: float = float(os.getenv("RAG_LLM_TIMEOUT_SECONDS", "18"))
     RAG_LLM_MAX_RETRIES: int = int(os.getenv("RAG_LLM_MAX_RETRIES", "1"))
-    RAG_GRAPH_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_TIMEOUT_SECONDS", "25"))
-    RAG_GRAPH_COMPACT_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_COMPACT_TIMEOUT_SECONDS", "14"))
+    # Stage 4 added rewrite + verify nodes (≈ +5-15s of helper LLM latency on top
+    # of generate). Defaults bumped accordingly.
+    RAG_GRAPH_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_TIMEOUT_SECONDS", "60"))
+    RAG_GRAPH_COMPACT_TIMEOUT_SECONDS: float = float(os.getenv("RAG_GRAPH_COMPACT_TIMEOUT_SECONDS", "30"))
 
     # Stage 2: Contextual Retrieval (Anthropic technique adapted to OpenAI).
     # When enabled, each chunk gets a 1-2 sentence context prepended before

@@ -1,12 +1,20 @@
 import asyncio
+import logging
 import sys
 from pathlib import Path
 
 from fastapi import FastAPI
+
+# Make app loggers visible under uvicorn (which only configures its own loggers).
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s — %(message)s",
+)
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from app.api import auth, query, scrape, sources, status, widget
+from app.core.reranker import warmup as warmup_reranker
 from app.core.widget_origin import is_origin_allowed_globally
 from app.storage.db_client import init_db
 
@@ -52,6 +60,9 @@ async def dynamic_widget_cors(request, call_next):
 @app.on_event("startup")
 async def startup():
     await init_db()
+    # Stage 3+ uses a cross-encoder reranker (~120MB, ~10-20s to load).
+    # Warm it up at boot in a thread so the first user query doesn't pay the cold-start.
+    asyncio.create_task(asyncio.to_thread(warmup_reranker))
 
 
 app.include_router(scrape.router, prefix="/api")

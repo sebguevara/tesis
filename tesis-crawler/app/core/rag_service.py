@@ -92,9 +92,13 @@ class RAGService:
     VERIFY_GROUNDEDNESS_THRESHOLD = 0.6
 
     def __init__(self):
+        # Stage 5 refinement: temperature=0 for reproducibility. Without this,
+        # the same query can land on "presencial" one time and "presencial y
+        # virtual" the next, making the eval results non-deterministic.
         self.llm = ChatOpenAI(
             model=settings.OPENAI_CHAT_MODEL,
             api_key=settings.OPENAI_API_KEY,
+            temperature=0,
             timeout=float(getattr(settings, "RAG_LLM_TIMEOUT_SECONDS", 18)),
             max_retries=int(getattr(settings, "RAG_LLM_MAX_RETRIES", 1)),
         )

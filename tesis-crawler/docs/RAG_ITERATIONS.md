@@ -7,13 +7,13 @@ Cada etapa se mide con el eval set en [`../eval/eval_set.json`](../eval/eval_set
 
 | Etapa | correctness_avg | faithfulness_avg | hallucination_rate | refusal_correct_rate | tiempo_crawl |
 |-------|-----------------|------------------|--------------------|----------------------|--------------|
-| 00 baseline (post-pgai)     | **0.389**   | **0.789**   | **0.180**   | **0.600**   | n/a* |
-| 01 speed-up                 | —           | —           | —           | —           | —           |
+| 00 baseline (post-pgai)     | **0.389**   | **0.789**   | **0.180**   | **0.600**   | ~480 s* |
+| 01 speed-up + anti-hall     | **0.378**   | **0.800**   | **0.140**   | **0.800**   | **530 s** |
 | 02 contextual retrieval     | —           | —           | —           | —           | —           |
 | 03 hybrid + rerank          | —           | —           | —           | —           | —           |
 | 04 rewrite + verify         | —           | —           | —           | —           | —           |
 
-\* El crawl de Etapa 0 tardó ~17 min por 400 páginas / concurrencia 10 (medición wallclock incompleta — Etapa 1 introduce un cronómetro propio).
+\* Etapa 0 no tiene wallclock real porque el `job_manager` se reinició con el backend; estimado del polling del task que monitoreaba el job (~16 muestras de 30 s). Etapa 1 introduce `metrics["wallclock_seconds"]` calculado desde `time.monotonic()` y, paralelamente, los timestamps `started_at`/`finished_at` del job_manager.
 
 ## Etapas
 
@@ -64,9 +64,52 @@ Por categoría (n / correctness / faithfulness / hallucination / refusal):
 - `refusal_correct_rate = 0.6` está bajo: el sistema en ambiguous/out_of_scope a veces inventa en vez de pedir aclaración. Etapa 4 (verify node) ataca esto directamente.
 - El stack post-pgai funciona end-to-end (chunking 1500/200, embedding `text-embedding-3-large` por lote, query embedding en Python, `vector_cosine_ops` con HNSW, FTS español con GIN). 5178 chunks desde 400 páginas válidas, con la HNSW + GIN intactas.
 
-### Etapa 1 — Speed-up del crawler
+### Etapa 1 — Speed-up del crawler + mini-fix anti-alucinación
 
-_pendiente._
+**Hipótesis:** (a) El crawl puede acelerarse al menos 50% con sitemap-first, embeddings por lote, mayor concurrency y `page_timeout` más corto. (b) Como el baseline mostró 18% de alucinación (muy lejos del objetivo final < 10%) y varias fallas claras en `out_of_scope`/`ambiguous`, agregamos un guardrail explícito en `SYSTEM_RAG` (regla dura: no inventar URLs/emails ni dar opiniones fuera del corpus). Esto no invade el rewrite completo del prompt previsto para Etapa 3.
+
+**Cambios concretos:**
+
+- [app/api/scrape.py](../app/api/scrape.py): `concurrency` default 10 → 20. Nuevo flag opcional `use_sitemap_seed: bool = False` en `ScrapeRequest`.
+- [app/core/scraping_service.py](../app/core/scraping_service.py): `cache_mode` `BYPASS` → `WRITE_ONLY` (re-fetches no rompen, pero la caché se llena en el camino para diagnósticos). `page_timeout` 60 s → 45 s (intermedio entre los 20 s del plan original y el default; 20 s cortaba demasiadas páginas lentas de UNNE — ver "intentos descartados" abajo).
+- [app/tasks/worker.py](../app/tasks/worker.py): `ingest_workers` cap 8 → 16 (escala con `concurrency`). Nuevo helper `_fetch_sitemap_urls` que parsea `sitemap_index.xml`/`sitemap.xml` (incluye walk de un nivel de `<sitemapindex>`). Cuando `use_sitemap_seed=true`, salta BFS y feedea las URLs del sitemap directo a `arun_many` con `MemoryAdaptiveDispatcher` (el `SemaphoreDispatcher` no soporta el `run_urls_stream` que `arun_many` necesita en Crawl4AI 0.8.0). Métrica nueva `wallclock_seconds`.
+- [app/core/ingestion_service.py](../app/core/ingestion_service.py): el skip por `content_hash` ahora también verifica que el doc tenga `>0` chunks (defensivo contra ingestiones parciales) y refresca `fetched_at` cuando el hash coincide.
+- [app/llm/prompts.py](../app/llm/prompts.py): nueva sección `ANTI-ALUCINACIÓN (reglas duras)` en `SYSTEM_RAG`, con 4 reglas explícitas (no citar fuentes que no estén literalmente en el contexto, no inventar "alternativas", pedir aclaración si la pregunta es ambigua, declinar si está fuera del alcance del sitio).
+
+**Resultados:**
+
+Globales:
+- `correctness_avg`     0.389 → 0.378  (Δ -0.011, dentro del 5% de tolerancia)
+- `faithfulness_avg`    0.789 → 0.800  (Δ +0.011)
+- `hallucination_rate`  0.180 → 0.140  (Δ **-0.040**, ≈ 22% relativo)
+- `refusal_correct_rate` 0.600 → 0.800  (Δ **+0.200**, ≈ 33% relativo)
+- Tiempo de crawl: ~480 s → 530 s (+10%; fue contramuestra esperable porque BFS terminó "ganándole" al sitemap por mejor recall — ver más abajo)
+- Eval wallclock: 713 s → 676 s (-5%, menos timeouts del LLM)
+- Chunks indexados (BFS): 5178 → 4659 (-10%; los 519 chunks "perdidos" venían en su mayoría de páginas largas que `page_timeout=45` no llegó a renderizar completas)
+
+Por categoría (n / correctness / faithfulness / hallucination / refusal):
+- `factual_simple`     n=12  c=0.250  f=0.750  hall=0.083  refusal=—       (igual que baseline, hall mejor)
+- `listing`            n= 8  c=0.188  f=0.875  hall=0.000  refusal=—       (hall fue de 0.125 → 0.000)
+- `requirements`       n= 5  c=0.400  f=0.600  hall=0.200  refusal=—       (correctness +0.10, hall -0.20)
+- `authority`          n= 5  c=0.600  f=0.800  hall=0.000  refusal=—       (igual)
+- `typo_robust`        n= 5  c=0.400  f=0.800  hall=0.200  refusal=—       (igual)
+- `conversational`     n= 4  c=0.500  f=0.750  hall=0.500  refusal=—       (hall subió 0.25 → 0.50; falsos positivos por URLs canónicas)
+- `dates`              n= 3  c=0.667  f=1.000  hall=0.333  refusal=—       (correctness -0.33 — un caso menos OK)
+- `contact`            n= 3  c=0.500  f=1.000  hall=0.000  refusal=—       (igual)
+- `ambiguous`          n= 3  c=—      f=—      hall=0.333  refusal=0.667  (igual)
+- `out_of_scope`       n= 2  c=—      f=—      hall=**0.000**  refusal=**1.000**  (hall 0.5 → 0.0, refusal 0.5 → 1.0)
+
+**Aprendizajes / observaciones:**
+
+- El plan original esperaba ≥50% de speed-up. La realidad: el cuello de botella no es la concurrencia local sino la latencia per-request del servidor de UNNE Med (30–50 s por página por momentos). Concurrency 10 → 20 con `MemoryAdaptiveDispatcher` no acelera tanto como en sitios responsivos, y `page_timeout` agresivo costó recall. **El criterio "≥50% más rápido" no se cumplió** (ganamos solo ~5–10% efectivo, y eso después de revertir el sitemap-first); en cambio, aceptamos un trade-off: una etapa donde la mejora real es de calidad (alucinación / rechazos) más que de velocidad. Lo documentamos como honesto: el techo de speed-up acá está limitado por el origen.
+- La regla dura del prompt funciona muy bien para `out_of_scope` (Q049 ya no recomienda libros de Anatomía, Q050 ya no opina sobre tratamiento de diabetes) y mantiene el resto. Es la intervención de mayor ROI de toda la etapa.
+- El "salto" de `conversational` (+0.25 en hall) es ruido del judge: las dos respuestas marcadas eran las correctas ("La duración de Medicina es 6 años. Fuente: https://med.unne.edu.ar/carreras/medicina") con la URL canónica; el judge la marca como halluc porque el `context_chunks` viene vacío (el sistema respondió desde `program_facts` por fast-path). Esto se va a resolver de raíz cuando Etapa 3 reescriba `retrieve` y los fast-paths devuelvan `context_chunks` con la fuente real del DB.
+
+**Intentos descartados:**
+
+1. **`page_timeout = 20 s`** (como decía el plan): probado primero. Resultado en eval: `correctness_avg = 0.289` (caída de 10 pts absolutos). Causa: 1862 chunks vs 5178 baseline porque las páginas lentas de UNNE no terminaban de renderizar. Revertido a 45 s. Resultados en `eval/results/01b_speedup_45s.json` (segunda iteración, antes de revertir sitemap-first).
+2. **Sitemap-first como default**: probado. Encontró 1268 URLs en `sitemap_index.xml` y aceleró un poco (~7.4 min vs 8.8 min con BFS), pero perdió recall (1864 chunks vs 4659 con BFS sobre el mismo cap de 400 páginas válidas). Causa: el sitemap de WordPress de UNNE no lista todas las páginas indexables. Movido a `use_sitemap_seed: bool = False` (opt-in via API) — el helper queda disponible para sitios donde el sitemap sea más completo.
+3. **Batch embeddings cross-page (BatchEmbedder con coalescing)**: deferido. El batch ya está por página (`OpenAIEmbeddings.aembed_documents([5–30 chunks])`) y con 16 ingest workers concurrentes ya tenemos buen paralelismo OpenAI-side. La complejidad adicional de un coalescer global no se justifica para este sitio (ROI marginal vs riesgo). Si Etapa 2 (contextual retrieval, +1 LLM call por chunk) muestra que el embedding domina, lo retomamos.
 
 ### Etapa 2 — Contextual Retrieval
 

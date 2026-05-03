@@ -1,24 +1,34 @@
+import asyncio
 import hashlib
+import json
 import logging
 import re
 from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from openai import AsyncOpenAI
 from sqlalchemy import delete, select, text as sa_text
 from app.config import settings
 from app.core.content_filters import should_index_page
 from app.core.domain_utils import domain_variants, normalize_domain, normalize_host_exact
 from app.embedding.models import Chunk, Document, EMBEDDING_DIM, ProgramFact, Source, utc_now_naive
+from app.llm.prompts import CONTEXTUALIZE_CHUNK_SYSTEM, CONTEXTUALIZE_CHUNK_USER
 
 
 logger = logging.getLogger(__name__)
 
 
-# Stage 0 baseline: same chunk shape pgai had (1500/200 chars). Stage 2 lowers these.
-DEFAULT_CHUNK_SIZE = 1500
-DEFAULT_CHUNK_OVERLAP = 200
 EMBEDDING_MODEL = "text-embedding-3-large"
+# Stage 2: smaller chunks rerank better (Stage 3) and the prepended context
+# adds back the surrounding signal lost when shrinking.
+DEFAULT_CHUNK_SIZE = 500
+DEFAULT_CHUNK_OVERLAP = 50
+# Doc window passed to the contextualizer LLM. Beyond this we send a focused
+# slice (head + neighborhood) instead of the full document, to bound cost.
+CONTEXT_DOC_BUDGET_CHARS = 8000
+CONTEXT_HEAD_CHARS = 2000
+CONTEXT_NEIGHBORHOOD_CHARS = 2000
 
 
 class IngestionService:
@@ -125,9 +135,11 @@ class IngestionService:
         return 1 <= years <= 12
 
     def __init__(self):
+        chunk_size = int(getattr(settings, "RAG_CHUNK_SIZE", DEFAULT_CHUNK_SIZE))
+        chunk_overlap = int(getattr(settings, "RAG_CHUNK_OVERLAP", DEFAULT_CHUNK_OVERLAP))
         self.splitter = RecursiveCharacterTextSplitter(
-            chunk_size=DEFAULT_CHUNK_SIZE,
-            chunk_overlap=DEFAULT_CHUNK_OVERLAP,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
             length_function=len,
             separators=["\n\n", "\n", ". ", " ", ""],
         )
@@ -136,11 +148,91 @@ class IngestionService:
             api_key=settings.OPENAI_API_KEY,
             dimensions=EMBEDDING_DIM,
         )
+        self.contextualize_enabled = bool(getattr(settings, "RAG_ENABLE_CONTEXTUAL_RETRIEVAL", True))
+        self.context_concurrency = max(1, int(getattr(settings, "RAG_CONTEXTUALIZE_CONCURRENCY", 50)))
+        self.context_model = str(getattr(settings, "OPENAI_CONTEXT_MODEL", "gpt-4o-mini"))
+        self._openai_client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+
+    @staticmethod
+    def _doc_window_for_chunk(document: str, chunk_offset: int, chunk_len: int) -> str:
+        """For long documents, pass head + neighborhood around the chunk."""
+        doc = document or ""
+        if len(doc) <= CONTEXT_DOC_BUDGET_CHARS:
+            return doc
+        head = doc[:CONTEXT_HEAD_CHARS]
+        half = CONTEXT_NEIGHBORHOOD_CHARS // 2
+        start = max(0, chunk_offset - half)
+        end = min(len(doc), chunk_offset + chunk_len + half)
+        neighborhood = doc[start:end]
+        if start > 0:
+            neighborhood = "[…]\n" + neighborhood
+        if end < len(doc):
+            neighborhood = neighborhood + "\n[…]"
+        return f"{head}\n[…]\n{neighborhood}"
+
+    async def _contextualize_one(
+        self,
+        sem: asyncio.Semaphore,
+        doc_window: str,
+        chunk_text: str,
+    ) -> str:
+        """One LLM call returning a 1-2 sentence context for the chunk."""
+        async with sem:
+            try:
+                resp = await self._openai_client.chat.completions.create(
+                    model=self.context_model,
+                    messages=[
+                        {"role": "system", "content": CONTEXTUALIZE_CHUNK_SYSTEM},
+                        {
+                            "role": "user",
+                            "content": CONTEXTUALIZE_CHUNK_USER.format(
+                                document=doc_window,
+                                chunk=chunk_text,
+                            ),
+                        },
+                    ],
+                    temperature=0,
+                    response_format={"type": "json_object"},
+                    max_tokens=120,
+                )
+                raw = (resp.choices[0].message.content or "").strip()
+                payload = json.loads(raw) if raw else {}
+                ctx = (payload.get("context") or "").strip()
+                # Clamp; the model occasionally writes more than asked.
+                if len(ctx) > 600:
+                    ctx = ctx[:600].rsplit(" ", 1)[0]
+                return ctx
+            except Exception:
+                logger.exception("Contextualize chunk failed")
+                return ""
+
+    async def _contextualize_chunks(
+        self,
+        document: str,
+        chunk_texts: list[str],
+    ) -> list[str]:
+        """Run all chunks of a single document in parallel, bounded by a semaphore."""
+        if not chunk_texts:
+            return []
+        sem = asyncio.Semaphore(self.context_concurrency)
+        offsets: list[int] = []
+        cursor = 0
+        for ct in chunk_texts:
+            idx = (document or "").find(ct, cursor) if ct else -1
+            if idx < 0:
+                idx = max(0, cursor)
+            offsets.append(idx)
+            cursor = idx + len(ct)
+        windows = [self._doc_window_for_chunk(document, off, len(ct)) for ct, off in zip(chunk_texts, offsets)]
+        return await asyncio.gather(
+            *[self._contextualize_one(sem, w, c) for w, c in zip(windows, chunk_texts)]
+        )
 
     async def _replace_chunks_for_doc(self, session, doc_id, content: str) -> int:
         """
-        Re-chunk and re-embed a document. Deletes existing chunks for the doc
-        and inserts fresh ones. Returns the number of chunks written.
+        Re-chunk, optionally contextualize, and re-embed a document.
+        Deletes existing chunks for the doc and inserts fresh ones.
+        Returns the number of chunks written.
         """
         await session.execute(
             sa_text("DELETE FROM chunks WHERE doc_id = :doc_id"),
@@ -149,7 +241,20 @@ class IngestionService:
         chunk_texts = [c.strip() for c in self.splitter.split_text(content or "") if c and c.strip()]
         if not chunk_texts:
             return 0
-        embeddings = await self.embedder.aembed_documents(chunk_texts)
+
+        contexts: list[str] = []
+        if self.contextualize_enabled:
+            contexts = await self._contextualize_chunks(content or "", chunk_texts)
+
+        # Embed the prepended (context + chunk) so retrieval matches the situated text.
+        embed_inputs: list[str] = []
+        for chunk_text, ctx in zip(chunk_texts, contexts or [""] * len(chunk_texts)):
+            if ctx:
+                embed_inputs.append(f"{ctx}\n\n{chunk_text}")
+            else:
+                embed_inputs.append(chunk_text)
+        embeddings = await self.embedder.aembed_documents(embed_inputs)
+
         now = utc_now_naive()
         for idx, (chunk_text, vec) in enumerate(zip(chunk_texts, embeddings)):
             session.add(
@@ -157,7 +262,7 @@ class IngestionService:
                     doc_id=doc_id,
                     chunk_id=idx,
                     text=chunk_text,
-                    context=None,
+                    context=(contexts[idx] if contexts else None) or None,
                     embedding=vec,
                     token_count=None,
                     created_at=now,

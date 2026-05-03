@@ -38,6 +38,41 @@ FUENTES:
 
 
 
+CONTEXTUALIZE_CHUNK_SYSTEM = (
+    "Sos un asistente que escribe contexto situacional para fragmentos de páginas "
+    "institucionales (universidades, facultades). Devolvés SIEMPRE un JSON con "
+    "una sola clave \"context\" cuyo valor es 1 o 2 oraciones cortas en español "
+    "rioplatense neutro. Sin emojis, sin markdown, sin comentarios."
+)
+
+CONTEXTUALIZE_CHUNK_USER = """\
+A continuación tenés el DOCUMENTO completo (puede venir truncado) y un FRAGMENTO\
+ específico que se va a indexar para búsqueda semántica.
+
+Devolvé un JSON con la forma:
+{{"context": "<1 o 2 oraciones que ubiquen el fragmento dentro del documento>"}}
+
+Reglas:
+- El contexto debe ayudar a recuperar el fragmento ante consultas del usuario:
+  qué sección o tema cubre, a qué carrera/facultad/área pertenece, y qué tipo
+  de información contiene (descripción de carrera, plan de estudios, autoridades,
+  noticias, requisitos de inscripción, etc.).
+- No repitas literal el fragmento; describilo en términos del documento.
+- No inventes datos que no aparezcan en el documento.
+- Máximo 50 palabras.
+
+DOCUMENTO:
+\"\"\"
+{document}
+\"\"\"
+
+FRAGMENTO:
+\"\"\"
+{chunk}
+\"\"\"
+"""
+
+
 def get_rag_messages(contexto_recuperado, pregunta_usuario):
     """
     Función auxiliar para estructurar los mensajes para el modelo.

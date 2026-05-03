@@ -19,6 +19,7 @@ dependencies = [
     "psycopg-binary>=3.3.2",
     "psycopg2-binary>=2.9.11",
     "pydantic>=2.12.5",
+    "sentence-transformers>=3.0",
     "pymupdf>=1.26.7",
     "python-dotenv>=1.2.1",
     "ruff>=0.15.0",

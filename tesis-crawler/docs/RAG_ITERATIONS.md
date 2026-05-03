@@ -9,7 +9,7 @@ Cada etapa se mide con el eval set en [`../eval/eval_set.json`](../eval/eval_set
 |-------|-----------------|------------------|--------------------|----------------------|--------------|
 | 00 baseline (post-pgai)     | **0.389**   | **0.789**   | **0.180**   | **0.600**   | ~480 s* |
 | 01 speed-up + anti-hall     | **0.378**   | **0.800**   | **0.140**   | **0.800**   | **530 s** |
-| 02 contextual retrieval     | —           | —           | —           | —           | —           |
+| 02 contextual retrieval     | **0.378**   | **0.844**   | **0.120**   | **0.800**   | **1142 s** |
 | 03 hybrid + rerank          | —           | —           | —           | —           | —           |
 | 04 rewrite + verify         | —           | —           | —           | —           | —           |
 
@@ -111,9 +111,56 @@ Por categoría (n / correctness / faithfulness / hallucination / refusal):
 2. **Sitemap-first como default**: probado. Encontró 1268 URLs en `sitemap_index.xml` y aceleró un poco (~7.4 min vs 8.8 min con BFS), pero perdió recall (1864 chunks vs 4659 con BFS sobre el mismo cap de 400 páginas válidas). Causa: el sitemap de WordPress de UNNE no lista todas las páginas indexables. Movido a `use_sitemap_seed: bool = False` (opt-in via API) — el helper queda disponible para sitios donde el sitemap sea más completo.
 3. **Batch embeddings cross-page (BatchEmbedder con coalescing)**: deferido. El batch ya está por página (`OpenAIEmbeddings.aembed_documents([5–30 chunks])`) y con 16 ingest workers concurrentes ya tenemos buen paralelismo OpenAI-side. La complejidad adicional de un coalescer global no se justifica para este sitio (ROI marginal vs riesgo). Si Etapa 2 (contextual retrieval, +1 LLM call por chunk) muestra que el embedding domina, lo retomamos.
 
-### Etapa 2 — Contextual Retrieval
+### Etapa 2 — Contextual Retrieval (con OpenAI)
 
-_pendiente._
+**Hipótesis:** La técnica de Anthropic (prepend de 1–2 oraciones de contexto a cada chunk antes de embedearlo) reduce las fallas de retrieval cuando los chunks aislados pierden señal de "qué carrera, qué sección, qué tipo de página" pertenecen. Como el usuario eligió no agregar Anthropic, lo adaptamos a OpenAI (sin prompt caching real, mitigado con paralelismo agresivo y un budget de chars por documento).
+
+**Cambios concretos:**
+
+- [app/config.py](../app/config.py): nuevos settings — `RAG_ENABLE_CONTEXTUAL_RETRIEVAL` (bool, default true), `RAG_CONTEXTUALIZE_CONCURRENCY` (default 50), `RAG_CHUNK_SIZE` (1500 → 500), `RAG_CHUNK_OVERLAP` (200 → 50), `OPENAI_CONTEXT_MODEL` (default `gpt-4o-mini`).
+- [app/llm/prompts.py](../app/llm/prompts.py): nuevos prompts `CONTEXTUALIZE_CHUNK_SYSTEM` y `CONTEXTUALIZE_CHUNK_USER`. El user prompt fuerza JSON `{"context": "…"}` con 1–2 oraciones máx 50 palabras. Con `response_format=json_object` y `temperature=0` el output es estable.
+- [app/core/ingestion_service.py](../app/core/ingestion_service.py):
+  - El splitter usa los nuevos `RAG_CHUNK_SIZE`/`RAG_CHUNK_OVERLAP`.
+  - Nuevo `_doc_window_for_chunk(document, chunk_offset, chunk_len)`: si el doc supera `CONTEXT_DOC_BUDGET_CHARS=8000`, corta a head 2000 + neighborhood 2000 chars alrededor del chunk (compromiso costo/calidad).
+  - Nuevo `_contextualize_one(sem, doc_window, chunk_text)` que llama al LLM con un semáforo compartido.
+  - Nuevo `_contextualize_chunks(document, chunk_texts)` que paralelliza todos los chunks del doc (gather con semáforo de tamaño `RAG_CONTEXTUALIZE_CONCURRENCY`).
+  - `_replace_chunks_for_doc` ahora: chunkea → contextualiza (si flag on) → embedea `f"{context}\n\n{chunk_text}"` → guarda `text` y `context` por separado en la tabla.
+
+**Resultados:**
+
+Globales:
+- `correctness_avg`     0.378 → 0.378  (Δ 0; vs baseline -0.011)
+- `faithfulness_avg`    0.800 → 0.844  (Δ **+0.044**; vs baseline +0.055)
+- `hallucination_rate`  0.140 → 0.120  (Δ -0.020; vs baseline -0.060)
+- `refusal_correct_rate` 0.800 → 0.800 (Δ 0; vs baseline +0.200)
+
+Crawl:
+- Wallclock: 530 s → 1141.9 s (+115%, ≈ 19 min). Causado por la contextualización: ~12001 LLM calls a `gpt-4o-mini` con concurrency 50, sin caching real.
+- Documents indexados: 678 → 627 (similar; algunas páginas largas no completaron por demoras del LLM).
+- Chunks indexados: 4659 → 12001 (+158% por chunks más chicos, 1500 → 500).
+- Cobertura del contexto: 12001/12001 (100%) ✅
+- Avg chunk text: 445 chars (target 500). Avg context: 259 chars (~50 palabras).
+- Costo estimado: ≈ USD 3.13 contextualización + 0.50 embeddings = **≈ USD 3.6** por crawl completo.
+
+Por categoría (n / correctness / faithfulness / hallucination / refusal):
+- `factual_simple`     n=12  c=0.250  f=0.750  hall=0.083  refusal=—       (igual)
+- `listing`            n= 8  c=0.188  f=1.000  hall=0.125  refusal=—       (hall +0.125 — 1 caso)
+- `requirements`       n= 5  c=0.200  f=0.800  hall=**0.400**  refusal=— (hall +0.20 — regresión local)
+- `authority`          n= 5  c=0.600  f=0.800  hall=0.000  refusal=—       (igual)
+- `typo_robust`        n= 5  c=0.400  f=0.800  hall=0.200  refusal=—       (igual)
+- `conversational`     n= 4  c=0.500  f=0.750  hall=0.250  refusal=—       (hall -0.25)
+- `dates`              n= 3  c=**1.000**  f=1.000  hall=**0.000**  refusal=—  (correctness +0.333, hall -0.333)
+- `contact`            n= 3  c=0.500  f=1.000  hall=0.000  refusal=—       (igual)
+- `ambiguous`          n= 3  c=—      f=—      hall=**0.000**  refusal=0.667  (hall -0.333)
+- `out_of_scope`       n= 2  c=—      f=—      hall=0.000  refusal=1.000  (igual)
+
+**Aprendizajes / observaciones:**
+
+- **El criterio inviolable se cumple** (nada empeoró globalmente: hall ↓, faithfulness ↑, correctness sin cambio). Pero **la mejora esperada por el plan (correctness ↑ ≥0.05 y hall ↓ ≥0.05 vs etapa anterior) no se alcanzó**: correctness no se movió y hallucination bajó 0.020 (vs +0.05 esperado).
+- La razón por la que `factual_simple`, `listing` y `authority` (las categorías con más volumen y donde se esperaba el mayor salto) no mejoraron en correctness: el `RAGService.retrieve` actual tiene un fast-path que para intents `authority`/`duration`/`workload`/`subjects` retorna `{"context": []}` directamente y delega a un answer estructurado (líneas ~3666–3681 del rag_service). Eso significa que en muchas queries clave nunca llegamos a la búsqueda vectorial mejorada con context — el contextual retrieval queda "estacionado". Esto se va a destrabar en Etapa 3 cuando se elimine ese cortocircuito y todo el pipeline pase por hybrid + reranker.
+- **Wins claros**: `dates` saltó a 100% correctness y 0% hallucination (las preguntas sobre fechas son las que más se benefician del contexto: el chunk "del 1 al 31 de julio" no significa nada solo, pero "Las becas de investigación 2026 abren del 1 al 31 de julio" sí); `ambiguous` bajó hallucination a 0%.
+- **Regresión en `requirements`**: subió hallucination de 0.20 a 0.40. Probable causa: con chunks más chicos (500 vs 1500), un proceso de inscripción que antes cabía en un chunk ahora se parte en 3–4, y el modelo "rellena" lo que falta entre chunks. El reranker de Etapa 3 debería traer los 3–4 chunks juntos y mitigar esto.
+- **Costo ≈ USD 3.6 por re-crawl completo** sobre med.unne.edu.ar. Estimación lineal: para un sitio con ~5x más chunks, ~USD 18. No es trivial pero es una operación periódica (no por consulta), así que es viable.
 
 ### Etapa 3 — Hybrid Search + RRF + Reranker local
 

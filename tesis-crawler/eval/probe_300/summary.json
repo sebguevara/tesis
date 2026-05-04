@@ -1,0 +1,340 @@
+{
+  "total": 300,
+  "ok": 237,
+  "fail": 63,
+  "ok_pct": 79.0,
+  "avg_duration_s": 26.84,
+  "avg_groundedness": 0.844,
+  "by_category": {
+    "carreras_listado": {
+      "total": 10,
+      "ok": 8,
+      "fail": 2,
+      "ok_pct": 80.0
+    },
+    "duracion": {
+      "total": 10,
+      "ok": 8,
+      "fail": 2,
+      "ok_pct": 80.0
+    },
+    "titulo": {
+      "total": 5,
+      "ok": 5,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "modalidad": {
+      "total": 7,
+      "ok": 5,
+      "fail": 2,
+      "ok_pct": 71.4
+    },
+    "materias_medicina_1": {
+      "total": 5,
+      "ok": 5,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "materias_medicina_2": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "materias_medicina_3": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "materias_medicina_4": {
+      "total": 2,
+      "ok": 1,
+      "fail": 1,
+      "ok_pct": 50.0
+    },
+    "materias_medicina_5": {
+      "total": 2,
+      "ok": 2,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "materias_medicina_6": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "materias_enfermeria": {
+      "total": 5,
+      "ok": 3,
+      "fail": 2,
+      "ok_pct": 60.0
+    },
+    "materias_kinesio": {
+      "total": 5,
+      "ok": 3,
+      "fail": 2,
+      "ok_pct": 60.0
+    },
+    "autoridades": {
+      "total": 10,
+      "ok": 8,
+      "fail": 2,
+      "ok_pct": 80.0
+    },
+    "secretarias": {
+      "total": 5,
+      "ok": 4,
+      "fail": 1,
+      "ok_pct": 80.0
+    },
+    "universidad": {
+      "total": 4,
+      "ok": 3,
+      "fail": 1,
+      "ok_pct": 75.0
+    },
+    "ubicacion": {
+      "total": 4,
+      "ok": 4,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "contacto": {
+      "total": 5,
+      "ok": 4,
+      "fail": 1,
+      "ok_pct": 80.0
+    },
+    "inscripciones": {
+      "total": 20,
+      "ok": 16,
+      "fail": 4,
+      "ok_pct": 80.0
+    },
+    "tramites": {
+      "total": 16,
+      "ok": 13,
+      "fail": 3,
+      "ok_pct": 81.2
+    },
+    "calendario": {
+      "total": 8,
+      "ok": 6,
+      "fail": 2,
+      "ok_pct": 75.0
+    },
+    "objetivos_carrera": {
+      "total": 10,
+      "ok": 6,
+      "fail": 4,
+      "ok_pct": 60.0
+    },
+    "posgrado": {
+      "total": 8,
+      "ok": 7,
+      "fail": 1,
+      "ok_pct": 87.5
+    },
+    "ofertas_acad": {
+      "total": 10,
+      "ok": 6,
+      "fail": 4,
+      "ok_pct": 60.0
+    },
+    "investigacion": {
+      "total": 8,
+      "ok": 5,
+      "fail": 3,
+      "ok_pct": 62.5
+    },
+    "extension": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "becas": {
+      "total": 4,
+      "ok": 3,
+      "fail": 1,
+      "ok_pct": 75.0
+    },
+    "campus_virtual": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "concursos": {
+      "total": 4,
+      "ok": 1,
+      "fail": 3,
+      "ok_pct": 25.0
+    },
+    "elecciones": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "consejo_directivo": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "internacional": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "biblioteca_recursos": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "abrev_kinesio": {
+      "total": 5,
+      "ok": 4,
+      "fail": 1,
+      "ok_pct": 80.0
+    },
+    "abrev_enfer": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "preguntas_frecuentes": {
+      "total": 3,
+      "ok": 2,
+      "fail": 1,
+      "ok_pct": 66.7
+    },
+    "out_of_scope_medico": {
+      "total": 7,
+      "ok": 7,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "out_of_scope_libros": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "out_of_scope_opinion": {
+      "total": 5,
+      "ok": 5,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "cursar_general": {
+      "total": 11,
+      "ok": 8,
+      "fail": 3,
+      "ok_pct": 72.7
+    },
+    "examenes": {
+      "total": 5,
+      "ok": 5,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "compras_licitaciones": {
+      "total": 3,
+      "ok": 1,
+      "fail": 2,
+      "ok_pct": 33.3
+    },
+    "noticias": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "tecnico_administrativo": {
+      "total": 2,
+      "ok": 2,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "ingresantes": {
+      "total": 4,
+      "ok": 4,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "alumnos_servicios": {
+      "total": 3,
+      "ok": 1,
+      "fail": 2,
+      "ok_pct": 33.3
+    },
+    "regimen_academico": {
+      "total": 4,
+      "ok": 4,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "documentos_resoluciones": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "edificio_anexos": {
+      "total": 2,
+      "ok": 2,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "preguntas_referidas_carrera": {
+      "total": 5,
+      "ok": 4,
+      "fail": 1,
+      "ok_pct": 80.0
+    },
+    "egresados": {
+      "total": 3,
+      "ok": 1,
+      "fail": 2,
+      "ok_pct": 33.3
+    },
+    "perfiles_carrera": {
+      "total": 3,
+      "ok": 3,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "ciencias_basicas": {
+      "total": 7,
+      "ok": 4,
+      "fail": 3,
+      "ok_pct": 57.1
+    },
+    "clinicas": {
+      "total": 4,
+      "ok": 4,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "preguntas_directas_pdf": {
+      "total": 5,
+      "ok": 5,
+      "fail": 0,
+      "ok_pct": 100.0
+    },
+    "varios": {
+      "total": 13,
+      "ok": 11,
+      "fail": 2,
+      "ok_pct": 84.6
+    }
+  }
+}

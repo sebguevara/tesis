@@ -1,0 +1,81 @@
+warning: `VIRTUAL_ENV=C:\Users\johan\AppData\Local\Programs\Python\Python313` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Re-running 63 previously-failed questions
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A[ALoading weights:  52%|█████▏    | 105/201 [00:00<00:00, 1045.46it/s]
+Loading weights:  55%|█████▍    | 110/201 [00:00<00:00, 1079.21it/s][A
+
+Loading weights:  59%|█████▉    | 119/201 [00:00<00:00, 1182.28it/s][A[ALoading weights: 100%|██████████| 201/201 [00:00<00:00, 1027.67it/s]
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 467.81it/s] 
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 499.87it/s] 
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][ALoading weights:  79%|███████▊  | 158/201 [00:00<00:00, 1540.42it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 1546.62it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 2187.07it/s]
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 4172.98it/s]
+[1/63] OK  #16 duracion               g=1.0
+[2/63] OK  #19 duracion               g=1.0
+[3/63] OK  #26 modalidad              g=1.0
+[4/63] OK  #29 modalidad              g=1.0
+[5/63] OK  #10 carreras_listado       g=1.0
+[6/63] OK  #9 carreras_listado       g=1.0
+[7/63] OK  #39 materias_medicina_2    g=1.0
+[8/63] OK  #43 materias_medicina_3    g=1.0
+[9/63] OK  #55 materias_enfermeria    g=1.0
+[10/63] OK  #44 materias_medicina_4    g=1.0
+[11/63] OK  #57 materias_kinesio       g=1.0
+[12/63] OK  #52 materias_enfermeria    g=1.0
+[13/63] FAIL #60 materias_kinesio       g=0.4
+[14/63] OK  #67 autoridades            g=1.0
+[15/63] FAIL #70 autoridades            g=0.0
+[16/63] FAIL #73 secretarias            g=0.4
+[17/63] FAIL #78 universidad            g=0.0
+[18/63] OK  #84 contacto               g=1.0
+[19/63] OK  #89 inscripciones          g=1.0
+[20/63] OK  #92 inscripciones          g=1.0
+[21/63] OK  #107 inscripciones          g=1.0
+[22/63] OK  #102 inscripciones          g=1.0
+[23/63] OK  #120 tramites               g=1.0
+[24/63] OK  #115 tramites               g=1.0
+[25/63] FAIL #121 tramites               g=1.0
+[26/63] OK  #127 calendario             g=1.0
+[27/63] OK  #128 calendario             g=1.0
+[28/63] OK  #135 objetivos_carrera      g=1.0
+[29/63] OK  #134 objetivos_carrera      g=1.0
+[30/63] OK  #138 objetivos_carrera      g=1.0
+[31/63] OK  #141 objetivos_carrera      g=1.0
+[32/63] OK  #146 posgrado               g=1.0
+[33/63] FAIL #154 ofertas_acad           g=0.0
+[34/63] OK  #152 ofertas_acad           g=1.0
+[35/63] OK  #153 ofertas_acad           g=1.0
+[36/63] OK  #158 ofertas_acad           g=1.0
+[37/63] OK  #162 investigacion          g=1.0
+[38/63] OK  #166 investigacion          g=1.0
+[39/63] OK  #168 investigacion          g=1.0
+[40/63] OK  #177 campus_virtual         g=1.0
+[41/63] FAIL #172 becas                  g=0.4
+[42/63] OK  #179 concursos              g=1.0
+[43/63] OK  #182 concursos              g=1.0
+[44/63] OK  #181 concursos              g=1.0
+[45/63] OK  #194 biblioteca_recursos    g=1.0
+[46/63] OK  #198 abrev_kinesio          g=1.0
+[47/63] OK  #200 abrev_enfer            g=1.0
+[48/63] OK  #221 cursar_general         g=1.0
+[49/63] FAIL #205 preguntas_frecuentes   g=0.4
+[50/63] FAIL #224 cursar_general         g=0.4
+[51/63] OK  #237 compras_licitaciones   g=1.0
+[52/63] FAIL #225 cursar_general         g=0.3
+[53/63] OK  #239 compras_licitaciones   g=1.0
+[54/63] OK  #245 alumnos_servicios      g=1.0
+[55/63] OK  #246 alumnos_servicios      g=1.0
+[56/63] FAIL #265 preguntas_referidas_carrera g=0.0
+[57/63] OK  #266 egresados              g=1.0
+[58/63] FAIL #268 egresados              g=1.0
+[59/63] OK  #272 ciencias_basicas       g=1.0
+[60/63] OK  #273 ciencias_basicas       g=1.0
+[61/63] FAIL #277 ciencias_basicas       g=0.0
+[62/63] OK  #288 varios                 g=1.0
+[63/63] OK  #294 varios                 g=1.0
+Total elapsed: 485s

@@ -70,18 +70,26 @@ class RAGService:
     )
 
     # Hybrid retrieval (Stage 3, refined in Stage 5)
-    HYBRID_TOP_K_PER_LIST = 30
+    HYBRID_TOP_K_PER_LIST = 40
     HYBRID_RRF_C = 60
-    HYBRID_RRF_TOP = 50
-    # Stage 5: 8 → 12 to give listing-style queries (materias, secretarías,
-    # trámites) more chances of bringing all expected items into the prompt.
-    # Trade-off: a couple more reranker scores per query (~50ms each), and
-    # ~4 extra context blocks for the LLM. Safe within MAX_CONTEXT_CHARS_TOTAL.
-    HYBRID_FINAL_TOP = 12
+    HYBRID_RRF_TOP = 60
+    HYBRID_FINAL_TOP = 14
+    # Stage 6: expand same-doc neighbors for canonical /carreras/ chunks. The
+    # plan-de-estudios pages split a single year across "primer semestre" and
+    # "segundo semestre" chunks; embedding for "materias del primer año" tends
+    # to bring only one. Pull adjacent chunks (by ordinal chunk_id) for top
+    # matches that come from /carreras/ URLs so the LLM sees the full year.
+    NEIGHBOR_EXPANSION_RADIUS = 3
+    NEIGHBOR_EXPANSION_TOP = 4
 
     # Prompt sizing
-    MAX_CONTEXT_CHARS_TOTAL = 24000
-    MAX_PROMPT_CHARS = 22000
+    # gpt-4o accepts ~128k tokens; staying well under that. Stage 6: bumped
+    # because SYSTEM_RAG grew and neighbor expansion adds chunks — the old
+    # 22000 char cap caused naive truncation to chop off the user question
+    # at the END of the prompt, producing empty "Hola, en qué te ayudo?"
+    # answers. Now the assembly preserves the question verbatim.
+    MAX_CONTEXT_CHARS_TOTAL = 22000
+    MAX_PROMPT_CHARS = 32000
     MAX_HISTORY_ITEMS = 12
     MAX_HISTORY_CHARS_PER_ITEM = 500
     MAX_HISTORY_CHARS_TOTAL = 5000
@@ -89,7 +97,11 @@ class RAGService:
     # Rewrite + verify (Stage 4)
     REWRITE_HISTORY_MAX_ITEMS = 6
     REWRITE_HISTORY_MAX_CHARS = 1500
-    VERIFY_GROUNDEDNESS_THRESHOLD = 0.6
+    # Stage 6: 0.6 → 0.5 → 0.4. The verifier prompt reserves 0.4–0.6 for
+    # "1 minor data point not in context" — those answers are still useful
+    # to the user. Below 0.4 (multiple unsupported claims, contradictions,
+    # out-of-scope) we still decline.
+    VERIFY_GROUNDEDNESS_THRESHOLD = 0.4
 
     def __init__(self):
         # Stage 5 refinement: temperature=0 for reproducibility. Without this,
@@ -364,6 +376,30 @@ class RAGService:
             """
         )
 
+        # Stage 6: a parallel dense lookup scoped to canonical /carreras/ pages.
+        # Without this the embedder can miss the carrera-home chunks (heavy
+        # boilerplate / TOC), and queries like "es presencial Medicina?",
+        # "duración Enfermería", "quién es la decana?" land on tangential pages
+        # and the model either declines or hallucinates names.
+        career_vector_sql = text(
+            """
+            SELECT
+              c.id::text AS cid,
+              d.canonical_url AS url,
+              COALESCE(d.title, '') AS title,
+              c.text AS chunk_text,
+              COALESCE(c.context, '') AS chunk_context,
+              d.fetched_at AS fetched_at
+            FROM chunks c
+            JOIN documents d ON d.doc_id = c.doc_id
+            JOIN sources s ON s.source_id = d.source_id
+            WHERE (lower(s.domain) = :domain_1 OR lower(s.domain) = :domain_2)
+              AND d.canonical_url ~ '/carreras/[^/]+$'
+              AND c.embedding IS NOT NULL
+            ORDER BY c.embedding <=> CAST(:query_vec AS vector)
+            LIMIT :k
+            """
+        )
         async with async_session() as session:
             vec_rows = (
                 await session.execute(
@@ -391,9 +427,24 @@ class RAGService:
             except Exception:
                 logger.exception("FTS query failed; continuing with dense only")
                 fts_rows = []
+            try:
+                career_rows = (
+                    await session.execute(
+                        career_vector_sql,
+                        {
+                            "query_vec": query_vec,
+                            "k": 18,
+                            "domain_1": domain_1,
+                            "domain_2": domain_2,
+                        },
+                    )
+                ).mappings().all()
+            except Exception:
+                logger.exception("Career-scoped retrieval failed; continuing without")
+                career_rows = []
 
         by_cid: dict[str, dict] = {}
-        for row in [*vec_rows, *fts_rows]:
+        for row in [*vec_rows, *fts_rows, *career_rows]:
             cid = str(row.get("cid") or "")
             if not cid or cid in by_cid:
                 continue
@@ -402,10 +453,14 @@ class RAGService:
         if not by_cid:
             return {"context": []}
 
+        # RRF fuses three lists: dense, sparse, and the carrera-scoped dense
+        # results. The third list is what makes carrera-home chunks survive
+        # past the rerank for short ambiguous queries.
         fused_cids = self._rrf_fuse(
             [
                 [str(r.get("cid") or "") for r in vec_rows if r.get("cid")],
                 [str(r.get("cid") or "") for r in fts_rows if r.get("cid")],
+                [str(r.get("cid") or "") for r in career_rows if r.get("cid")],
             ],
             c=self.HYBRID_RRF_C,
             top_n=self.HYBRID_RRF_TOP,
@@ -438,10 +493,69 @@ class RAGService:
             logger.exception("Cross-encoder rerank failed; using RRF order as fallback")
             ranked = [(i, 0.0) for i in range(min(self.HYBRID_FINAL_TOP, len(candidates)))]
 
-        contexts: list[str] = []
-        for idx, _score in ranked:
+        # Stage 6: pull same-doc neighbors for the top-N matches that come from
+        # canonical /carreras/ URLs. The /carreras/ pages split a year across
+        # multiple chunks (primer semestre, segundo semestre, etc.); without
+        # neighbor expansion the LLM sees only one and answers half the year.
+        seed_cids: list[str] = []
+        for idx, _score in ranked[: self.NEIGHBOR_EXPANSION_TOP]:
             cid = candidates[idx][0]
             row = by_cid.get(cid) or {}
+            url = (row.get("url") or "").strip().lower()
+            if "/carreras/" in url:
+                seed_cids.append(cid)
+
+        if seed_cids:
+            neighbor_sql = text(
+                """
+                WITH seeds AS (
+                    SELECT doc_id, chunk_id
+                    FROM chunks
+                    WHERE id::text = ANY(:seed_cids)
+                )
+                SELECT DISTINCT
+                  c.id::text AS cid,
+                  d.canonical_url AS url,
+                  COALESCE(d.title, '') AS title,
+                  c.text AS chunk_text,
+                  COALESCE(c.context, '') AS chunk_context,
+                  d.fetched_at AS fetched_at,
+                  c.chunk_id
+                FROM chunks c
+                JOIN documents d ON d.doc_id = c.doc_id
+                JOIN seeds s ON s.doc_id = c.doc_id
+                WHERE ABS(c.chunk_id - s.chunk_id) <= :radius
+                ORDER BY c.chunk_id
+                """
+            )
+            try:
+                async with async_session() as session:
+                    neighbor_rows = (
+                        await session.execute(
+                            neighbor_sql,
+                            {
+                                "seed_cids": seed_cids,
+                                "radius": self.NEIGHBOR_EXPANSION_RADIUS,
+                            },
+                        )
+                    ).mappings().all()
+                for row in neighbor_rows:
+                    cid = str(row.get("cid") or "")
+                    if cid and cid not in by_cid:
+                        by_cid[cid] = dict(row)
+            except Exception:
+                logger.exception("Neighbor expansion failed; continuing without")
+                neighbor_rows = []
+
+        # Build the final context list. ORDER MATTERS: verify() truncates
+        # context to a fixed char budget, so anything past the cutoff is
+        # invisible to the verifier. We put /carreras/ chunks FIRST so the
+        # canonical institutional info (modalidad, autoridades, duración,
+        # plan de estudios) is always in the verifier's window.
+        seen_cids: set[str] = set()
+        contexts: list[str] = []
+
+        def _format(row: dict) -> str:
             url = (row.get("url") or "").strip()
             title = (row.get("title") or "").strip()
             ctx_part = (row.get("chunk_context") or "").strip()
@@ -449,9 +563,38 @@ class RAGService:
             fetched = row.get("fetched_at")
             fetched_str = str(fetched) if fetched is not None else ""
             content_block = f"{ctx_part}\n\n{chunk_part}".strip() if ctx_part else chunk_part
-            contexts.append(
-                f"URL: {url}\nTitulo: {title}\nFetchedAt: {fetched_str}\nContenido: {content_block}"
-            )
+            return f"URL: {url}\nTitulo: {title}\nFetchedAt: {fetched_str}\nContenido: {content_block}"
+
+        # 1) Force-include top vector matches from carrera-scoped retrieval.
+        career_added = 0
+        for row in career_rows:
+            if career_added >= 6:
+                break
+            cid = str(row.get("cid") or "")
+            if not cid or cid in seen_cids:
+                continue
+            seen_cids.add(cid)
+            contexts.append(_format(dict(row)))
+            career_added += 1
+
+        # 2) Cross-encoder reranked top from the hybrid pool.
+        for idx, _score in ranked:
+            cid = candidates[idx][0]
+            if cid in seen_cids:
+                continue
+            seen_cids.add(cid)
+            row = by_cid.get(cid) or {}
+            contexts.append(_format(row))
+
+        # 3) Same-doc neighbors of any /carreras/ seed (covers split-by-semester
+        #    chunks of the plan de estudios).
+        if seed_cids:
+            for row in neighbor_rows:
+                cid = str(row.get("cid") or "")
+                if not cid or cid in seen_cids:
+                    continue
+                seen_cids.add(cid)
+                contexts.append(_format(dict(row)))
 
         return {"context": contexts}
 
@@ -480,14 +623,23 @@ class RAGService:
         history_text = "\n".join(self._history_for_prompt(history)).strip()
         context_text = "\n\n---\n\n".join(joined)
 
-        prompt = (
+        # Build prompt with the user's question protected: if total exceeds
+        # MAX_PROMPT_CHARS, trim the CONTEXT (least critical) instead of the
+        # tail (which would cut the question and leave the model unanchored).
+        question_block = f"\n\nPregunta del usuario:\n{query}"
+        prefix = (
             f"{SYSTEM_RAG}\n\n"
             f"Historial reciente:\n{history_text}\n\n"
-            f"Contexto recuperado:\n{context_text}\n\n"
-            f"Pregunta del usuario:\n{query}"
+            f"Contexto recuperado:\n"
         )
-        if len(prompt) > self.MAX_PROMPT_CHARS:
-            prompt = prompt[: self.MAX_PROMPT_CHARS]
+        budget = self.MAX_PROMPT_CHARS - len(prefix) - len(question_block)
+        if budget < 1000:
+            # Pathological: SYSTEM_RAG + history alone exhausted the budget.
+            # Keep at least a minimal context window.
+            budget = 1000
+        if len(context_text) > budget:
+            context_text = context_text[: budget - 1].rstrip() + "…"
+        prompt = prefix + context_text + question_block
 
         res = await self.llm.ainvoke(prompt)
         return {"response": (res.content or "").strip()}
@@ -504,8 +656,13 @@ class RAGService:
             return {"groundedness": 1.0, "unsupported_claims": []}
 
         joined = "\n\n---\n\n".join(b for b in contexts if b)
-        if len(joined) > 6000:
-            joined = joined[:6000] + "\n[…]"
+        # Stage 6: verify must see the same context generate used. Earlier
+        # the verify cap was 14000 while generate ran with up to 22000 — when
+        # generate listed materias optativas or curso details from chunks
+        # past 14000 chars, verify couldn't find them and flagged them as
+        # ungrounded. Match the cap to MAX_CONTEXT_CHARS_TOTAL.
+        if len(joined) > self.MAX_CONTEXT_CHARS_TOTAL:
+            joined = joined[: self.MAX_CONTEXT_CHARS_TOTAL] + "\n[…]"
         if not joined.strip():
             joined = "(sin contexto recuperado)"
 

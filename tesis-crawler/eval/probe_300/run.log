@@ -1,0 +1,347 @@
+warning: `VIRTUAL_ENV=C:\Users\johan\AppData\Local\Programs\Python\Python313` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Total questions: 300  concurrency=6
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A[ALoading weights:  37%|███▋      | 74/201 [00:00<00:00, 287.30it/s]
+Loading weights:  14%|█▍        | 29/201 [00:00<00:01, 127.14it/s][A
+
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A[A[A
+
+
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A[A[A[A
+Loading weights:  52%|█████▏    | 104/201 [00:00<00:00, 366.41it/s][ALoading weights:  70%|██████▉   | 140/201 [00:00<00:00, 414.33it/s]
+
+Loading weights:  34%|███▍      | 68/201 [00:00<00:00, 666.82it/s][A[A
+
+
+
+
+Loading weights:   0%|          | 0/201 [00:00<?, ?it/s][A[A[A[A[A
+
+
+Loading weights:  35%|███▌      | 71/201 [00:00<00:00, 684.60it/s][A[A[ALoading weights: 100%|██████████| 201/201 [00:00<00:00, 451.25it/s]
+
+
+
+
+Loading weights:  42%|████▏     | 84/201 [00:00<00:00, 802.27it/s][A[A[A[A
+Loading weights:  81%|████████  | 163/201 [00:00<00:00, 445.49it/s][A
+
+Loading weights:  69%|██████▊   | 138/201 [00:00<00:00, 681.71it/s][A[A
+
+
+
+
+Loading weights:  42%|████▏     | 85/201 [00:00<00:00, 838.19it/s][A[A[A[A[ALoading weights: 100%|██████████| 201/201 [00:00<00:00, 431.46it/s]
+
+
+
+Loading weights:  84%|████████▎ | 168/201 [00:00<00:00, 833.45it/s][A[A[ALoading weights: 100%|██████████| 201/201 [00:00<00:00, 764.04it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 868.41it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 1045.74it/s]
+Loading weights: 100%|██████████| 201/201 [00:00<00:00, 1175.52it/s]
+[1/300] OK  #5 carreras_listado       g=1.0 t=33.82s  | elapsed=33s eta=10138s
+[2/300] OK  #4 carreras_listado       g=1.0 t=34.33s  | elapsed=34s eta=5127s
+[3/300] OK  #3 carreras_listado       g=1.0 t=34.59s  | elapsed=34s eta=3429s
+[4/300] OK  #2 carreras_listado       g=1.0 t=34.63s  | elapsed=34s eta=2565s
+[5/300] OK  #1 carreras_listado       g=1.0 t=35.47s  | elapsed=35s eta=2094s
+[6/300] OK  #6 carreras_listado       g=1.0 t=35.73s  | elapsed=35s eta=1755s
+[7/300] OK  #7 carreras_listado       g=1.0 t=18.87s  | elapsed=52s eta=2210s
+[8/300] FAIL #10 carreras_listado       g=0.4 t=23.84s  | elapsed=58s eta=2137s
+[9/300] FAIL #9 carreras_listado       g=0.0 t=25.23s  | elapsed=59s eta=1937s
+[10/300] OK  #11 duracion               g=1.0 t=27.11s  | elapsed=62s eta=1816s
+[11/300] OK  #12 duracion               g=1.0 t=26.86s  | elapsed=62s eta=1647s
+[12/300] OK  #8 carreras_listado       g=1.0 t=28.94s  | elapsed=63s eta=1521s
+[13/300] OK  #14 duracion               g=1.0 t=17.58s  | elapsed=76s eta=1681s
+[14/300] OK  #15 duracion               g=1.0 t=20.63s  | elapsed=80s eta=1646s
+[15/300] OK  #13 duracion               g=1.0 t=30.46s  | elapsed=83s eta=1583s
+[16/300] OK  #17 duracion               g=1.0 t=28.4s  | elapsed=91s eta=1618s
+[17/300] FAIL #16 duracion               g=0.0 t=28.55s  | elapsed=91s eta=1518s
+[18/300] OK  #18 duracion               g=1.0 t=28.05s  | elapsed=91s eta=1433s
+[19/300] OK  #20 duracion               g=1.0 t=23.93s  | elapsed=104s eta=1546s
+[20/300] FAIL #19 duracion               g=0.0 t=28.4s  | elapsed=104s eta=1464s
+[21/300] OK  #21 titulo                 g=1.0 t=25.83s  | elapsed=109s eta=1450s
+[22/300] OK  #22 titulo                 g=1.0 t=23.32s  | elapsed=114s eta=1447s
+[23/300] OK  #23 titulo                 g=1.0 t=24.68s  | elapsed=115s eta=1396s
+[24/300] OK  #24 titulo                 g=1.0 t=25.49s  | elapsed=117s eta=1345s
+[25/300] OK  #25 titulo                 g=1.0 t=22.68s  | elapsed=127s eta=1400s
+[26/300] FAIL #26 modalidad              g=0.0 t=33.44s  | elapsed=138s eta=1455s
+[27/300] OK  #27 modalidad              g=1.0 t=34.04s  | elapsed=143s eta=1448s
+[28/300] FAIL #29 modalidad              g=0.0 t=29.75s  | elapsed=145s eta=1415s
+[29/300] OK  #28 modalidad              g=1.0 t=31.69s  | elapsed=146s eta=1366s
+[30/300] OK  #30 modalidad              g=1.0 t=29.53s  | elapsed=146s eta=1319s
+[31/300] OK  #31 modalidad              g=1.0 t=22.59s  | elapsed=149s eta=1300s
+[32/300] OK  #32 modalidad              g=1.0 t=28.46s  | elapsed=166s eta=1395s
+[33/300] OK  #33 materias_medicina_1    g=1.0 t=25.32s  | elapsed=168s eta=1364s
+[34/300] OK  #35 materias_medicina_1    g=1.0 t=28.95s  | elapsed=175s eta=1371s
+[35/300] OK  #34 materias_medicina_1    g=1.0 t=30.3s  | elapsed=176s eta=1333s
+[36/300] OK  #36 materias_medicina_1    g=1.0 t=30.32s  | elapsed=176s eta=1297s
+[37/300] OK  #37 materias_medicina_1    g=1.0 t=27.45s  | elapsed=177s eta=1261s
+[38/300] OK  #38 materias_medicina_2    g=1.0 t=19.96s  | elapsed=186s eta=1286s
+[39/300] FAIL #39 materias_medicina_2    g=0.0 t=18.81s  | elapsed=187s eta=1254s
+[40/300] OK  #41 materias_medicina_3    g=1.0 t=27.47s  | elapsed=203s eta=1323s
+[41/300] OK  #40 materias_medicina_2    g=1.0 t=28.9s  | elapsed=204s eta=1289s
+[42/300] FAIL #43 materias_medicina_3    g=0.0 t=27.96s  | elapsed=205s eta=1261s
+[43/300] OK  #42 materias_medicina_3    g=1.0 t=30.13s  | elapsed=207s eta=1238s
+[44/300] FAIL #44 materias_medicina_4    g=0.3 t=26.58s  | elapsed=213s eta=1240s
+[45/300] OK  #45 materias_medicina_4    g=1.0 t=26.24s  | elapsed=213s eta=1211s
+[46/300] OK  #46 materias_medicina_5    g=1.0 t=25.09s  | elapsed=228s eta=1263s
+[47/300] OK  #47 materias_medicina_5    g=1.0 t=24.57s  | elapsed=228s eta=1231s
+[48/300] OK  #48 materias_medicina_6    g=1.0 t=26.83s  | elapsed=232s eta=1219s
+[49/300] OK  #49 materias_medicina_6    g=1.0 t=25.9s  | elapsed=233s eta=1193s
+[50/300] OK  #50 materias_medicina_6    g=1.0 t=25.64s  | elapsed=238s eta=1194s
+[51/300] OK  #51 materias_enfermeria    g=1.0 t=26.6s  | elapsed=240s eta=1173s
+[52/300] FAIL #52 materias_enfermeria    g=0.3 t=27.99s  | elapsed=256s eta=1224s
+[53/300] OK  #53 materias_enfermeria    g=1.0 t=28.28s  | elapsed=257s eta=1198s
+[54/300] FAIL #55 materias_enfermeria    g=0.4 t=29.23s  | elapsed=262s eta=1195s
+[55/300] OK  #56 materias_kinesio       g=1.0 t=30.72s  | elapsed=269s eta=1201s
+[56/300] FAIL #57 materias_kinesio       g=0.4 t=30.25s  | elapsed=270s eta=1179s
+[57/300] OK  #54 materias_enfermeria    g=1.0 t=38.89s  | elapsed=271s eta=1156s
+[58/300] OK  #58 materias_kinesio       g=1.0 t=23.64s  | elapsed=280s eta=1170s
+[59/300] OK  #59 materias_kinesio       g=1.0 t=24.98s  | elapsed=282s eta=1152s
+[60/300] FAIL #60 materias_kinesio       g=0.0 t=26.98s  | elapsed=289s eta=1157s
+[61/300] OK  #62 autoridades            g=1.0 t=22.87s  | elapsed=293s eta=1150s
+[62/300] OK  #61 autoridades            g=1.0 t=23.99s  | elapsed=293s eta=1127s
+[63/300] OK  #63 autoridades            g=1.0 t=23.64s  | elapsed=294s eta=1109s
+[64/300] OK  #64 autoridades            g=1.0 t=19.47s  | elapsed=299s eta=1106s
+[65/300] OK  #65 autoridades            g=1.0 t=18.98s  | elapsed=301s eta=1088s
+[66/300] OK  #66 autoridades            g=1.0 t=22.52s  | elapsed=311s eta=1106s
+[67/300] OK  #68 autoridades            g=1.0 t=21.39s  | elapsed=315s eta=1096s
+[68/300] OK  #69 autoridades            g=1.0 t=21.97s  | elapsed=316s eta=1081s
+[69/300] FAIL #70 autoridades            g=0.0 t=23.29s  | elapsed=323s eta=1082s
+[70/300] FAIL #67 autoridades            g=0.3 t=33.0s  | elapsed=326s eta=1073s
+[71/300] OK  #71 secretarias            g=1.0 t=29.46s  | elapsed=330s eta=1066s
+[72/300] OK  #72 secretarias            g=1.0 t=22.7s  | elapsed=334s eta=1059s
+[73/300] OK  #74 secretarias            g=1.0 t=32.47s  | elapsed=349s eta=1086s
+[74/300] OK  #75 secretarias            g=1.0 t=26.43s  | elapsed=349s eta=1068s
+[75/300] FAIL #73 secretarias            g=0.4 t=35.1s  | elapsed=350s eta=1050s
+[76/300] OK  #76 universidad            g=1.0 t=26.0s  | elapsed=352s eta=1039s
+[77/300] FAIL #78 universidad            g=0.0 t=23.54s  | elapsed=358s eta=1037s
+[78/300] OK  #77 universidad            g=1.0 t=30.36s  | elapsed=361s eta=1027s
+[79/300] OK  #80 ubicacion              g=1.0 t=26.59s  | elapsed=376s eta=1053s
+[80/300] OK  #81 ubicacion              g=1.0 t=34.21s  | elapsed=384s eta=1057s
+[81/300] OK  #79 universidad            g=1.0 t=36.89s  | elapsed=386s eta=1044s
+[82/300] OK  #82 ubicacion              g=1.0 t=35.52s  | elapsed=388s eta=1032s
+[83/300] FAIL #84 contacto               g=0.4 t=27.5s  | elapsed=388s eta=1016s
+[84/300] OK  #83 ubicacion              g=1.0 t=34.27s  | elapsed=392s eta=1009s
+[85/300] OK  #85 contacto               g=1.0 t=19.84s  | elapsed=396s eta=1002s
+[86/300] OK  #86 contacto               g=1.0 t=24.89s  | elapsed=409s eta=1019s
+[87/300] OK  #88 contacto               g=1.0 t=26.43s  | elapsed=414s eta=1015s
+[88/300] FAIL #89 inscripciones          g=0.4 t=27.25s  | elapsed=415s eta=1001s
+[89/300] OK  #87 contacto               g=1.0 t=31.94s  | elapsed=418s eta=991s
+[90/300] OK  #90 inscripciones          g=1.0 t=26.66s  | elapsed=419s eta=978s
+[91/300] OK  #91 inscripciones          g=1.0 t=23.0s  | elapsed=419s eta=963s
+[92/300] FAIL #92 inscripciones          g=0.0 t=20.72s  | elapsed=430s eta=972s
+[93/300] OK  #94 inscripciones          g=1.0 t=20.31s  | elapsed=436s eta=971s
+[94/300] OK  #95 inscripciones          g=1.0 t=23.6s  | elapsed=442s eta=968s
+[95/300] OK  #93 inscripciones          g=1.0 t=29.96s  | elapsed=444s eta=959s
+[96/300] OK  #97 inscripciones          g=1.0 t=27.4s  | elapsed=446s eta=949s
+[97/300] OK  #96 inscripciones          g=1.0 t=28.85s  | elapsed=448s eta=937s
+[98/300] OK  #98 inscripciones          g=1.0 t=22.92s  | elapsed=453s eta=934s
+[99/300] OK  #99 inscripciones          g=1.0 t=29.14s  | elapsed=465s eta=944s
+[100/300] OK  #101 inscripciones          g=1.0 t=24.65s  | elapsed=469s eta=938s
+[101/300] FAIL #102 inscripciones          g=0.4 t=24.99s  | elapsed=471s eta=929s
+[102/300] OK  #103 inscripciones          g=1.0 t=25.19s  | elapsed=473s eta=919s
+[103/300] OK  #100 inscripciones          g=1.0 t=31.78s  | elapsed=473s eta=906s
+[104/300] OK  #104 inscripciones          g=1.0 t=25.26s  | elapsed=478s eta=901s
+[105/300] OK  #105 inscripciones          g=1.0 t=16.81s  | elapsed=482s eta=895s
+[106/300] OK  #106 inscripciones          g=1.0 t=19.2s  | elapsed=488s eta=894s
+[107/300] FAIL #107 inscripciones          g=0.4 t=20.86s  | elapsed=492s eta=888s
+[108/300] OK  #109 tramites               g=1.0 t=22.07s  | elapsed=495s eta=881s
+[109/300] OK  #108 inscripciones          g=1.0 t=25.44s  | elapsed=498s eta=874s
+[110/300] OK  #110 tramites               g=1.0 t=24.61s  | elapsed=503s eta=869s
+[111/300] OK  #111 tramites               g=1.0 t=23.48s  | elapsed=505s eta=861s
+[112/300] OK  #112 tramites               g=1.0 t=25.79s  | elapsed=514s eta=863s
+[113/300] OK  #113 tramites               g=1.0 t=24.92s  | elapsed=517s eta=856s
+[114/300] OK  #114 tramites               g=1.0 t=26.85s  | elapsed=522s eta=853s
+[115/300] FAIL #115 tramites               g=0.4 t=28.15s  | elapsed=527s eta=847s
+[116/300] OK  #116 tramites               g=1.0 t=25.4s  | elapsed=528s eta=838s
+[117/300] OK  #117 tramites               g=1.0 t=23.87s  | elapsed=529s eta=828s
+[118/300] OK  #118 tramites               g=1.0 t=25.4s  | elapsed=539s eta=832s
+[119/300] OK  #119 tramites               g=1.0 t=23.55s  | elapsed=541s eta=823s
+[120/300] FAIL #120 tramites               g=0.4 t=24.66s  | elapsed=547s eta=821s
+[121/300] FAIL #121 tramites               g=1.0 t=24.45s  | elapsed=551s eta=816s
+[122/300] OK  #122 tramites               g=1.0 t=25.71s  | elapsed=554s eta=808s
+[123/300] OK  #123 tramites               g=1.0 t=24.98s  | elapsed=554s eta=798s
+[124/300] OK  #125 calendario             g=1.0 t=23.26s  | elapsed=564s eta=801s
+[125/300] OK  #124 tramites               g=1.0 t=26.01s  | elapsed=566s eta=792s
+[126/300] FAIL #127 calendario             g=0.4 t=24.48s  | elapsed=576s eta=795s
+[127/300] OK  #126 calendario             g=1.0 t=29.0s  | elapsed=576s eta=785s
+[128/300] FAIL #128 calendario             g=0.0 t=23.27s  | elapsed=577s eta=776s
+[129/300] OK  #129 calendario             g=1.0 t=24.64s  | elapsed=579s eta=768s
+[130/300] OK  #130 calendario             g=1.0 t=22.27s  | elapsed=586s eta=767s
+[131/300] OK  #131 calendario             g=1.0 t=23.48s  | elapsed=589s eta=760s
+[132/300] OK  #132 calendario             g=1.0 t=21.88s  | elapsed=598s eta=761s
+[133/300] OK  #133 objetivos_carrera      g=1.0 t=21.7s  | elapsed=598s eta=751s
+[134/300] FAIL #135 objetivos_carrera      g=0.4 t=26.69s  | elapsed=606s eta=750s
+[135/300] OK  #136 objetivos_carrera      g=1.0 t=26.8s  | elapsed=613s eta=750s
+[136/300] FAIL #134 objetivos_carrera      g=0.4 t=36.02s  | elapsed=613s eta=740s
+[137/300] OK  #137 objetivos_carrera      g=1.0 t=25.16s  | elapsed=614s eta=731s
+[138/300] FAIL #138 objetivos_carrera      g=0.4 t=22.83s  | elapsed=620s eta=728s
+[139/300] OK  #139 objetivos_carrera      g=1.0 t=23.98s  | elapsed=622s eta=720s
+[140/300] OK  #140 objetivos_carrera      g=1.0 t=23.47s  | elapsed=629s eta=719s
+[141/300] FAIL #141 objetivos_carrera      g=1.0 t=25.22s  | elapsed=639s eta=720s
+[142/300] OK  #142 objetivos_carrera      g=1.0 t=25.97s  | elapsed=639s eta=711s
+[143/300] OK  #143 posgrado               g=1.0 t=25.37s  | elapsed=640s eta=702s
+[144/300] OK  #144 posgrado               g=0.6 t=24.73s  | elapsed=645s eta=699s
+[145/300] OK  #145 posgrado               g=1.0 t=28.49s  | elapsed=650s eta=695s
+[146/300] FAIL #146 posgrado               g=0.4 t=23.92s  | elapsed=653s eta=689s
+[147/300] OK  #149 posgrado               g=1.0 t=24.05s  | elapsed=664s eta=691s
+[148/300] OK  #147 posgrado               g=1.0 t=26.41s  | elapsed=665s eta=683s
+[149/300] OK  #148 posgrado               g=1.0 t=31.36s  | elapsed=671s eta=680s
+[150/300] OK  #150 posgrado               g=1.0 t=32.38s  | elapsed=678s eta=678s
+[151/300] OK  #151 ofertas_acad           g=1.0 t=29.82s  | elapsed=680s eta=671s
+[152/300] FAIL #152 ofertas_acad           g=0.0 t=28.09s  | elapsed=681s eta=663s
+[153/300] FAIL #154 ofertas_acad           g=0.0 t=23.33s  | elapsed=688s eta=661s
+[154/300] OK  #155 ofertas_acad           g=1.0 t=21.96s  | elapsed=693s eta=657s
+[155/300] FAIL #153 ofertas_acad           g=0.4 t=30.45s  | elapsed=694s eta=649s
+[156/300] OK  #156 ofertas_acad           g=1.0 t=23.23s  | elapsed=701s eta=647s
+[157/300] OK  #157 ofertas_acad           g=1.0 t=25.21s  | elapsed=706s eta=643s
+[158/300] FAIL #158 ofertas_acad           g=0.0 t=24.36s  | elapsed=706s eta=634s
+[159/300] OK  #159 ofertas_acad           g=1.0 t=25.6s  | elapsed=714s eta=633s
+[160/300] OK  #160 ofertas_acad           g=1.0 t=23.58s  | elapsed=716s eta=627s
+[161/300] OK  #161 investigacion          g=1.0 t=39.71s  | elapsed=734s eta=634s
+[162/300] OK  #164 investigacion          g=1.0 t=33.29s  | elapsed=739s eta=629s
+[163/300] FAIL #162 investigacion          g=0.4 t=40.0s  | elapsed=741s eta=623s
+[164/300] OK  #163 investigacion          g=1.0 t=46.18s  | elapsed=752s eta=623s
+[165/300] FAIL #166 investigacion          g=0.4 t=36.09s  | elapsed=752s eta=616s
+[166/300] OK  #165 investigacion          g=1.0 t=38.65s  | elapsed=753s eta=607s
+[167/300] OK  #167 investigacion          g=1.0 t=25.74s  | elapsed=760s eta=605s
+[168/300] OK  #169 extension              g=1.0 t=28.72s  | elapsed=770s eta=605s
+[169/300] FAIL #168 investigacion          g=0.4 t=31.17s  | elapsed=770s eta=597s
+[170/300] OK  #170 extension              g=1.0 t=24.42s  | elapsed=776s eta=593s
+[171/300] OK  #171 extension              g=1.0 t=25.41s  | elapsed=778s eta=587s
+[172/300] OK  #173 becas                  g=1.0 t=26.72s  | elapsed=787s eta=585s
+[173/300] FAIL #172 becas                  g=0.4 t=34.27s  | elapsed=787s eta=578s
+[174/300] OK  #175 becas                  g=1.0 t=21.67s  | elapsed=792s eta=573s
+[175/300] OK  #174 becas                  g=1.0 t=23.1s  | elapsed=793s eta=566s
+[176/300] FAIL #177 campus_virtual         g=0.4 t=24.04s  | elapsed=802s eta=565s
+[177/300] OK  #176 campus_virtual         g=1.0 t=31.11s  | elapsed=807s eta=561s
+[178/300] FAIL #179 concursos              g=0.4 t=32.26s  | elapsed=819s eta=561s
+[179/300] OK  #178 campus_virtual         g=1.0 t=35.34s  | elapsed=822s eta=555s
+[180/300] FAIL #181 concursos              g=0.0 t=29.5s  | elapsed=822s eta=548s
+[181/300] OK  #180 concursos              g=1.0 t=35.53s  | elapsed=828s eta=544s
+[182/300] FAIL #182 concursos              g=0.4 t=26.46s  | elapsed=829s eta=537s
+[183/300] OK  #183 elecciones             g=1.0 t=21.37s  | elapsed=829s eta=530s
+[184/300] OK  #184 elecciones             g=1.0 t=21.32s  | elapsed=841s eta=530s
+[185/300] OK  #185 elecciones             g=1.0 t=19.37s  | elapsed=841s eta=523s
+[186/300] OK  #186 consejo_directivo      g=1.0 t=21.28s  | elapsed=844s eta=517s
+[187/300] OK  #187 consejo_directivo      g=1.0 t=22.62s  | elapsed=850s eta=514s
+[188/300] OK  #189 internacional          g=1.0 t=24.28s  | elapsed=853s eta=508s
+[189/300] OK  #188 consejo_directivo      g=1.0 t=27.45s  | elapsed=856s eta=503s
+[190/300] OK  #190 internacional          g=1.0 t=22.13s  | elapsed=863s eta=499s
+[191/300] OK  #191 internacional          g=1.0 t=22.5s  | elapsed=864s eta=493s
+[192/300] OK  #192 biblioteca_recursos    g=1.0 t=30.03s  | elapsed=874s eta=491s
+[193/300] FAIL #194 biblioteca_recursos    g=0.4 t=26.95s  | elapsed=880s eta=488s
+[194/300] OK  #195 abrev_kinesio          g=1.0 t=27.6s  | elapsed=884s eta=483s
+[195/300] OK  #193 biblioteca_recursos    g=1.0 t=33.71s  | elapsed=884s eta=476s
+[196/300] OK  #197 abrev_kinesio          g=1.0 t=23.4s  | elapsed=887s eta=471s
+[197/300] OK  #196 abrev_kinesio          g=1.0 t=24.93s  | elapsed=888s eta=464s
+[198/300] FAIL #198 abrev_kinesio          g=0.0 t=25.55s  | elapsed=899s eta=463s
+[199/300] OK  #199 abrev_kinesio          g=1.0 t=26.49s  | elapsed=907s eta=460s
+[200/300] FAIL #200 abrev_enfer            g=0.0 t=24.31s  | elapsed=908s eta=454s
+[201/300] OK  #201 abrev_enfer            g=1.0 t=25.3s  | elapsed=909s eta=448s
+[202/300] OK  #202 abrev_enfer            g=1.0 t=25.64s  | elapsed=913s eta=443s
+[203/300] OK  #203 preguntas_frecuentes   g=1.0 t=25.51s  | elapsed=914s eta=436s
+[204/300] OK  #204 preguntas_frecuentes   g=1.0 t=22.05s  | elapsed=922s eta=433s
+[205/300] FAIL #205 preguntas_frecuentes   g=0.4 t=22.89s  | elapsed=930s eta=431s
+[206/300] OK  #206 out_of_scope_medico    g=1.0 t=22.16s  | elapsed=930s eta=424s
+[207/300] OK  #207 out_of_scope_medico    g=1.0 t=23.77s  | elapsed=933s eta=419s
+[208/300] OK  #208 out_of_scope_medico    g=1.0 t=23.25s  | elapsed=936s eta=414s
+[209/300] OK  #209 out_of_scope_medico    g=1.0 t=24.86s  | elapsed=939s eta=408s
+[210/300] OK  #210 out_of_scope_medico    g=1.0 t=20.13s  | elapsed=942s eta=403s
+[211/300] OK  #211 out_of_scope_medico    g=1.0 t=22.8s  | elapsed=952s eta=401s
+[212/300] OK  #212 out_of_scope_medico    g=1.0 t=24.43s  | elapsed=955s eta=396s
+[213/300] OK  #213 out_of_scope_libros    g=1.0 t=22.95s  | elapsed=956s eta=390s
+[214/300] OK  #214 out_of_scope_libros    g=1.0 t=23.99s  | elapsed=960s eta=386s
+[215/300] OK  #215 out_of_scope_libros    g=1.0 t=23.89s  | elapsed=963s eta=380s
+[216/300] OK  #216 out_of_scope_opinion   g=1.0 t=22.6s  | elapsed=964s eta=375s
+[217/300] OK  #217 out_of_scope_opinion   g=1.0 t=23.63s  | elapsed=976s eta=373s
+[218/300] OK  #219 out_of_scope_opinion   g=1.0 t=22.12s  | elapsed=978s eta=368s
+[219/300] OK  #218 out_of_scope_opinion   g=1.0 t=24.09s  | elapsed=979s eta=362s
+[220/300] OK  #220 out_of_scope_opinion   g=1.0 t=22.81s  | elapsed=983s eta=357s
+[221/300] FAIL #221 cursar_general         g=0.4 t=24.83s  | elapsed=988s eta=353s
+[222/300] OK  #222 cursar_general         g=1.0 t=23.54s  | elapsed=988s eta=347s
+[223/300] OK  #223 cursar_general         g=1.0 t=25.39s  | elapsed=1002s eta=346s
+[224/300] FAIL #225 cursar_general         g=0.3 t=24.92s  | elapsed=1004s eta=340s
+[225/300] FAIL #224 cursar_general         g=0.3 t=31.77s  | elapsed=1010s eta=336s
+[226/300] OK  #226 cursar_general         g=1.0 t=28.78s  | elapsed=1012s eta=331s
+[227/300] OK  #228 cursar_general         g=1.0 t=25.76s  | elapsed=1014s eta=326s
+[228/300] OK  #227 cursar_general         g=1.0 t=26.52s  | elapsed=1014s eta=320s
+[229/300] OK  #229 cursar_general         g=1.0 t=30.46s  | elapsed=1032s eta=320s
+[230/300] OK  #230 cursar_general         g=1.0 t=30.24s  | elapsed=1034s eta=314s
+[231/300] OK  #232 examenes               g=1.0 t=27.53s  | elapsed=1040s eta=310s
+[232/300] OK  #234 examenes               g=1.0 t=26.63s  | elapsed=1041s eta=305s
+[233/300] OK  #231 cursar_general         g=1.0 t=31.25s  | elapsed=1041s eta=299s
+[234/300] OK  #233 examenes               g=1.0 t=28.43s  | elapsed=1042s eta=294s
+[235/300] OK  #235 examenes               g=1.0 t=21.69s  | elapsed=1054s eta=291s
+[236/300] OK  #236 examenes               g=1.0 t=21.75s  | elapsed=1056s eta=286s
+[237/300] FAIL #237 compras_licitaciones   g=0.4 t=31.12s  | elapsed=1071s eta=284s
+[238/300] OK  #238 compras_licitaciones   g=1.0 t=31.84s  | elapsed=1073s eta=279s
+[239/300] FAIL #239 compras_licitaciones   g=0.4 t=32.17s  | elapsed=1074s eta=274s
+[240/300] OK  #240 noticias               g=1.0 t=35.5s  | elapsed=1078s eta=269s
+[241/300] OK  #241 noticias               g=1.0 t=25.48s  | elapsed=1080s eta=264s
+[242/300] OK  #242 noticias               g=1.0 t=24.29s  | elapsed=1080s eta=259s
+[243/300] OK  #243 tecnico_administrativo g=1.0 t=22.24s  | elapsed=1093s eta=256s
+[244/300] OK  #244 tecnico_administrativo g=1.0 t=26.53s  | elapsed=1099s eta=252s
+[245/300] OK  #248 ingresantes            g=1.0 t=30.54s  | elapsed=1111s eta=249s
+[246/300] OK  #247 alumnos_servicios      g=1.0 t=31.61s  | elapsed=1111s eta=244s
+[247/300] FAIL #245 alumnos_servicios      g=0.0 t=39.51s  | elapsed=1113s eta=238s
+[248/300] FAIL #246 alumnos_servicios      g=0.4 t=38.7s  | elapsed=1117s eta=234s
+[249/300] OK  #249 ingresantes            g=1.0 t=26.14s  | elapsed=1119s eta=229s
+[250/300] OK  #250 ingresantes            g=1.0 t=21.87s  | elapsed=1121s eta=224s
+[251/300] OK  #253 regimen_academico      g=1.0 t=24.71s  | elapsed=1138s eta=222s
+[252/300] OK  #251 ingresantes            g=1.0 t=27.52s  | elapsed=1138s eta=216s
+[253/300] OK  #252 regimen_academico      g=1.0 t=32.41s  | elapsed=1144s eta=212s
+[254/300] OK  #254 regimen_academico      g=1.0 t=27.38s  | elapsed=1144s eta=207s
+[255/300] OK  #256 documentos_resoluciones g=1.0 t=26.51s  | elapsed=1148s eta=202s
+[256/300] OK  #255 regimen_academico      g=1.0 t=30.25s  | elapsed=1150s eta=197s
+[257/300] OK  #258 documentos_resoluciones g=1.0 t=23.42s  | elapsed=1162s eta=194s
+[258/300] OK  #257 documentos_resoluciones g=1.0 t=27.32s  | elapsed=1166s eta=189s
+[259/300] OK  #259 edificio_anexos        g=1.0 t=28.35s  | elapsed=1172s eta=185s
+[260/300] OK  #262 preguntas_referidas_carrera g=1.0 t=30.18s  | elapsed=1180s eta=181s
+[261/300] OK  #261 preguntas_referidas_carrera g=1.0 t=32.21s  | elapsed=1180s eta=176s
+[262/300] OK  #260 edificio_anexos        g=1.0 t=39.44s  | elapsed=1183s eta=171s
+[263/300] OK  #263 preguntas_referidas_carrera g=1.0 t=25.7s  | elapsed=1188s eta=167s
+[264/300] OK  #264 preguntas_referidas_carrera g=1.0 t=23.25s  | elapsed=1189s eta=162s
+[265/300] FAIL #265 preguntas_referidas_carrera g=0.4 t=24.42s  | elapsed=1197s eta=158s
+[266/300] OK  #267 egresados              g=1.0 t=25.29s  | elapsed=1205s eta=154s
+[267/300] FAIL #266 egresados              g=0.0 t=29.82s  | elapsed=1210s eta=149s
+[268/300] FAIL #268 egresados              g=1.0 t=27.49s  | elapsed=1211s eta=144s
+[269/300] OK  #269 perfiles_carrera       g=1.0 t=29.89s  | elapsed=1218s eta=140s
+[270/300] OK  #270 perfiles_carrera       g=1.0 t=29.8s  | elapsed=1219s eta=135s
+[271/300] OK  #271 perfiles_carrera       g=1.0 t=24.8s  | elapsed=1221s eta=130s
+[272/300] FAIL #272 ciencias_basicas       g=0.0 t=23.82s  | elapsed=1229s eta=126s
+[273/300] FAIL #273 ciencias_basicas       g=0.0 t=22.87s  | elapsed=1233s eta=121s
+[274/300] OK  #274 ciencias_basicas       g=1.0 t=25.74s  | elapsed=1237s eta=117s
+[275/300] OK  #276 ciencias_basicas       g=1.0 t=28.03s  | elapsed=1247s eta=113s
+[276/300] OK  #275 ciencias_basicas       g=1.0 t=31.06s  | elapsed=1249s eta=108s
+[277/300] FAIL #277 ciencias_basicas       g=0.0 t=28.59s  | elapsed=1250s eta=103s
+[278/300] OK  #278 ciencias_basicas       g=1.0 t=27.12s  | elapsed=1257s eta=99s
+[279/300] OK  #279 clinicas               g=1.0 t=26.79s  | elapsed=1260s eta=94s
+[280/300] OK  #280 clinicas               g=1.0 t=23.74s  | elapsed=1261s eta=90s
+[281/300] OK  #281 clinicas               g=1.0 t=26.48s  | elapsed=1273s eta=86s
+[282/300] OK  #282 clinicas               g=1.0 t=25.95s  | elapsed=1275s eta=81s
+[283/300] OK  #283 preguntas_directas_pdf g=1.0 t=29.44s  | elapsed=1280s eta=76s
+[284/300] OK  #284 preguntas_directas_pdf g=1.0 t=25.45s  | elapsed=1282s eta=72s
+[285/300] OK  #286 preguntas_directas_pdf g=1.0 t=24.95s  | elapsed=1286s eta=67s
+[286/300] OK  #285 preguntas_directas_pdf g=1.0 t=26.14s  | elapsed=1286s eta=62s
+[287/300] OK  #287 preguntas_directas_pdf g=1.0 t=24.98s  | elapsed=1298s eta=58s
+[288/300] FAIL #288 varios                 g=0.0 t=31.32s  | elapsed=1306s eta=54s
+[289/300] OK  #290 varios                 g=1.0 t=27.06s  | elapsed=1309s eta=49s
+[290/300] OK  #289 varios                 g=1.0 t=29.71s  | elapsed=1309s eta=45s
+[291/300] OK  #291 varios                 g=1.0 t=26.05s  | elapsed=1312s eta=40s
+[292/300] OK  #292 varios                 g=1.0 t=26.52s  | elapsed=1312s eta=35s
+[293/300] OK  #293 varios                 g=1.0 t=20.89s  | elapsed=1319s eta=31s
+[294/300] FAIL #294 varios                 g=0.0 t=22.82s  | elapsed=1329s eta=27s
+[295/300] OK  #298 varios                 g=1.0 t=25.61s  | elapsed=1338s eta=22s
+[296/300] OK  #297 varios                 g=1.0 t=30.5s  | elapsed=1342s eta=18s
+[297/300] OK  #296 varios                 g=1.0 t=35.05s  | elapsed=1344s eta=13s
+[298/300] OK  #295 varios                 g=1.0 t=36.66s  | elapsed=1346s eta=9s
+[299/300] OK  #299 varios                 g=1.0 t=26.59s  | elapsed=1346s eta=4s
+[300/300] OK  #300 varios                 g=1.0 t=19.78s  | elapsed=1349s eta=0s

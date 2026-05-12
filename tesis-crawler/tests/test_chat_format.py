@@ -17,3 +17,21 @@ def test_add_conversational_lead_keeps_first_turn_greeting() -> None:
         is_first_turn=True,
     )
     assert answer.startswith("Hola, te ayudo con eso.")
+
+
+def test_add_conversational_lead_strips_repeated_greeting_on_followups() -> None:
+    answer = add_conversational_lead(
+        "Hola, las materias de segundo año son Anatomía Patológica y Farmacología.",
+        "y de segundo año?",
+        is_first_turn=False,
+    )
+    assert answer == "Las materias de segundo año son Anatomía Patológica y Farmacología."
+
+
+def test_add_conversational_lead_keeps_non_greeting_followup_clean() -> None:
+    answer = add_conversational_lead(
+        "Las materias de segundo año son Anatomía Patológica y Farmacología.",
+        "y de segundo año?",
+        is_first_turn=False,
+    )
+    assert answer == "Las materias de segundo año son Anatomía Patológica y Farmacología."

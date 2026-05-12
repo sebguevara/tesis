@@ -225,7 +225,7 @@ async def widget_query(
         prior_history = await session_memory.recent_history(
             session_id=session_id, source_id=auth.source_id, max_items=1
         )
-        is_first_turn = len(prior_history) == 0
+        is_first_turn = len(prior_history) == 0 and not bool(session_state.get("greeting_sent"))
         await session_memory.append_user(session_id, question, source_id=auth.source_id)
         history = await session_memory.recent_history(session_id=session_id, source_id=auth.source_id, max_items=12)
         session_state = rag.derive_session_state(
@@ -247,6 +247,8 @@ async def widget_query(
             is_first_turn=is_first_turn,
         )
         answer = apply_source_visibility(answer)
+        session_state["greeting_sent"] = True
+        await session_memory.update_state(session_id, session_state)
         await session_memory.append_assistant(session_id, answer, source_id=auth.source_id)
         body: dict = {
             "session_id": session_id,
@@ -269,6 +271,9 @@ async def widget_query(
         )
         try:
             safe_session = await session_memory.ensure_session(session_id)
+            safe_state = await session_memory.get_state(safe_session)
+            safe_state["greeting_sent"] = True
+            await session_memory.update_state(safe_session, safe_state)
             if source_uuid is not None:
                 await session_memory.append_assistant(
                     safe_session,

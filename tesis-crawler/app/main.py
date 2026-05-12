@@ -1,15 +1,40 @@
 import asyncio
 import logging
+import os
 import sys
 from pathlib import Path
 
 from fastapi import FastAPI
+
+# Quiet third-party noise at boot. Set BEFORE importing huggingface_hub /
+# transformers / sentence_transformers so they pick these up.
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
 # Make app loggers visible under uvicorn (which only configures its own loggers).
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s — %(message)s",
 )
+
+# Silence chatty third-party loggers (httpx cache-revalidation, HF cache probes,
+# sentence-transformers boot messages, etc.). Override with LOG_LEVEL_<NAME>=DEBUG
+# if you need to diagnose model loading.
+for _noisy in (
+    "httpx",
+    "httpcore",
+    "huggingface_hub",
+    "huggingface_hub.utils._http",
+    "sentence_transformers",
+    "sentence_transformers.base.model",
+    "sentence_transformers.SentenceTransformer",
+    "transformers",
+    "urllib3",
+):
+    logging.getLogger(_noisy).setLevel(logging.WARNING)
 from fastapi.responses import JSONResponse
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles

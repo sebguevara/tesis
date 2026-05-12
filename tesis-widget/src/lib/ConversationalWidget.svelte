@@ -30,9 +30,18 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  function containsNumberedList(text: string): boolean {
+    const lines = text.split("\n").map((line) => line.trim());
+    const numberedItems = lines.filter((line) => /^\d+\.\s+\S/.test(line));
+    return numberedItems.length >= 2;
+  }
+
   function splitAssistantMessage(text: string): string[] {
     const clean = (text || "").trim();
     if (!clean) return [""];
+    if (containsNumberedList(clean)) {
+      return [clean];
+    }
     if (clean.length < LONG_MESSAGE_THRESHOLD && clean.split("\n").length <= 10) {
       return [clean];
     }

@@ -1,0 +1,1215 @@
+﻿.\.venv\Scripts\python.exe : INFO:     Started server process [36912]
+En línea: 1 Carácter: 487
++ ... ARNING="1"; .\.venv\Scripts\python.exe -m uvicorn app.main:app --host ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (INFO:     Started server process [36912]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57995 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57997 - "GET / HTTP/1.1" 200 OK
+2026-10-24 00:38:19,199 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:19,202 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:19,206 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:19,209 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:19,698 INFO app.core.reranker — Loading cross-encoder cross-encoder/mmarco-mMiniLMv2-L12-H384-v1 
+(first call only)…
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits 
+and faster downloads.
+2026-10-24 00:38:19,990 WARNING huggingface_hub.utils._http — Warning: You are sending unauthenticated requests to the 
+HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-10-24 00:38:37,329 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuánto dura la 
+carrera de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:37,663 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:39,110 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué trámite se 
+menciona para inscribirse en el Doctorado de la UNNE en Química?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:39,192 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+número de teléfono de contacto de la Secretaría de Ciencia y Tecnolo'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:39,436 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:39,514 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:41,444 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+leer la nueva edición de la Revista Arquitecno Nº23 de la FAU-UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:41,793 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:46,046 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué título 
+otorga la carrera de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:46,384 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:52,229 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+uniforme requerido para asistir a las clases de Introducción a la Ki'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:52,565 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:52,801 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién tiene la 
+autoridad para modificar el calendario de exámenes en la Faculta'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:53,130 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:56,641 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde y cuándo 
+se llevará a cabo el XXIII Congreso ARQUISUR y el XXXVIII Encuen'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:56,971 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:38:59,049 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿La carrera de 
+Medicina es presencial o virtual?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:38:59,402 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:03,455 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+decano de la Facultad de Medicina de la UNNE?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:03,782 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:06,161 INFO app.core.rag_service — verify: groundedness=0.40 unsupported=['consultas sobre el trámite 
+de diploma deben enviarse a estudios.titulos@exa.unne.edu.ar'] question='¿A qué dirección de correo electrónico debo 
+enviar consultas sobre el trámite de'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:06,499 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:12,332 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿A qué 
+Universidad pertenece la Facultad de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:12,675 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:14,717 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+firmó el acuerdo de cooperación mutua entre la Facultad de Arquitectu'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:15,075 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:17,654 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué bases de 
+datos en salud están disponibles a través de la Biblioteca Online '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:17,991 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:22,352 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son 
+algunos de los objetivos de la Diplomatura Universitaria en Programa'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:22,696 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:24,502 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántos años 
+de Práctica Obligatoria Final tiene la carrera de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:24,855 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:31,176 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+unidad curricular para el Trabajo Final de Carrera en los planes de '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:31,459 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde se 
+encuentra la Bedelía de la asignatura Pediatría II en la Facultad de M'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:31,524 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:31,794 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:37,478 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+carga horaria de Anatomía Humana Normal en la carrera de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:37,824 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:40,276 INFO app.core.rag_service — verify: groundedness=0.60 unsupported=['Auditoría y Seguridad 
+Informática', 'Métodos Computacionales'] question='¿Cuáles son las asignaturas del área de Sistemas y Computación para 
+la carrera d'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:40,609 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:42,258 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quiénes pueden 
+participar en el curso de Diseño de experiencias en simulación y'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:42,593 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:44,821 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+equivalencia de la Unidad Curricular Teoría del Diseño y la Gestión '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:45,145 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:47,458 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántas horas 
+tiene la materia Bioquímica?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:47,789 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:53,693 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+contacto para el laboratorio de Medicina Genómica de la Facultad de '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:54,022 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:39:54,416 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo 
+presentó la Facultad de Ciencias Exactas y Naturales y Agrimensura de la'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:39:54,749 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:00,945 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué planes de 
+estudio están vigentes en Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:01,279 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:01,340 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Dónde puedo 
+encontrar el programa del curso 'Los ODS en la Educación desde el p"
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:01,681 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:05,347 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo 
+comienza la diplomatura en Ventilación Mecánica Invasiva y No Invasiva p'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:05,671 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:07,357 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+darán por finalizados los Planes de Estudios 2001 y 2006 de la carrer'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:07,692 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:12,139 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué materia se 
+cursa en el primer semestre del primer año de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:12,478 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:16,330 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar la ordenanza de carrera docente de la Facultad de Arquite'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:16,665 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:18,867 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Quiénes son 
+los tutores virtuales del curso 'Parálisis Facial, Bases para la Re"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:19,190 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:20,409 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué requisitos 
+deben cumplir los postulantes al Doctorado en Física de la UNNE '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:20,733 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:23,139 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+carga horaria de Medicina, Hombre y Sociedad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:23,477 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:31,414 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo fue 
+acreditada la Maestría en Gestión y Desarrollo de la Vivienda Social'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:31,739 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:34,200 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación se debe presentar para la inscripción en el curso de Endoscop'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:34,532 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:35,908 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+carga horaria de Inglés II?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:36,228 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:36,887 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué requisito 
+académico debe cumplir un aspirante con un título universitario e'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:37,213 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:45,309 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué documentos 
+necesito presentar para solicitar la certificación de copia de d'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:45,638 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:47,721 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación se necesita presentar para inscribirse en la Maestría en Educ'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:48,058 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:49,884 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué carrera 
+estudia kinesiología en la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:50,217 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:51,153 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+período de duración del proyecto de investigación PI: 22F002 dirigid'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:51,498 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:57,927 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+Secretaria Académica de la Facultad de Arquitectura de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:58,266 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:40:59,246 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+materias optativas de cuarto año en la carrera de Enfermería en '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:40:59,588 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:03,609 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué carreras 
+de grado ofrece la Facultad de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:03,946 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:05,622 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+objetivos de investigación del Grupo de Investigación en Diversi'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:05,965 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:10,323 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar el modelo de proyecto de extensión para la Facultad de Me'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:10,659 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:11,419 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+reconocimiento recibió el proyecto de recuperación de la Estación de Tren d'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:11,756 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:15,951 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué materias 
+se cursan en el primer año de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:16,292 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:18,324 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+aranceles para la Maestría en Tecnología de la Información en la'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:18,650 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:20,829 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántos 
+familiares puede llevar un egresado a la ceremonia de graduación en la '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:21,170 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:24,417 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+Decano de la Facultad de Arquitectura y Urbanismo de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:24,747 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:26,612 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+secretarías tiene la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:26,969 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:33,818 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Cuándo se 
+llevará a cabo el evento 'Conociendo FaCENA' para futuros ingresantes"
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:34,140 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:34,817 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántos años 
+de actividades académicas ha cumplido la carrera de Licenciatura e'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:35,144 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:39,427 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué servicios 
+ofrece la Facultad de Medicina a la comunidad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:39,750 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:40,548 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién fue 
+ratificada como coordinadora del foro de directores de carrera en la '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:40,879 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:48,468 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué resolución 
+suspendió el cronograma para el Control de Salud de los ingresan'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:48,792 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:49,896 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar los informes de gestión anuales de la Facultad de Ciencia'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:50,221 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:54,418 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué trámites 
+estudiantiles puedo realizar en la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:54,741 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:41:55,940 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Cuándo se 
+realizó la charla magistral titulada 'Arquitectura, Bioinspiración, D"
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:41:56,264 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:01,046 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+directora de la 2° Cohorte de Kinesiología Dermatofuncional en la F'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:01,372 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:02,118 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+modalidad y duración del Doctorado en Informática en FaCENA?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:02,449 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:06,184 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué materias 
+optativas hay en segundo año de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:06,512 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:10,684 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+Decano de la Facultad de Arquitectura de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:11,017 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:14,480 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde se llevó 
+a cabo la V Jornada de Estudiantes de Enfermería de la Facultad '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:14,830 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:19,735 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+horario de atención telefónica de la División Bedelía de la Facultad'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:20,073 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:22,567 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué cursos de 
+posgrado relacionados con kinesiología ofrece la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:22,896 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:31,051 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se creó 
+el Departamento de Medicina Familiar en la Facultad de Medicina '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:31,392 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:33,621 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos de formato para las imágenes en los envíos de manuscr'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:33,984 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:41,400 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de contacto de Valeria Natalia Debarbora, docente'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:41,785 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:42,467 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué redes 
+sociales oficiales tiene la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:42,798 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:50,144 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar el acuerdo de confidencialidad que se debe entregar por d'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:50,515 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:42:58,195 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+decano de la Facultad de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:42:58,525 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:02,666 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+número de teléfono de la Secretaría de Extensión y Transferencia de '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:03,008 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:04,918 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son 
+algunas de las áreas de especialización en la carrera de Ingeniería '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:05,260 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:11,142 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+módulos que se incluyen en el programa de Medicina del Trabajo e'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:11,479 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:13,877 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+vice decano?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:14,218 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:23,432 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién tiene la 
+atribución de decidir sobre las solicitudes de tercera readmisió'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:23,780 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:26,081 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+unidad académica responsable de la Especialización en Higiene y Segu'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:26,431 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:27,471 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quiénes son 
+los autores del caso clínico sobre la aplicación de electroestimula'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:27,788 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:29,134 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+secretaria académica?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:29,461 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:36,666 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿La carrera de 
+Guardaparque de la UNNE tiene reconocimiento oficial y validez na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:37,014 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:40,170 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+directora del curso de Educación Basada en Simulación Nivel 2 en la'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:40,503 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:49,051 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quiénes 
+conforman las máximas autoridades de la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:49,191 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué tipo de 
+contenidos publica el Cuaderno Urbano de la FAU-UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:49,395 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:49,541 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:54,780 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+coordinador del grupo de investigación en Procesos Fundamentales en'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:55,125 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:43:56,041 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación necesito presentar para inscribirme en el curso de Cirugía La'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:43:56,380 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:00,374 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién está a 
+cargo de la Secretaría Académica?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:00,708 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:08,089 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo 
+comienza el curso de posgrado en Dolor Musculoesquelético y Neurociencia'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:08,673 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:13,677 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo me 
+inscribo a una carrera de la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:14,005 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:17,458 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+estudios obligatorios que deben presentar los ingresantes de 1° '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:17,787 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:18,653 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+codirector del proyecto de investigación PI: 21F014 en la Secretarí'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:18,987 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:20,677 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+realizará el conversatorio virtual por el cincuentenario de la Carrer'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:21,009 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:25,189 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo solicito 
+un trámite de pase de otra Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:25,533 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:32,833 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+objetivo del grupo de investigación en Micología y Briología de la F'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:33,159 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:33,598 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+nombre del libro publicado por la Facultad de Arquitectura y Urbanis'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:33,924 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:34,281 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+modalidad de la Diplomatura Universitaria en Salud Mental de la Facu'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:34,625 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:38,911 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué tengo que 
+hacer para ser ayudante alumno?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:39,251 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:47,434 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué objetivo 
+tiene la creación del Observatorio Laboral en la Facultad de Cienc'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:47,760 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:47,931 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+capacidad del Salón A en la Sede Central de la Facultad de Medicina '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:48,251 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:48,600 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de contacto del Comité Editorial de Cuaderno Urba'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:48,938 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:44:51,843 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde se 
+cargan las actas de exámenes?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:44:52,217 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:00,451 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+conmemora el Día Mundial de la Diabetes según la Facultad de Medicina'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:00,827 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:02,487 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+contacto para consultas sobre cooperación internacional en la Facult'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:02,824 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:05,748 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+inauguró la muestra del Plan de Mejora para la Movilidad Metropolitan'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:06,089 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:07,968 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo puedo 
+solicitar una readmisión?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:08,291 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:13,923 INFO app.core.rag_service — verify: groundedness=0.00 unsupported=['director a Mgtr. Patricia 
+Pérez Vargas y como coordinador a Lic. Esp. Yonatan Emanuel González (contradice contexto que '] question="¿Quiénes 
+son el director y el coordinador del curso 'Manejo Avanzado del Catéter"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:14,305 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:15,895 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de la Dirección de Gestión Académica de la Facult'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:16,269 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:20,164 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿A qué email 
+escribo para trámites del Plan 2000?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:20,491 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:21,438 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde y cuándo 
+se presentó el Plan Estratégico Territorial del Chaco 2018-2025?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:21,765 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:26,410 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuánto tiempo 
+tiene el CICUAL para expedirse sobre la presentación completa de '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:26,792 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:30,738 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar más información sobre el curso de Herramientas Básicas de'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:31,068 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:32,876 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo puedo 
+contactar a la Facultad?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:33,226 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:37,186 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿La revista 
+Cuaderno Urbano de la FAU-UNNE ofrece acceso abierto a sus contenido'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:37,508 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:38,239 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos para asociarse a la Biblioteca de la Facultad de Medi'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:38,586 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:44,579 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Tienen una 
+revista científica?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:44,913 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:45,554 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+materia correlativa necesaria para cursar Anatomía Comparada de los '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:45,876 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:50,825 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación necesito presentar para inscribirme en la carrera de Kinesiol'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:51,176 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:54,859 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+carga horaria mínima total para la carrera de Arquitectura en la UNN'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:55,188 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:45:57,618 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo es el 
+período de solicitud de adscripciones de estudiantes para el prime'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:45:57,954 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:00,967 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+redes sociales oficiales de la Facultad de Ciencias Exactas y Na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:01,299 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:03,471 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Qué temas se 
+abordan en la Unidad temática 3 del curso 'Seguridad del paciente "
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:03,807 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:10,308 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo abren 
+las becas de investigación 2026?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:10,606 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿En qué 
+facultad se podía estudiar la carrera de arquitectura en la Universidad '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:10,645 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:10,942 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:16,807 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+redes sociales oficiales de la Facultad de Ciencias Exactas y Na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:17,138 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:17,716 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos de aprobación para la diplomatura en Rehabilitación P'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:18,044 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:21,660 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo es la 
+elección de consejeros del Consejo Directivo?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:21,989 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:25,114 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+horarios de atención del Departamento Mesa de Entradas y Salidas'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:25,454 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:30,093 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+autoridad responsable de elevar el análisis de las postulaciones a '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:30,418 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:32,616 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+coordinadora de las líneas de investigación sobre paleofloras y pal'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:32,959 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:34,750 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='cuanto dura la 
+carea de medicna?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:35,081 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:40,657 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Para quién 
+está diseñado el curso de posgrado sobre enseñanza de Arquitectura y'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:40,991 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:42,279 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Para qué 
+titulaciones está dirigida la solicitud de incorporación al Registro P'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:42,626 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:48,370 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='cuales son las 
+carreras k ofrecen?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:48,700 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:48,910 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+programa analítico y de examen aprobado para la asignatura Química C'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:49,239 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:54,391 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+módulos que componen el programa de Educación para el Automanejo'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:54,782 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:46:58,397 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo institucional para contactar al departamento de concursos de '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:46:58,725 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:00,838 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='kien es el 
+decano dela facultad'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:01,201 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:06,498 INFO app.core.rag_service — verify: groundedness=0.40 unsupported=['carga horaria total de 392 
+horas'] question='¿Cuál es la duración de la Especialización en Gestión y Conservación de la Biodi'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:06,837 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:07,918 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Quién es el 
+director del curso 'Fundamentos de Epidemiología Descriptiva y Anal"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:08,249 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:12,078 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='qe materias hay 
+en primer año de medicina'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:12,406 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:17,944 INFO app.core.rag_service — verify: groundedness=0.00 unsupported=['El cargo lo ocupa 
+actualmente el Dr. Arq. Carlos Eduardo Burgos (Decano).'] question='¿Quién es el decano de la Facultad de Arquitectura 
+de la UNNE que está trabajand'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:18,273 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:22,040 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+director del Departamento de Ciencias Biomédicas Básicas en la Facu'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:22,395 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:22,771 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de la Dirección de Gestión Académica de la Facult'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:23,107 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:27,435 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='como m 
+inscrribo a medicna?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:27,791 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:36,885 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+editor de la edición número 13 de Arquitecno en la Facultad de Arqu'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:37,223 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:39,609 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+horarios de atención de la biblioteca de la Facultad de Medicina'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:39,948 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:41,526 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Cuál es la 
+modalidad del curso 'R para principiantes: Fundamentos, Análisis Est"
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:41,852 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:43,486 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='Quiero estudiar 
+Kinesiología, ¿qué carrera es?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:43,817 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:55,403 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación se necesita presentar para inscribirse en el curso de Ecograf'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:55,753 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:55,830 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde se 
+encuentra el Observatorio Urbano y Regional de la Facultad de Arquitec'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:56,196 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:47:58,715 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+directora del proyecto sobre paleocomunidades del Neopaleozoico, Me'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:47:59,044 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:00,595 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Y dónde me 
+inscribo?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:00,925 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:06,586 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+unidades temáticas que se estudian en la Especialización en Mico'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:06,924 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:10,116 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+ISSN y el E-ISSN del Cuaderno Urbano Nº29 de la Facultad de Arquitec'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:10,470 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:13,594 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+director del proyecto de estudio de moléculas orgánicas como inhibi'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:13,743 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuánto dura la 
+carrera de Medicina?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:13,948 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:14,077 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:18,037 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo comenzó 
+la Tercera Cohorte del Doctorado en Medicina de la Universidad N'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:18,395 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:23,947 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+dedicación del Dr. Arq. Carlos Eduardo Burgos en la Unidad Curricula'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:24,294 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:26,945 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Y qué materias 
+se cursan en el primer año?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:27,274 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:28,518 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+áreas temáticas en las que puedo enviar un trabajo para la revis'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:28,857 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:31,723 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+modalidad del curso de Valoración Geriátrica Integral Express en la '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:32,061 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:38,558 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo abren?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:38,898 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:38,954 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar las bases y condiciones para el concurso de diseño del lo'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:39,333 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:43,679 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+redes sociales oficiales de la Facultad de Ciencias Exactas y Na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:44,016 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:44,830 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo se 
+procede para aceptar un presupuesto y recibir los datos de pago para lo'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:45,171 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:49,505 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:49,844 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:51,825 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde se 
+llevará a cabo el XXVI Encuentro de la Red Universitaria Latinoamerica'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:52,171 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:56,828 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué se celebra 
+el 12 de mayo en relación a la profesión de Enfermería?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:57,168 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:48:58,690 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+resolución ministerial que otorga el reconocimiento oficial del títu'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:48:59,010 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:00,768 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='información'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:01,120 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:05,654 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quiénes pueden 
+participar en el 8° Congreso Nacional de la FAU-UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:05,985 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:09,381 INFO app.core.rag_service — verify: groundedness=0.40 unsupported=['se requieren dos (2) 
+fotografías tipo carnet (contradicción entre fragmentos con requerimiento de una o dos fotos)'] question='¿Cuántas 
+fotografías tipo carnet se requieren para la inscripción en la Maestría'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:09,731 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:12,836 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+directora del proyecto sobre modelos, metodologías y recursos para '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:13,125 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+mejor libro para estudiar Anatomía?'
+2026-10-24 00:49:13,164 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:13,477 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:19,586 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+Decano de la Facultad de Arquitectura de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:19,924 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:20,940 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Cuándo 
+comienza y finaliza el curso de posgrado 'EBS Educación basada en simula"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:21,270 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:27,166 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo se trata 
+la diabetes tipo 2?'
+INFO:     127.0.0.1:58002 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:27,890 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿A qué correos 
+electrónicos puedo dirigirme para consultas sobre la EXPO FaCENA '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:28,229 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:34,336 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+duración total de la Licenciatura en Enfermería en la Facultad de Me'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:34,361 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de contacto del Comité Editorial de Cuaderno Urba'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:34,660 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:34,689 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:40,249 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de contacto del Departamento de Bioquímica de la '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:40,579 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:45,290 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar las normas reglamentarias para el concurso de residencias'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:45,611 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:47,571 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+organizaciones apoyan el Encuentro de Educación Tipográfica en su VI edició'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:47,897 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:51,495 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+período de duración del proyecto de investigación PI: 22F004 dirigid'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:51,828 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:49:57,258 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Qué temas se 
+abordan en el Módulo 1 del programa de 'Gestación y Puerperio: Abo"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:49:57,587 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:00,962 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+llevará a cabo la 2da Bienal Internacional de Arquitectura, Ciudad y '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:01,293 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:04,845 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+horarios de atención al público en la Dirección de Gestión de In'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:05,180 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:08,189 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar el buscador de certificados de la Secretaría de Extensión'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:08,514 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:13,859 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación se debe presentar para la segunda cohorte de la Maestría en G'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:14,202 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:19,353 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar el formulario de inscripción para el Doctorado en Física '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:19,675 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:22,660 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quiénes son 
+las autoridades a cargo de la Diplomatura Universitaria en Gestión '
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:22,987 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:25,589 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:30,906 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+directora del proyecto de investigación PI: 21F017 en la Secretaría'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:31,220 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:32,686 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+Secretaria Académica de la Facultad de Medicina de la UNNE?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:33,024 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:39,527 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Qué intentó 
+lograr el 'Plan amarillo' en la carrera de arquitectura de la Facul"
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:39,870 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:43,678 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué documento 
+regula la presentación de programas de asignaturas en la Facultad'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:44,011 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:44,440 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos de aprobación para el curso de Drenaje Linfático Manu'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:44,772 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:48,785 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es la 
+Secretaria Académica de la Facultad de Arquitectura de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:49,127 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:54,712 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué requisitos 
+debe cumplir un título extranjero para ser aceptado en el Doctor'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:55,051 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:50:55,956 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question="¿Quiénes pueden 
+participar en el curso 'Introducción a la Docencia Universitaria"
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:50:56,277 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:00,841 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+ISSN y el E-ISSN del Cuaderno Urbano Nº20 de la Facultad de Arquitec'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:01,169 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:07,068 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+director del proyecto de investigación sobre las propiedades mecáni'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:07,407 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:08,597 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué 
+documentación se necesita presentar para inscribirse en la Maestría en Cien'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:08,938 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:11,971 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué debo hacer 
+si no encuentro el correo de activación de mi cuenta de CONEAU G'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:12,331 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:19,260 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+responsable de la Secretaría de Investigación y Posgrado en FaCENA?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:19,522 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo inicia 
+la diplomatura en Neurogastroenterología y Motilidad Digestiva en'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:19,591 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:19,845 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:24,657 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo y dónde 
+se llevará a cabo el Congreso y Encuentro ARQUISUR 2023?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:25,003 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:29,632 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántas horas 
+de clase tiene la materia Patología General en la Licenciatura en'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:29,953 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:30,751 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+redes sociales oficiales de la Facultad de Ciencias Exactas y Na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:31,085 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:36,492 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué tipo de 
+contenido publica la revista Cuaderno Urbano de la FAU-UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:36,850 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:39,222 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+mejor libro para estudiar en primer año?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:39,549 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:41,905 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+requisitos para inscribirse en la Facultad de Ciencias Exactas y'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:42,238 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:48,188 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo puedo 
+contactar al Departamento de Concursos Nodocente de la Facultad de A'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:48,512 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:48,755 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué opinás de 
+la situación política del país?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:49,079 INFO app.api.widget — widget_query source_input=46aec369-117f-4104-87e4-bcf967bf345f 
+source_uuid=46aec369-117f-4104-87e4-bcf967bf345f origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:53,254 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+llevarán a cabo las I Jornadas Regionales de Cannabis Medicinal, Auto'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:53,580 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:51:57,872 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Esta facultad 
+es mejor que la de otra universidad?'
+INFO:     127.0.0.1:58004 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:59,463 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+unidad académica responsable de la Diplomatura Superior en Arquitect'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:51:59,792 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:04,325 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué áreas de 
+investigación abarca el Grupo de Investigación Multivariado de la '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:04,645 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:10,547 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+distribución de la carga horaria total del Doctorado en Arquitectura'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:10,877 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:14,770 INFO app.core.rag_service — verify: groundedness=0.00 unsupported=["La Maestría en Tecnologías 
+de la Información tiene una duración de 720 horas (contradice '2 años para actividades curric"] question='¿Cuál es la 
+duración de la Maestría en Tecnologías de la Información en FaCENA?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:15,094 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:19,876 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Quién es el 
+vice decano de la Facultad de Arquitectura y Diseño de la UNNE?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:20,194 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:24,261 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+llevarán a cabo las 7mas. Jornadas de Calidad de Software y Agilidad '
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:24,579 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:29,509 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuándo se 
+firmó el acuerdo de cooperación mutua entre la Facultad de Arquitectu'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:29,826 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:33,974 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Dónde puedo 
+encontrar el calendario académico de la Facultad de Ciencias Exacta'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:34,296 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:39,248 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+contacto para consultas e inscripciones al Taller de Tesis de la FAU'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:39,575 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:43,896 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son los 
+horarios de atención al público de la Dirección de Gestión de In'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:44,224 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:48,829 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+correo electrónico de contacto del Comité Editorial de Cuaderno Urba'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:49,158 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:53,597 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuáles son las 
+redes sociales oficiales de la Facultad de Ciencias Exactas y Na'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:53,927 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:52:59,313 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cómo puedo 
+modificar mi curriculum en el sistema CVar y asegurarme de que los c'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:52:59,639 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:02,747 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+mejor libro para estudiar en primer año?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:03,065 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:09,442 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es la 
+equivalencia de la asignatura Introducción a las Estructuras en el P'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:09,769 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:12,726 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué opinás de 
+la situación política del país?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:13,055 INFO app.api.widget — widget_query source_input=12d83a0a-ea98-4743-88b5-de4273a72c09 
+source_uuid=12d83a0a-ea98-4743-88b5-de4273a72c09 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:18,991 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuántas 
+carreras de grado ofrece actualmente la Facultad de Arquitectura de la '
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:19,326 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:22,556 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Esta facultad 
+es mejor que la de otra universidad?'
+INFO:     127.0.0.1:58005 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:28,612 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Cuál es el 
+mejor libro para estudiar en primer año?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:28,937 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:37,843 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Qué opinás de 
+la situación política del país?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK
+2026-10-24 00:53:38,162 INFO app.api.widget — widget_query source_input=152ae6eb-5ed9-4c33-906c-e5c7398c2602 
+source_uuid=152ae6eb-5ed9-4c33-906c-e5c7398c2602 origin=http://localhost:5173 api_prefix=pfc_sk_local
+2026-10-24 00:53:47,453 INFO app.core.rag_service — verify: groundedness=1.00 unsupported=[] question='¿Esta facultad 
+es mejor que la de otra universidad?'
+INFO:     127.0.0.1:58003 - "POST /api/widget/query HTTP/1.1" 200 OK

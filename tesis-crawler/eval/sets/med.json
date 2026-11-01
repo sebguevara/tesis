@@ -1,0 +1,1007 @@
+{
+  "version": "auto-1",
+  "site": "med.unne.edu.ar",
+  "created_at": "2026-10-23",
+  "description": "Eval set auto-generado desde el corpus de med.unne.edu.ar.",
+  "items": [
+    {
+      "id": "G001",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las partes del concurso para docentes en la UNNE según la nueva ordenanza?",
+      "expected_answer_summary": "El concurso consta de la evaluación de títulos y antecedentes y la evaluación del plan de actividades docente o de mayor dedicación.",
+      "expected_facts": [
+        "Evaluación de los Títulos y Antecedentes",
+        "Evaluación del Plan de Actividades Docente o del Plan de Mayor Dedicación"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2025/12/Res-832.24.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G002",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Quién es el autor del trabajo sobre el tratamiento kinésico en un paciente con diagnóstico de neuropraxia – axonotmesis del plexo braquial en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El autor del trabajo es Bruno E. Desimoni.",
+      "expected_facts": [
+        "Bruno E. Desimoni",
+        "autor del trabajo"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/resultados-del-tratamiento-kinesico-en-un-paciente-con-diagnostico-de-neuropraxia-axonotmesis-del-plexo-braquial"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G003",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué resolución regula las becas de investigación de pregrado en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La resolución que regula las becas de investigación de pregrado es la 454/16-C.D.",
+      "expected_facts": [
+        "Resolución No 454/16-C.D."
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2021/03/454-16-cd-becas-de-pregrado-2016-3.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G004",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del estudio sobre la efectividad del ejercicio terapéutico en adultos mayores con síntomas depresivos durante la pandemia de COVID-19 en Corrientes?",
+      "expected_answer_summary": "Los autores del estudio son Joana Gisela Córdoba, Rocío Amparo Codutti y Valeria Fedoriachak.",
+      "expected_facts": [
+        "Córdoba, Joana Gisela",
+        "Codutti, Rocío Amparo",
+        "Fedoriachak, Valeria"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/efectividad-del-ejercicio-terapeutico-en-adultos-mayores-con-sintomas-depresivos-en-el-contexto-de-pandemia-covid-19-en-corrientes-capital-desde-el-2020-al-ano-2022"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G005",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son algunos de los profesores que forman parte del equipo docente en el área de Diabetes de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El equipo docente incluye a varios profesores como la Dra. Lorena Dos Santos Antola y el Dr. Rubén Torres.",
+      "expected_facts": [
+        "Prof. Dra Lorena Dos Santos Antola",
+        "Prof. Dr. Rubén Torres",
+        "Prof. Mgtr. Víctor Commendatore"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/diabetes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G006",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo comienzan los cursos de posgrado y diplomaturas en la Facultad de Medicina de la Universidad Nacional del Nordeste?",
+      "expected_answer_summary": "Los cursos de posgrado y diplomaturas comienzan en abril de 2024.",
+      "expected_facts": [
+        "abril de 2024"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/2024/03/15"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G007",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuál es el uniforme requerido para asistir a las clases de Introducción a la Kinesiología en la carrera de Licenciatura en Kinesiología y Fisiatría de la Facultad de Medicina?",
+      "expected_answer_summary": "El uniforme requerido es un ambo institucional azul petróleo Arciel 730 con el logo institucional bordado en blanco.",
+      "expected_facts": [
+        "Ambo institucional azul petróleo Arciel 730",
+        "Logo institucional bordado en blanco",
+        "Carrera de Lic. en Kinesiología y Fisiatría"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2023/07/ambo-azul-petroleo.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G008",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué debo hacer si no encuentro mi constancia de alumno regular recursante en el buscador de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Debes acercarte al Departamento de Estudios (Alumnado) si consideras que es un error.",
+      "expected_facts": [
+        "acercate al Dpto de Estudios (Alumnado)"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/portal-de-tramites/constancia-alumno-regular-recursantes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G009",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las fechas para presentar la solicitud de readmisión en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Las solicitudes de readmisión se pueden presentar desde el 29 de diciembre de 2025 hasta el 31 de enero de 2026.",
+      "expected_facts": [
+        "29 de diciembre de 2025",
+        "31 de enero de 2026"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2025/12/RES-2025-1168-CD-MED-UNNE-Readmisiones.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G010",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuántos cargos de Jefe de Trabajos Prácticos con Dedicación Simple están disponibles en el Departamento de Medicina de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Hay un cargo disponible.",
+      "expected_facts": [
+        "Un (1) Jefe de Trabajos Prácticos",
+        "Dedicación Simple",
+        "Departamento de Medicina"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/concursos-docentes/llamado-a-concurso-jefe-de-trabajos-practicos"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G011",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el costo total del curso de Reeducación Postural con Abordaje Global y Cadenas Musculares Cruzadas en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El costo total del curso es de 225,000 pesos.",
+      "expected_facts": [
+        "Matriculación: Pesos Veinticinco mil ($25.000)",
+        "Cuatro cuotas: Pesos Cincuenta mil ($50.000)"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/reeducacion-postural-con-abordaje-global-y-cadenas-musculares-cruzadas"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G012",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿En qué año del Plan de Estudios de la Carrera de Medicina se cursa la asignatura Pediatría II en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La asignatura Pediatría II se cursa en el quinto año del Plan de Estudios de la Carrera de Medicina.",
+      "expected_facts": [
+        "quinto año",
+        "Plan de Estudios",
+        "Carrera de Medicina"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2024/02/RES-2023-266-CD-MEDUNNE-PROGRAMA-PEDIATRIA-II.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G013",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cómo se solicita el Certificado Analítico de la Carrera de Especialización en Salud Social y Comunitaria en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Para solicitar el Certificado Analítico de la Carrera de Especialización en Salud Social y Comunitaria, se debe presentar una nota dirigida al decano a través de Mesa de Entrada.",
+      "expected_facts": [
+        "Presentar nota dirigida al decano",
+        "A través de Mesa de Entrada"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/portal-de-tramites/graduados"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G014",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quiénes son las autoridades que firmaron la resolución sobre el régimen de regularidad de estudiantes en la Universidad Nacional del Nordeste?",
+      "expected_answer_summary": "Las autoridades que firmaron la resolución son la Secretaria General Académica y la Rectora.",
+      "expected_facts": [
+        "PROF. VERÓNICA N. TORRES DE BREARD",
+        "PROF. MARÍA DELFINA VEIRAVÉ"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2025/12/Res-CS-316-2019.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G015",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la modalidad de la diplomatura en Tecnologías Digitales e Inteligencia Artificial aplicadas a la Educación en Ciencias de la Salud en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La modalidad es a distancia.",
+      "expected_facts": [
+        "Modalidad: A distancia"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/tecnologias-digitales-e-inteligencia-artificial-aplicadas-a-la-educacion-en-ciencias-de-la-salud"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G016",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué resolución establece el mecanismo para los trámites de Certificación de Programas en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La Resolución N° 740/21-D establece el mecanismo para los trámites de Certificación de Programas.",
+      "expected_facts": [
+        "Resolución N° 740/21-D",
+        "mecanismo para los trámites de Certificación de Programas"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2022/11/res3145-22-modifica-arancel-certificacion-de-programas.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G017",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los números de contacto de la Sede Central de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Los números de contacto de la Sede Central son tres números de teléfono.",
+      "expected_facts": [
+        "+54 379 4422290",
+        "+54 379 4423155",
+        "+54 379 4425508"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/contacto"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G018",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Quiénes pueden participar en el curso de Manejo Integral del Pie Diabético en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El curso está destinado a personal de salud que trabaje con pacientes diabéticos o tenga interés en esta patología.",
+      "expected_facts": [
+        "Personal de salud integrante de un equipo de pie diabético",
+        "Médicos y enfermeros en Centros de Atención Primaria",
+        "Personal de salud con interés en la patología"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/manejo-integral-del-pie-diabetico"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G019",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿En qué formato están disponibles las imágenes digitales para el programa de Diagnóstico por Imágenes de la UNNE?",
+      "expected_answer_summary": "Las imágenes digitales están disponibles en formato .png.",
+      "expected_facts": [
+        "imágenes digitales",
+        "formato .png"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2024/04/RES-2024-153-CD-MEDUNNE-PROGRAMA-DIAGNOSTICO-POR-IMAGENES.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G020",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos para los destinatarios del curso de Rehabilitación en Endometriosis y Dolor Pelviano en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Los destinatarios deben ser profesionales con título universitario de grado en áreas relacionadas y tener formación previa en rehabilitación Pelviperineal.",
+      "expected_facts": [
+        "Profesionales de carreras de Licenciatura en Kinesiología y Fisiatría",
+        "Terapista Físico y títulos afines",
+        "Formación previa en rehabilitación Pelviperineal"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/rehabilitacion-en-endometriosis-y-dolor-pelviano"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G021",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes forman parte del cuerpo docente de la 3ra Cohorte de Educación Virtual en Ciencias de la Salud en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El cuerpo docente incluye a varios doctores y magísteres.",
+      "expected_facts": [
+        "Dra. Larisa Carrera",
+        "Dra. Patricia Demuth",
+        "Dra. Rosana Gerometta"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/educacion-virtual-en-ciencias-de-la-salud-3-cohorte"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G022",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuál es la fecha límite para la presentación de títulos secundarios para los ingresantes de los años 2020, 2021 y 2022 en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La fecha límite es el 30 de octubre del corriente año.",
+      "expected_facts": [
+        "fecha límite al 30 de octubre del corriente"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2022/11/circular-03-22.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G023",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del artículo sobre la efectividad percibida del entrenamiento de fuerza en rehabilitación de pacientes con enfermedad pulmonar obstructiva crónica en Corrientes Capital?",
+      "expected_answer_summary": "Los autores del artículo son José Emiliano Tórres, Valeria Fedoriachak y Diana Mabel Miqueri.",
+      "expected_facts": [
+        "José Emiliano Tórres",
+        "Valeria Fedoriachak",
+        "Diana Mabel Miqueri"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/efectividad-percibida-del-entrenamiento-de-fuerza-en-rehabilitacion-de-pacientes-con-enfermedad-pulmonar-obstructiva-cronica-corrientes-capital"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G024",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuántos años de actividades académicas ha cumplido la Licenciatura en Kinesiología y Fisiatría en la Facultad de Medicina de la Universidad Nacional del Nordeste?",
+      "expected_answer_summary": "La Licenciatura en Kinesiología y Fisiatría ha cumplido 48 años de actividades académicas.",
+      "expected_facts": [
+        "48 años",
+        "Licenciatura en Kinesiología y Fisiatría",
+        "Facultad de Medicina de la Universidad Nacional del Nordeste"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/2023/08/15"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G025",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del trabajo sobre sincinesias asociadas a parálisis faciales en el Servicio Universitario de Kinesiología de la UNNE?",
+      "expected_answer_summary": "Los autores son Jessica Andrea Isabel Zalazar Cinat, Antonio Alejandro Di Pietro, Laura Elizabeth Leyes, Leandro Ezequiel Vargas y Walter Darío Vera.",
+      "expected_facts": [
+        "Jessica Andrea Isabel Zalazar Cinat",
+        "Antonio Alejandro Di Pietro",
+        "Laura Elizabeth Leyes"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/sincinesias-asociadas-a-paralisis-faciales-servicio-universitario-de-kinesiologia-unne-2012-2019"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G026",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del artículo sobre lesiones frecuentes en jugadoras de cestoball amateur de la ciudad de Corrientes en la Facultad de Medicina?",
+      "expected_answer_summary": "Los autores del artículo son Cecilia N. Cabrera, Silvia Yedro, Valeria Fedoriachak y Karina I. Lescano.",
+      "expected_facts": [
+        "Cabrera, Cecilia N.",
+        "Yedro, Silvia",
+        "Fedoriachak, Valeria"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/lesiones-mas-frecuentes-en-jugadoras-de-cestoball-amateur-de-la-cuidad-de-corrientes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G027",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuánto dura la rotación de Radiología en el primer año del programa de Diagnóstico por Imágenes en el ICRR?",
+      "expected_answer_summary": "La rotación de Radiología dura 3 meses.",
+      "expected_facts": [
+        "Radiología",
+        "Duración: 3 meses"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2024/06/Res.-2039-23-CD-Diagnostico-por-Imagenes-Inst-del-Diagnostico.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G028",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Quién brinda el apoyo técnico y pedagógico en el curso de Competencias Digitales Docentes en Ciencias de la Salud de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Lucas Rigoni brinda el apoyo técnico y pedagógico.",
+      "expected_facts": [
+        "Lucas Rigoni"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/competencias-digitales-docentes-en-ciencias-de-la-salud"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G029",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el costo total para inscribirse en la tercera cohorte de 'Introducción a la Docencia Universitaria: Vínculos e Interacciones Siglo XXI' en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El costo total es de $150.000 pesos argentinos.",
+      "expected_facts": [
+        "Matricula por única vez: $50.000",
+        "1 cuota de $100.000 pesos argentinos"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/introduccion-a-la-docencia-universitaria-vinculos-e-interacciones-siglo-xxi-3-cohorte"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G030",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuántas asignaturas optativas debe aprobar un estudiante en el segundo ciclo de la carrera de Medicina en la UNNE?",
+      "expected_answer_summary": "El estudiante debe aprobar una asignatura optativa en el segundo ciclo.",
+      "expected_facts": [
+        "El estudiante debe aprobar una (1) asignatura optativa.",
+        "Esto debe hacerse en el segundo ciclo.",
+        "Debe ser antes de la inscripción a la Práctica integrada del nivel superior."
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2024/02/RES-2023-302-CD-MED-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G031",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se abrirá la próxima convocatoria para el acto de egresados de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La próxima convocatoria se abrirá para el segundo semestre de 2026.",
+      "expected_facts": [
+        "segundo semestre de 2026"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/egresados"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G032",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el director de la oferta académica de Gestión de la Salud Ambiental en Instituciones de Salud de la Facultad de Medicina?",
+      "expected_answer_summary": "El director es el Lic. Nancy Vicenta Smiak.",
+      "expected_facts": [
+        "Lic. Nancy Vicenta Smiak"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/gestion-de-la-salud-ambiental-en-instituciones-de-salud"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G033",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevará a cabo el módulo sincrónico del curso de Cuidados Paliativos Nivel Básico en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El módulo sincrónico se llevará a cabo el 14 de noviembre de 2026.",
+      "expected_facts": [
+        "14/11/26",
+        "Módulo 3",
+        "Cuidados Paliativos Nivel Básico"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/cuidados-paliativos-nivel-basico-enfoque-interdisciplinario-centrado-en-la-persona"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G034",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevó a cabo la V Jornada de Estudiantes de Enfermería en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La V Jornada de Estudiantes de Enfermería se llevó a cabo el 15 de septiembre de 2023.",
+      "expected_facts": [
+        "15 de septiembre de 2023"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/2023/09/15"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G035",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la modalidad del curso de posgrado en Medicina Biológica sobre fisiología del estrés y las emociones?",
+      "expected_answer_summary": "El curso se dicta a distancia con encuentros en presencia física.",
+      "expected_facts": [
+        "A distancia con encuentros en presencia física"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/medicina-biologica-fisiologia-del-estres-y-las-emociones"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G036",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el objetivo de las Residencias en Salud en los establecimientos sanitarios según las normas reglamentarias?",
+      "expected_answer_summary": "El objetivo es completar la formación de manera exhaustiva para el desempeño responsable y eficaz de la disciplina.",
+      "expected_facts": [
+        "completar su formación de manera exhaustiva",
+        "desempeño responsable y eficaz de la disciplina"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2026/03/Normas-Reglamentarias-2026.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G037",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién emite los certificados de participación en actividades de extensión o investigación en las cátedras libres de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El responsable de cada cátedra emite los certificados de participación.",
+      "expected_facts": [
+        "certificados de participación",
+        "responsable de cada cátedra"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2023/07/178-11-CS.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G038",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuánto cuesta la cuota mensual para la carrera de Kinesiología Dermatofuncional y Estética en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La cuota mensual cuesta USD 360.",
+      "expected_facts": [
+        "8 cuotas de USD 360"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/kinesiologia-dermatofuncional-y-estetica"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G039",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuánto cuesta la inscripción y las cuotas para el curso de Formación de Docentes para la Evaluación por Competencias: Examen Clínico Objetivo Estructurado (ECOE) en la Facultad de Medicina?",
+      "expected_answer_summary": "La inscripción cuesta $60.000 y hay 4 cuotas mensuales de $60.000 cada una.",
+      "expected_facts": [
+        "Inscripción: $60.000",
+        "4 cuotas: $60.000 mensuales"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/formacion-de-docentes-para-la-evaluacion-por-competencias-examen-clinico-objetivo-estructurado-ecoe"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G040",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la modalidad de cursado para el curso de Introducción a la Medicina Genómica y Molecular en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El curso se dicta a distancia con encuentros en presencia física.",
+      "expected_facts": [
+        "A distancia con encuentros en presencia física"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/introduccion-a-la-medicina-genomica-y-molecular"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G041",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el costo total para inscribirse en el Taller Vivencial de Liderazgo Creativo en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El costo total es de $30.000.",
+      "expected_facts": [
+        "Matrícula: $10.000",
+        "1 Cuota: $20.000"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/taller-vivencial-liderazgo-creativo-el-arte-de-ser-uno-mismo-entrenamiento-intensivo-de-desarrollo-personal"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G042",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué temas se abordan en el Módulo 1 del curso de Rehabilitación Neurológica en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El Módulo 1 aborda temas como neurorehabilitación, bases científicas, neurociencias aplicadas, plasticidad cerebral y neuromuscular, control motor, discapacidad y el rol de profesionales en el equipo de salud.",
+      "expected_facts": [
+        "Neurorehabilitación, bases científicas y recursos terapéuticos generales",
+        "Neurociencias aplicadas",
+        "Rol de Lic. en kinesiología y fisioterapia, Fisiatra en el equipo de salud en Neurorehabilitación"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/rehabilitacion-neurologica-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G043",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos de evaluación para los residentes de Medicina Física y Rehabilitación en el Hospital Perrando?",
+      "expected_answer_summary": "Los residentes deben aprobar exámenes trimestrales y finales, y mantener la asistencia para obtener la regularidad.",
+      "expected_facts": [
+        "Examen trimestral teórico-práctico, oral y escrito",
+        "Examen final teórico-práctico, oral y escrito",
+        "Aprobación de examen parcial con nota igual o mayor a 6"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2024/06/Res.-2031-23-CD-Medicina-Fisca-y-Rehabilitacion-Hosp-Perrando.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G044",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el cupo máximo de personas para el curso de Cuidados de Enfermería General y Familiar en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El cupo máximo es de 30 personas.",
+      "expected_facts": [
+        "Máximo: 30 personas"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/cuidados-de-enfermeria-general-y-familiar"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G045",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué tipo de estrategia didáctica y de aprendizaje extracurricular se menciona para los estudiantes de Kinesiología?",
+      "expected_answer_summary": "El Semillero de Investigación es una estrategia didáctica y de aprendizaje extracurricular para estudiantes de Kinesiología.",
+      "expected_facts": [
+        "Semillero de Investigación",
+        "estrategia didáctica",
+        "aprendizaje extracurricular"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2022/06/12-semillero-caem-leyes-y-col-1.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G046",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué escalas de valoración funcional se utilizan en el curso 'Parálisis Facial, Bases para la Recuperación Funcional' de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Se utilizan las escalas House Brackman, Kanzaki y Sunnybrook.",
+      "expected_facts": [
+        "House Brackman",
+        "Kanzaki",
+        "Sunnybrook"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/paralisis-facial-bases-para-la-recuperacion-funcional"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G047",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo y dónde se realizarán las elecciones estudiantiles en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Las elecciones estudiantiles se realizarán el 15 de octubre de 2026 en M. Moreno 1240, Ctes.",
+      "expected_facts": [
+        "15 de octubre de 2026",
+        "M. Moreno 1240, Ctes"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/comunidad/estudiantes/elecciones-estudiantiles"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G048",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cómo puedo solicitar la readmisión si no veo la notificación en el sistema SIU Guaraní?",
+      "expected_answer_summary": "Puedes ir al menú 'Tramites' y seleccionar 'Solicitar Readmisión'.",
+      "expected_facts": [
+        "menú 'Tramites'",
+        "seleccionar 'Solicitar Readmisión'"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/portal-de-tramites/readmisiones"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G049",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la directora del curso de Acupuntura Avanzada en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La directora del curso es la Lic. Griselda Carolina Tejeda.",
+      "expected_facts": [
+        "Lic. Griselda Carolina Tejeda"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/acupuntura-avanzada"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G050",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo es el período de inscripción para la evaluación periódica de permanencia en la carrera docente de las carreras de Medicina, Licenciatura en Enfermería y Licenciatura en Kinesiología y Fisiatría en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La inscripción comienza el 25 de agosto de 2025 y cierra el 09 de septiembre de 2025.",
+      "expected_facts": [
+        "Inicio de la inscripción: 25 de agosto de 2025",
+        "Cierre de la inscripción: 09 de septiembre de 2025"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/evaluaciones-docente/convocatoria-a-evaluacion-periodica-para-la-permanencia-en-carrera-docente-de-profesores-titulares-y-adjuntos-de-las-carreras-de-medicina-licenciatura-en-enfermeria-y-licenciatura-en-kinesiologia-y"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G051",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la Secretaria de Ciencia y Tecnología de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "La Secretaria de Ciencia y Tecnología es la Prof. Dra. Viviana de los Ángeles Navarro.",
+      "expected_facts": [
+        "Prof. Dra. Viviana de los Ángeles Navarro",
+        "Secretaria de Ciencia y Tecnología"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2025/03/PI-2025-2026-RES-2025-15-CD-MED-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G052",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuál es el procedimiento administrativo para la tramitación y otorgamiento de certificados de programas de formación continua en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El procedimiento administrativo para la tramitación y otorgamiento de certificados de programas de formación continua está detallado en un documento específico.",
+      "expected_facts": [
+        "procedimiento administrativo",
+        "tramitación y otorgamiento de certificados",
+        "programas de formación continua"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/gestion-academica-y-administrativa/secretaria-de-posgrado/documentos-importantes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G053",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los especialistas y profesionales involucrados en el curso de Manejo Integral del Pie Diabético en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El curso cuenta con la participación de varios especialistas y profesionales.",
+      "expected_facts": [
+        "Esp. Victoria Dicatarina",
+        "Dr. Daniel Braver",
+        "Podóloga Karen Ibañez"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/manejo-integral-del-pie-diabetico-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G054",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar el acuerdo de confidencialidad que se debe entregar por duplicado para el Comité de Bioética en Investigación de Ciencias de la Salud de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El acuerdo de confidencialidad se puede descargar desde el sitio web de la Facultad de Medicina de la UNNE.",
+      "expected_facts": [
+        "Acuerdo de confidencialidad",
+        "Se debe entregar por duplicado",
+        "Disponible en el sitio web de la Facultad de Medicina de la UNNE"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/institucional/gestion-academica-y-administrativa/secretaria-de-ciencia-y-tecnologia/comite-de-bioetica-en-investigacion-de-ciencias-de-la-salud/documentacion-para-descargar"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G055",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del trabajo sobre ondas de choque radiales extracorpóreas en la Licenciatura en Kinesiología y Fisiatría?",
+      "expected_answer_summary": "Los autores del trabajo son Di Pietro, Antonio A. y Martín, Andrés.",
+      "expected_facts": [
+        "Di Pietro, Antonio A.",
+        "Martín, Andrés"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/ondas-de-choque-radiales-extracorporeas-aplicadas-al-tratamiento-de-patologias-cronicas-de-partes-blandas"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G056",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los horarios y el lugar para solicitar turnos en el Departamento de Medicina Familiar de la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "Los turnos se pueden solicitar de lunes a viernes de 8 a 17 horas en Mendoza 1471, Corrientes.",
+      "expected_facts": [
+        "Lunes a Viernes de 8 a 17 horas",
+        "Mendoza 1471 - Corrientes"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/servicios/medicina-familiar"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G057",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuánto tiempo dura el trámite de evaluación de títulos extranjeros en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El trámite dura aproximadamente 1 año.",
+      "expected_facts": [
+        "duración aproximada del trámite: 1 año"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/portal-de-tramites"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G058",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo comienza y finaliza la segunda cohorte del curso 'Parálisis Facial: Bases para la Recuperación Funcional' en la Facultad de Medicina de la UNNE?",
+      "expected_answer_summary": "El curso comienza el 13 de junio de 2026 y finaliza el 29 de agosto de 2026.",
+      "expected_facts": [
+        "Inicio: 13/06/2026",
+        "Finalización: 29/08/2026"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/ofertas-acad/paralisis-facial-bases-para-la-recuperacion-funcional-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G059",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Quién es el docente titular de la asignatura Kinesiterapia II en la carrera de Licenciatura en Kinesiología y Fisiatría?",
+      "expected_answer_summary": "El docente titular de Kinesiterapia II es Alejandra Noemi Basualdo.",
+      "expected_facts": [
+        "Alejandra Noemi Basualdo",
+        "Kinesiterapia II",
+        "Licenciatura en Kinesiología y Fisiatría"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/wp-content/uploads/2025/08/RES-2025-1509-D-MED-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G060",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Quiénes son los autores del artículo sobre la aplicación de electroestimulación muscular selectiva en una paciente con parálisis facial bilateral en la Licenciatura en Kinesiología y Fisiatría?",
+      "expected_answer_summary": "Los autores del artículo son Paola Y. Schoffen, Lorena E. Acosta y Valeria Fedoriachak.",
+      "expected_facts": [
+        "Paola Y. Schoffen",
+        "Lorena E. Acosta",
+        "Valeria Fedoriachak"
+      ],
+      "ground_truth_urls": [
+        "https://med.unne.edu.ar/kine-semilleros/aplicacion-de-electroestimulacion-muscular-selectiva-en-una-paciente-con-paralisis-facial-bilateral-caso-clinico-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "O061",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Cuál es el mejor libro para estudiar en primer año?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O062",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Qué opinás de la situación política del país?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O063",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Esta facultad es mejor que la de otra universidad?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    }
+  ]
+}

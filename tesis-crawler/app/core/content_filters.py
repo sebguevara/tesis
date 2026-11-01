@@ -35,7 +35,6 @@ def is_institutional_news(url: str, title: str, content: str = "") -> bool:
     """
     url_lc = _normalize(url)
     title_lc = _normalize(title)
-    content_lc = _normalize(content)
 
     # Do not classify canonical/listing career pages as news just because they
     # include labels like "Novedades y Eventos" in cards/tags.
@@ -45,9 +44,10 @@ def is_institutional_news(url: str, title: str, content: str = "") -> bool:
     if any(token in url_lc for token in NEWS_URL_TOKENS):
         return True
 
-    title_hit = any(hint in title_lc for hint in NEWS_TEXT_HINTS)
-    content_hit = any(hint in content_lc[:1000] for hint in NEWS_TEXT_HINTS)
-    return title_hit or content_hit
+    # Title only: on WordPress sites where every page is a post (FAU), the
+    # category label "Novedades" sits in the first lines of real institutional
+    # pages (guía del estudiante, planes de estudio) and blocked 170 of them.
+    return any(hint in title_lc for hint in NEWS_TEXT_HINTS)
 
 
 def is_non_academic_noise(url: str, title: str, content: str = "") -> bool:

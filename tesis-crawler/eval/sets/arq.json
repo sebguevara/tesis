@@ -1,0 +1,1012 @@
+{
+  "version": "auto-1",
+  "site": "arq.unne.edu.ar",
+  "created_at": "2026-10-23",
+  "description": "Eval set auto-generado desde el corpus de arq.unne.edu.ar.",
+  "items": [
+    {
+      "id": "G001",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué cambios se proponen en la currícula de la carrera de Arquitectura en la UNNE?",
+      "expected_answer_summary": "Se proponen varios cambios en la currícula de Arquitectura en la UNNE.",
+      "expected_facts": [
+        "Incorporar el acceso a asignaturas optativas desde 2do año.",
+        "Incorporar a la currícula obligatoria la asignatura 'Administración de empresas'.",
+        "Integrar asignaturas o contenidos dedicados a la enseñanza del idioma inglés."
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2025/04/Situacion-Laboral-UNNE_ARQ.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G002",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién encabezó la reunión de la Red de Secretarías Académicas de la Universidad Nacional del Nordeste?",
+      "expected_answer_summary": "La reunión fue encabezada por la Secretaria General Académica, Dra. Patricia Demuth Mercado.",
+      "expected_facts": [
+        "Secretaria General Académica",
+        "Dra. Patricia Demuth Mercado"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/red-secretarias-academicas"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G003",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo y dónde se realizó el 28° Congreso ARQUISUR?",
+      "expected_answer_summary": "El 28° Congreso ARQUISUR se realizó del 22 al 24 de octubre de 2025 en Santa Fe, Argentina.",
+      "expected_facts": [
+        "22, 23 y 24 de octubre de 2025",
+        "Facultad de Arquitectura, Diseño y Urbanismo de la Universidad Nacional del Litoral",
+        "Santa Fe, Argentina"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/resumenes-arquisur"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G004",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuál es la fecha de cierre del periodo de preinscripción para la cohorte 2023 del Doctorado en Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "El periodo de preinscripción cierra el 16 de diciembre del 2022.",
+      "expected_facts": [
+        "16 de diciembre del 2022"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/preinscripcion2023-doctorado"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G005",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cómo puedo contactar a la Secretaría Académica de la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "Puedes contactar a la Secretaría Académica de la Facultad de Arquitectura de la UNNE por teléfono o correo electrónico.",
+      "expected_facts": [
+        "TEL: (0362) 4420088 / 4425573 / 4452820",
+        "Internos: 104 y 128",
+        "secacad@arq.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/llamados-a-concurso"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G006",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los números de teléfono de contacto del Departamento de Concursos de la Secretaría Académica de la FAU - UNNE?",
+      "expected_answer_summary": "Los números de teléfono de contacto del Departamento de Concursos de la Secretaría Académica de la FAU - UNNE son 0362 4420080, 4420088, 4452820, 4425573 Interno 128.",
+      "expected_facts": [
+        "0362 4420080",
+        "4420088",
+        "4452820"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2021/06/13.1-Sergio-Antonio-FERN%C3%81NDEZ.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G007",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el decano reelecto de la Facultad de Arquitectura y Urbanismo de la Universidad Nacional del Nordeste y cuál es la duración de su nuevo mandato?",
+      "expected_answer_summary": "El decano reelecto es el Dr. Arq. Miguel Ángel Barreto y su nuevo mandato es de cuatro años.",
+      "expected_facts": [
+        "Dr. Arq. Miguel Ángel Barreto",
+        "cuatro años",
+        "2022-2026"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/reeleccion-decano"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G008",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevará a cabo el XXXVII Encuentro y XXII Congreso Arquisur en la Universidad Nacional de Rosario?",
+      "expected_answer_summary": "El evento se llevará a cabo los días 26, 27 y 28 de septiembre.",
+      "expected_facts": [
+        "26 de septiembre",
+        "27 de septiembre",
+        "28 de septiembre"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/arquisur-2018"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G009",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuántas entidades recibirán a los estudiantes de la Facultad de Arquitectura de la UNNE para realizar sus prácticas?",
+      "expected_answer_summary": "Catorce entidades recibirán a los estudiantes para realizar sus prácticas.",
+      "expected_facts": [
+        "catorce entidades",
+        "prácticas"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/firma-de-acuerdo-con-varios-estudios-y-empresas-de-corrientes-y-resistencia"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G010",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuántas horas de formación práctica se requieren en el bloque de Proyecto para la carrera de Arquitectura en la UNNE?",
+      "expected_answer_summary": "Se requieren 900 horas de formación práctica en el bloque de Proyecto.",
+      "expected_facts": [
+        "900 horas",
+        "bloque de Proyecto"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/06/ANEXO-III-CRITERIOS-SOBRE-INTENSIDAD-DE-LA-FORMACION-PRACTICA.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G011",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar más información e inscribirme para el X Encuentro de Docentes e Investigadores de Historia de la Arquitectura, el Diseño y la Ciudad en la FAU de la UNNE?",
+      "expected_answer_summary": "La información e inscripciones están disponibles en el sitio web proporcionado.",
+      "expected_facts": [
+        "www.arq.unne.edu.ar/cehau/"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/xencuentro"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G012",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los ejes fundamentales del marco teórico general de la materia Arquitectura IV en la FAU de la UNNE?",
+      "expected_answer_summary": "Los ejes fundamentales son ideación-proyecto sustentable e integración de medios analógicos y tecnologías digitales.",
+      "expected_facts": [
+        "Ideación-proyecto sustentable",
+        "Integración de medios analógicos y tecnologías digitales"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/a4-institucional"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G013",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Quiénes son convocados a participar en el espacio de difusión e intercambio del libro 'Comunicaciones Científicas y Tecnológicas 2024' en la UNNE?",
+      "expected_answer_summary": "El espacio convoca a docentes, investigadores, becarios, estudiantes de grado y posgrado, no docentes y a la comunidad académica de la UNNE y de la región.",
+      "expected_facts": [
+        "docentes",
+        "investigadores",
+        "estudiantes de grado y posgrado"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/comunicaciones-cientificas-tecnologicas-2024"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G014",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos para que los Directores de Proyectos de Investigación reciban apoyo económico en 2021?",
+      "expected_answer_summary": "Los Directores de Proyectos de Investigación deben presentar las solicitudes correspondientes y no adeudar informes ni rendiciones de cuentas de años anteriores.",
+      "expected_facts": [
+        "presentar las solicitudes correspondientes",
+        "no adeudar informes ni rendiciones de cuentas de años anteriores"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2021/03/RES-442-21-Apoyo-2021.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G015",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el nombre completo del proyecto de extensión relacionado con el empoderamiento de mujeres rurales en la FAU de la UNNE?",
+      "expected_answer_summary": "El nombre completo del proyecto es 'Aportes al proyecto -Empoderamiento de Mujeres Rurales a través del Uso de Energía Solar, Manejo Sostenible del Agua para Riego y Conservación Ambiental Proyecto Piloto en la Granja Educativa «La Añorada», Puerto Tirol. Chaco-'.",
+      "expected_facts": [
+        "Aportes al proyecto -Empoderamiento de Mujeres Rurales a través del Uso de Energía Solar, Manejo Sostenible del Agua para Riego y Conservación Ambiental Proyecto Piloto en la Granja Educativa «La Añorada», Puerto Tirol. Chaco-"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/mujeres-rurales"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G016",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se dictan las clases virtuales del Taller de Escultura en la FAU de la UNNE?",
+      "expected_answer_summary": "Las clases virtuales del Taller de Escultura se dictan los jueves de 19:00 a 20:00 hs.",
+      "expected_facts": [
+        "jueves",
+        "19:00 a 20:00 hs"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/taller-escultura"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G017",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el Decano de la Facultad de Arquitectura de la UNNE según el documento de evaluación periódica docente?",
+      "expected_answer_summary": "El Decano es el Dr. Arq. Miguel Ángel Barreto.",
+      "expected_facts": [
+        "Dr. Arq. Miguel Ángel Barreto",
+        "Decano"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/04/ACI-EP-16-2026-FAU-Geat-JTP-DS-TDA1.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G018",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar información sobre el Doctorado en Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "La información sobre el Doctorado en Arquitectura y Urbanismo de la UNNE se encuentra en la página arq.unne.edu.ar/doctorado.",
+      "expected_facts": [
+        "arq.unne.edu.ar/doctorado"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/dau2025"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G019",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué instituciones apoyan el 3º Seminario de Planeamiento Urbano, Paisaje y Sustentabilidad organizado por la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "El seminario cuenta con el apoyo de varias instituciones.",
+      "expected_facts": [
+        "Facultad de Arquitectura y Urbanismo de la UNNE",
+        "Programa de Pós-Graduação Projeto e Cidade de la Universidade Federal de Goiás",
+        "Grupo de investigación Grupal.UFCG (CNPq)"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/3seppas"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G020",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la Subsecretaria de Consejo Directivo en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "La Subsecretaria de Consejo Directivo es Beatriz Aída Monte.",
+      "expected_facts": [
+        "Beatriz Aída Monte",
+        "Subsecretaria de Consejo Directivo"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/09/EXP-2026-24920-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G021",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué carreras están invitadas a participar en la encuesta sobre demanda de formación de posgrado en la FAU de la UNNE?",
+      "expected_answer_summary": "Las carreras invitadas son Arquitectura, Diseño Gráfico y Diseño Industrial.",
+      "expected_facts": [
+        "Arquitectura",
+        "Diseño Gráfico",
+        "Diseño Industrial"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/encuesta"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G022",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevará a cabo la segunda reunión anual de CODFAUN en la UNCUYO Mendoza?",
+      "expected_answer_summary": "La reunión se realizará del 28 al 30 de agosto de 2025.",
+      "expected_facts": [
+        "28 al 30 de agosto de 2025"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/2-a-reunion-anual-de-codfaun-en-uncuyo-mendoza"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G023",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuál es el formato requerido para presentar trabajos en la categoría 'C' de Tesis doctorales en el Premio de Investigación Arquisur 2026?",
+      "expected_answer_summary": "Los trabajos deben presentarse bajo el formato de tesis defendida.",
+      "expected_facts": [
+        "formato de tesis defendida",
+        "trabajos deben ser inéditos",
+        "solo pueden presentarse una vez"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/07/arquisur_2026_bases_premio_investigacion_es-1-1.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G024",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se realizará la movilización en el marco del Paro Internacional por el Día de las Mujeres, Trans, Bisexuales, No Binaries y colectivo LGTBIQ+ en la FAU y UNNE?",
+      "expected_answer_summary": "La movilización se realizará el 8 de marzo de 2024.",
+      "expected_facts": [
+        "8 de marzo de 2024"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/8m"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G025",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los aspectos que deben ser ampliados en el reglamento del Doctorado en Arquitectura de la UNNE?",
+      "expected_answer_summary": "El reglamento del Doctorado en Arquitectura de la UNNE requiere ampliaciones en la estructura básica de las tesis, aspectos formales de presentación, originalidad y presentación de la tesis.",
+      "expected_facts": [
+        "estructura básica de las Tesis",
+        "aspectos formales de la presentación",
+        "especificaciones referidas a la originalidad"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2025/09/RES-2025-370-CD-ARQUNNE-Ampliacion-Reglamento-Doctorado-UNNEARQ.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G026",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Con qué institución firmó un acuerdo la Facultad de Arquitectura y Urbanismo de la UNNE para trabajar en conjunto?",
+      "expected_answer_summary": "La Facultad de Arquitectura y Urbanismo de la UNNE firmó un acuerdo con el Instituto Provincial de Desarrollo Urbano y Vivienda de la provincia del Chaco.",
+      "expected_facts": [
+        "Facultad de Arquitectura y Urbanismo de la UNNE",
+        "Instituto Provincial de Desarrollo Urbano y Vivienda de la provincia del Chaco"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/convenio-vivienda"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G027",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Cuál es la nueva integración de la Comisión Evaluadora para la Unidad Pedagógica B del Área de Proyecto y Planeamiento de la Carrera de Arquitectura en la UNNE?",
+      "expected_answer_summary": "La nueva integración de la Comisión Evaluadora incluye al Arq. Marcos Humberto Scotta.",
+      "expected_facts": [
+        "Arq. Marcos Humberto SCOTTA"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/09/Resolucion-N°-RES-2026-626-D-ARQUNNE-Calendario-Belmonte-JTP-DS-A2B-2026.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G028",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué trámites relacionados con la baja de inscripción a exámenes se pueden realizar en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "Se pueden realizar trámites de baja de inscripción a examen final y baja de inscripción a examen final en mesa especial.",
+      "expected_facts": [
+        "Baja de inscripción a examen final",
+        "Baja de inscripción a examen final - mesa especial"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/notas-estudiantes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G029",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué deben hacer los docentes al finalizar las clases para contribuir con la sostenibilidad ambiental en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "Los docentes deben apagar los ventiladores, equipos de refrigeración y electrónicos al finalizar las clases.",
+      "expected_facts": [
+        "apagar ventiladores",
+        "apagar equipos de refrigeración",
+        "apagar equipos electrónicos"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2024/03/Memorandum_sobre_uso_energetico.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G030",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué actividad realizaron los estudiantes de la cátedra de Ergonomía I de la carrera de Diseño Industrial?",
+      "expected_answer_summary": "Los estudiantes realizaron una visita técnica a la planta potabilizadora de SAMEEP.",
+      "expected_facts": [
+        "visita técnica",
+        "planta potabilizadora de SAMEEP",
+        "barrio La Toma, Barranqueras"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/estudiantes-de-la-catedra-de-ergonomia-i-de-la-carrera-de-diseno-industrial-realizaron-una-visita-tecnica-a-sameep"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G031",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo y dónde se llevará a cabo la charla sobre 'Un aporte a la Arquitectura de lo Sagrado' en la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "La charla se llevará a cabo el miércoles 8 de octubre de 2025 a las 18:30 h en el Salón Auditorio FAU-UNNE.",
+      "expected_facts": [
+        "miércoles 8 de octubre de 2025",
+        "18:30 h",
+        "Salón Auditorio FAU-UNNE"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/meditacion"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G032",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué carreras de la Facultad de Arquitectura de la UNNE pertenecen a la familia de carreras del diseño?",
+      "expected_answer_summary": "Las carreras de Arquitectura, Diseño Gráfico y Licenciatura en Diseño Industrial pertenecen a la familia de carreras del diseño.",
+      "expected_facts": [
+        "Arquitectura",
+        "Diseño Gráfico",
+        "Licenciatura en Diseño Industrial"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2025/07/RES-2025-75-CD-ARQ-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G033",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el número de teléfono para consultas sobre concursos docentes en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "El número de teléfono para consultas sobre concursos docentes es (0362) 4488532.",
+      "expected_facts": [
+        "(0362) 4488532"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/concursos-docentes"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G034",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar la resolución que aprueba la Convocatoria a Evaluación y la integración de la Comisión Evaluadora en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "La resolución se encuentra en la página web de la FAU.",
+      "expected_facts": [
+        "página web de la FAU",
+        "Resolución N° 909/19-HCD FAU"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2021/06/15.1-Mar%C3%ADa-Marta-CACCIOPPOLI.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G035",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo comienzan las clases sincrónicas del curso de posgrado en Energía Solar Fotovoltaica en la FAU de la UNNE?",
+      "expected_answer_summary": "Las clases sincrónicas comienzan el 08/09/2021.",
+      "expected_facts": [
+        "08/09/2021"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/energia-solar-fotovoltaica"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G036",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la unidad curricular en la que se desempeñará la persona con dedicación simple en la carrera de Diseño Gráfico?",
+      "expected_answer_summary": "La unidad curricular es Morfología II.",
+      "expected_facts": [
+        "MORFOLOGÍA II",
+        "Carrera de Diseño Gráfico"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/04/ACI-EP-51-2026-FAU-Horianski-ADP-DS-MORF2-DG.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G037",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el docente a cargo de la materia Morfología II en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "El docente a cargo de Morfología II es el Arq. Alberto Mahave.",
+      "expected_facts": [
+        "Morfología II",
+        "Arq. Alberto Mahave"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/10/RES-2026-91-CD-ARQ-UNNE-2do.-cuatrimestre-adscripciones-2025.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G038",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de contacto para consultas sobre el curso de posgrado '¿Cómo enseñamos Arquitectura y Diseño Gráfico en ambientes virtuales?' en la FAU de la UNNE?",
+      "expected_answer_summary": "El correo electrónico de contacto es cesar.augusto@comunidad.unne.edu.ar.",
+      "expected_facts": [
+        "cesar.augusto@comunidad.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/cedia-curso-posgrado-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G039",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo y dónde se lleva a cabo el curso de Construcción en Seco con Placas de Yeso en la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "El curso se lleva a cabo los jueves de 9:00 a 12:00 hs en el Aula A4 de la Facultad de Arquitectura y Urbanismo.",
+      "expected_facts": [
+        "Jueves de 9:00 a 12:00 hs",
+        "Aula A4",
+        "Facultad de Arquitectura y Urbanismo"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/construccion-en-seco"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G040",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué tipos de trabajos de investigación se desarrollan en la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "La Facultad de Arquitectura y Urbanismo de la UNNE desarrolla trabajos de investigación que incluyen el vínculo con la comunidad, proyectos aprobados por organismos nacionales y asistencia o transferencias tecnológicas.",
+      "expected_facts": [
+        "trabajos que incorporan el vínculo con la comunidad",
+        "proyectos aprobados en el marco de la convocatoria de organismos nacionales",
+        "asistencia y/o transferencias tecnológica"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/trabajos-de-investigacion"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G041",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el cargo y dedicación de Gustavo Adrián Floriddia en la asignatura Instalaciones I?",
+      "expected_answer_summary": "Gustavo Adrián Floriddia ocupa el cargo de Auxiliar Docente de Primera con Dedicación Simple en la asignatura Instalaciones I.",
+      "expected_facts": [
+        "Auxiliar Docente de Primera",
+        "Dedicación Simple",
+        "Asignatura Instalaciones I"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2021/05/3-1-Gustavo-Adrian-FLORIDDIA-en-el-cargo-de-Auxiliar-Docente-de-Primera-con-Dedicacion-Simple-de-la-Asignatura-INSTALACIONES-I.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G042",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Dónde se llevará a cabo el evento relacionado con el Código y Ordenanzas de la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "El evento se llevará a cabo en el Salón Auditorio de la Facultad de Arquitectura y Urbanismo UNNE.",
+      "expected_facts": [
+        "Salón Auditorio",
+        "Facultad de Arquitectura y Urbanismo",
+        "UNNE"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/codigo-ordenanzas"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G043",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar los contenidos curriculares básicos y la carga horaria mínima para la carrera de Arquitectura en la UNNE?",
+      "expected_answer_summary": "Los contenidos curriculares básicos y la carga horaria mínima para la carrera de Arquitectura en la UNNE se encuentran en los anexos I y II respectivamente.",
+      "expected_facts": [
+        "ANEXO I – CONTENIDOS CURRICULARES BÁSICOS",
+        "ANEXO II – CARGA HORARIA MÍNIMA"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/adecuacion-programas-arq"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G044",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cómo se notifica al docente evaluado sobre el dictamen de su evaluación en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "El dictamen se notifica al docente evaluado conforme a la Res. Nº 850/12-CS UNNE y se difunde en la página web.",
+      "expected_facts": [
+        "Res. Nº 850/12-CS UNNE",
+        "se difunde en la página web"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2021/07/25-Alcides-GAR%C3%93FALO.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G045",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el monto de la beca otorgada por la Red de Macro Universidades para la movilidad en el posgrado?",
+      "expected_answer_summary": "El monto de la beca es de $3,600 USD.",
+      "expected_facts": [
+        "$3,600 USD",
+        "apoyo económico para la movilidad",
+        "Banco Santander"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/red-de-macrouniversidades-publicas-de-america-latina-y-el-caribe"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G046",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar el formulario de inscripción para el concurso cerrado interno para el puesto de Director de Gestión Estudios en la FAU de la UNNE?",
+      "expected_answer_summary": "El formulario de inscripción está disponible en un enlace proporcionado en el sitio web.",
+      "expected_facts": [
+        "ANEXO I Formulario de Inscripción",
+        "https://www.arq.unne.edu.ar/wp-content/uploads/2022/08/ANEXO-I-Formulario-de-Inscripcion.zip"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/concursonodocente"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G047",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué proceso se está llevando a cabo para los auxiliares de la docencia en la Facultad de Arquitectura y Urbanismo de la UNNE?",
+      "expected_answer_summary": "Se está tramitando la convocatoria a elecciones de consejeros del claustro docente para los auxiliares de la docencia.",
+      "expected_facts": [
+        "Convocatoria a elecciones de consejeros",
+        "Claustro docente",
+        "Auxiliares de la docencia"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/03/RES-2026-33.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G048",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué acciones se establecieron en el convenio de cooperación entre la Facultad de Arquitectura de la UNNE y el Instituto Provincial de Desarrollo Urbano y Vivienda?",
+      "expected_answer_summary": "El convenio establece la promoción de la interacción técnica y académica y la realización de acciones conjuntas de colaboración.",
+      "expected_facts": [
+        "promover la interacción técnica y académica",
+        "emprender acciones conjuntas de colaboración"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/firma-3"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G049",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos para participar en las pasantías estudiantiles de la FAU en la UNNE?",
+      "expected_answer_summary": "Los requisitos incluyen tener el 80% de la carrera aprobada, domicilio en Resistencia y conocimientos en varios programas de diseño y animación.",
+      "expected_facts": [
+        "80 % de la Carrera Aprobada",
+        "domicilio en Resistencia",
+        "Conocimiento y manejo de Ps, Ai, Id, Ae, Pr, Office y animación"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/pasantias-estudiantiles-2"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G050",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué problema se identificó en la inscripción de la D.I. María Constanza Lorenzo para la Evaluación Periódica Docente en la Esp. Arq. Elba Cristina Horianski?",
+      "expected_answer_summary": "La inscripción de la D.I. María Constanza Lorenzo está incompleta y el archivo del requisito 'Manifiesto de habilitación para desempeñarme en un cargo docente' es incorrecto.",
+      "expected_facts": [
+        "inscripción incompleta",
+        "archivo incorrecto",
+        "Manifiesto de habilitación"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/04/ACI-EP-47-2026-FAU-Horianski-ADP-DS-MORF1-DG.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G051",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿En qué evento fue reconocida la FAU UNNE por su experiencia formativa en aula territorio?",
+      "expected_answer_summary": "La FAU UNNE fue reconocida en el 43° Encuentro y 28° Congreso de ARQUISUR.",
+      "expected_facts": [
+        "43° Encuentro y 28° Congreso de ARQUISUR",
+        "ciudad de Santa Fe",
+        "días 22, 23 y 24"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/usina-premio"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G052",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cómo se deben acreditar las citas directas de material en línea en las Jornadas de Comunicaciones Científicas y Tecnológicas 2022 de la FAU-UNNE?",
+      "expected_answer_summary": "Las citas directas de material en línea deben acreditarse indicando el autor, año y número de página o párrafo.",
+      "expected_facts": [
+        "Indicar el autor, año y número de página entre paréntesis.",
+        "Si no hay número de página, explicitar el número de párrafo con la abreviación párr."
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/jcct2022"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G053",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de contacto para el curso de Adobe Photoshop en la FAU de la UNNE?",
+      "expected_answer_summary": "El correo electrónico de contacto es setfau@gmail.com.",
+      "expected_facts": [
+        "setfau@gmail.com"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/photoshop"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G054",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la misión de la publicación científica Cuaderno Urbano de la FAU-UNNE?",
+      "expected_answer_summary": "La misión de Cuaderno Urbano es fomentar la producción de conocimiento sobre la cuestión urbana desde múltiples disciplinas.",
+      "expected_facts": [
+        "fomentar la producción de conocimiento",
+        "cuestión urbana",
+        "múltiples disciplinas"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/cuaderno-urbano-40-espacio-cultura-y-sociedad"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G055",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué temas se abordarán en las charlas abiertas sobre el sistema de educación superior francés organizadas por Campus France Argentina en la FAU de la UNNE?",
+      "expected_answer_summary": "Se abordarán las principales características del sistema de educación superior francés y sus diferencias con el sistema argentino.",
+      "expected_facts": [
+        "principales características del sistema de educación superior francés",
+        "diferencias respecto del sistema argentino"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/france"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G056",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué acuerdos de cooperación firmó la Facultad de Arquitectura y Urbanismo de la UNNE en el año 2014?",
+      "expected_answer_summary": "La Facultad de Arquitectura y Urbanismo de la UNNE firmó acuerdos de cooperación con la Fundación Urunday y el Museo de Medios de Comunicación Raúl Delfino Berneri en 2014.",
+      "expected_facts": [
+        "Acuerdo de Cooperación y Asistencia Mutua con la Fundación Urunday",
+        "Acuerdo de Trabajo y Cooperación Mutua con el Museo de Medios de Comunicación Raúl Delfino Berneri"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/acuerdos-suscritos-ano-2014"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G057",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quiénes son las autoridades que autorizaron el documento en la Facultad de Arquitectura de la UNNE?",
+      "expected_answer_summary": "Las autoridades que autorizaron el documento son Beatriz Aída Monte y Carlos Eduardo Burgos.",
+      "expected_facts": [
+        "Autorizado por: BEATRIZ AIDA MONTE",
+        "Autorizado por: CARLOS EDUARDO BURGOS"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2026/10/RES-2026-595-CD-ARQUNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G058",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos para postularse como Tutor Par en la carrera de Arquitectura en la UNNE?",
+      "expected_answer_summary": "Los estudiantes deben haber aprobado el primer año de la carrera y es valorable tener experiencia previa como Tutor Par.",
+      "expected_facts": [
+        "Haber aprobado el 1.º año de la carrera de Arquitectura.",
+        "Es valorable tener experiencia previa como Tutor Par."
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/tutores-pares"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G059",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Dónde se publican los resultados de la evaluación de los alumnos preseleccionados para el Programa de Becas en Salud 'Estudiar Sano' de la FAU?",
+      "expected_answer_summary": "Los resultados se publican en un lugar visible en los transparentes de la FAU y en la página web de la FAU.",
+      "expected_facts": [
+        "resultados en los transparentes de la FAU",
+        "resultados en la página web de la FAU"
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/programa-de-becas-en-salud-estudiar-sano"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G060",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Qué actividades puede realizar un diseñador gráfico según el plan de estudios de 1997 de la UNNE?",
+      "expected_answer_summary": "Un diseñador gráfico puede participar en equipos interdisciplinarios para la publicidad de bienes y servicios y realizar arbitrajes, pericias y tasaciones relacionadas con el diseño gráfico.",
+      "expected_facts": [
+        "Participación en equipos interdisciplinarios para la publicidad de bienes y servicios.",
+        "Realizar arbitrajes, pericias y tasaciones con relación a las temáticas del diseño gráfico."
+      ],
+      "ground_truth_urls": [
+        "https://arq.unne.edu.ar/wp-content/uploads/2023/03/Plan_de_Estudios_1997_RES-295-20_DISENADOR-A_GRAFICO-A.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "O061",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Cuál es el mejor libro para estudiar en primer año?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O062",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Qué opinás de la situación política del país?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O063",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Esta facultad es mejor que la de otra universidad?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    }
+  ]
+}

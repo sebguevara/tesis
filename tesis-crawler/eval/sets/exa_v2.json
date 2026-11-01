@@ -1,0 +1,1000 @@
+{
+  "version": "auto-1",
+  "site": "exa.unne.edu.ar",
+  "created_at": "2026-10-23",
+  "description": "Eval set auto-generado desde el corpus de exa.unne.edu.ar.",
+  "items": [
+    {
+      "id": "G001",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué trámite se menciona para inscribirse en el Doctorado de la UNNE en Química?",
+      "expected_answer_summary": "El trámite mencionado es la inscripción en la carrera de Doctorado de la UNNE en Química.",
+      "expected_facts": [
+        "inscripción en la carrera",
+        "Doctorado de la UNNE en Química"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/docs/actas/2024/Acta 4° Sesion 25-04-2024.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G002",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién tiene la autoridad para modificar el calendario de exámenes en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Decana de la Facultad de Ciencias Exactas y Naturales y Agrimensura tiene la autoridad para modificar el calendario de exámenes.",
+      "expected_facts": [
+        "La Decana de la Facultad de Ciencias Exactas y Naturales y Agrimensura"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/alumnos/docs/2026/RES. 2026-181-D-EXA.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G003",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿A qué dirección de correo electrónico debo enviar consultas sobre el trámite de diploma en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "Debes enviar consultas a graduados@exa.unne.edu.ar.",
+      "expected_facts": [
+        "graduados@exa.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=21650"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G004",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son algunos de los objetivos de la Diplomatura Universitaria en Programación y Robótica Educativa en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "Los objetivos incluyen comprender la importancia de las Ciencias de la Computación en las escuelas y aplicar técnicas básicas de programación y robótica.",
+      "expected_facts": [
+        "Comprender la importancia de las Ciencias de la Computación en las escuelas",
+        "Aplicar técnicas básicas de programación y robótica"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=8629"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G005",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las asignaturas del área de Sistemas y Computación para la carrera de Licenciatura en Sistemas de Información según el Plan 2023?",
+      "expected_answer_summary": "Las asignaturas son Análisis de Organizaciones y Procesos y Arquitectura y Organización de Computadoras.",
+      "expected_facts": [
+        "Análisis de Organizaciones y Procesos",
+        "Arquitectura y Organización de Computadoras",
+        "Lic. en Sistemas de Información"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/institucional/docs-concursos/2025/Actas de Cierre Conc. Aux._C.23.10.25.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G006",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo presentó la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE el formulario de autoevaluación ante la CONEAU para los doctorados en Biología, Física y Química?",
+      "expected_answer_summary": "La presentación se realizó el 18 de agosto de 2021.",
+      "expected_facts": [
+        "18/08/2021",
+        "autoevaluación ante la CONEAU",
+        "Doctorado de la UNNE en Biología, Física y Química"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=7978"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G007",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se darán por finalizados los Planes de Estudios 2001 y 2006 de la carrera de Ingeniería Eléctrica en la UNNE?",
+      "expected_answer_summary": "Los Planes de Estudios 2001 y 2006 de Ingeniería Eléctrica finalizarán el 31 de diciembre de 2024.",
+      "expected_facts": [
+        "Planes de Estudios 2001 y 2006",
+        "Ingeniería Eléctrica",
+        "31 de diciembre de 2024"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/institucional/docs_transparente/RES. 2024-997-CS-UNNE.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G008",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué requisitos deben cumplir los postulantes al Doctorado en Física de la UNNE si su título de educación superior es de una carrera de cuatro años o menos?",
+      "expected_answer_summary": "Deben cumplir los requisitos que establezca la Comisión Académica del Doctorado.",
+      "expected_facts": [
+        "cumplimentar los requisitos que establezca la Comisión Académica del Doctorado",
+        "en el marco de lo establecido en las normativas universitarias y nacionales vigentes"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web/wp-content/uploads/2025/04/RES.-631-21-CS-Reglamento-de-Funcionamiento-FISICA.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G009",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué requisito académico debe cumplir un aspirante con un título universitario en una disciplina relacionada para ingresar al Doctorado en Química de FaCENA?",
+      "expected_answer_summary": "El aspirante debe tener su título calificado por el Comité Académico del Doctorado en relación a los contenidos académicos relacionados con la Química.",
+      "expected_facts": [
+        "Tener otro título universitario en disciplinas relacionadas con la Química",
+        "Calificación por parte del Comité Académico del Doctorado"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=284"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G010",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuál es el período de duración del proyecto de investigación PI: 22F002 dirigido por Ruben Alejandro Cerutti?",
+      "expected_answer_summary": "El proyecto de investigación PI: 22F002 tiene un período de duración del 01/01/2024 al 31/12/2027.",
+      "expected_facts": [
+        "PI: 22F002",
+        "01/01/2024",
+        "31/12/2027"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=58"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G011",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los objetivos de investigación del Grupo de Investigación en Diversidad, Ecología y Conservación de Vertebrados 'Alexander Von Humboldt' en la FaCENA?",
+      "expected_answer_summary": "El grupo tiene dos objetivos de investigación relacionados con la biodiversidad y el funcionamiento de los afloramientos rocosos del Paraje Tres Cerros.",
+      "expected_facts": [
+        "conocimiento integral de la biodiversidad",
+        "funcionamiento de los afloramientos rocosos del Paraje Tres Cerros",
+        "contribuir a la conservación de la biodiversidad del Paraje Tres Cerros"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=1005"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G012",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los aranceles para la Maestría en Tecnología de la Información en la UNNE?",
+      "expected_answer_summary": "La inscripción cuesta $50.000 o 50 dólares para extranjeros, y hay 20 cuotas: 10 de $60.000 o 50 dólares para extranjeros y 10 ajustadas por IPC.",
+      "expected_facts": [
+        "Inscripción: $50.000 o 50 dólares para extranjeros",
+        "10 cuotas de $60.000 o 50 dólares para extranjeros",
+        "10 cuotas ajustadas por IPC"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web/wp-content/uploads/2025/04/Maestria-en-Tecnologia-de-la-Informacion-Informacion-ampliada.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G013",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevará a cabo el evento 'Conociendo FaCENA' para futuros ingresantes 2024?",
+      "expected_answer_summary": "El evento 'Conociendo FaCENA' se realizará los sábados 4 y 18 de noviembre de 2024.",
+      "expected_facts": [
+        "sábados 4 de noviembre y 18 de noviembre de 2024",
+        "Encuentro 'Conociendo FaCENA'",
+        "futuros ingresantes 2024"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/docs/actas/2023/Acta 18° Sesion 2023-11-02.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G014",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar los informes de gestión anuales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "Los informes de gestión anuales están disponibles en el apartado de 'Descargas'.",
+      "expected_facts": [
+        "informes de gestión",
+        "apartado de 'Descargas'"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=22548"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G015",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la modalidad y duración del Doctorado en Informática en FaCENA?",
+      "expected_answer_summary": "El Doctorado en Informática tiene una duración de 4 años y es de modalidad presencial y estructurada.",
+      "expected_facts": [
+        "4 años",
+        "Presencial",
+        "Estructurada"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=723"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G016",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el horario de atención telefónica de la División Bedelía de la Facultad de Ciencias Exactas y Naturales y Agrimensura?",
+      "expected_answer_summary": "El horario de atención telefónica de la División Bedelía es de 8 a 12 hs. y de 13:30 a 18:30 hs.",
+      "expected_facts": [
+        "Horario de atención telefónica: 8 a 12 hs. y 13:30 a 18:30 hs.",
+        "División Bedelía"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=21721"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G017",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de contacto de Valeria Natalia Debarbora, docente de Biología en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El correo electrónico de Valeria Natalia Debarbora es debarbora_valeria@exa.unne.edu.ar.",
+      "expected_facts": [
+        "debarbora_valeria@exa.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=21601"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G018",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son algunas de las áreas de especialización en la carrera de Ingeniería Electrónica en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Ingeniería Electrónica en la UNNE incluye áreas de especialización como sistemas de control automático, ingeniería biomédica, comunicaciones y procesamiento de señales, entre otras.",
+      "expected_facts": [
+        "sistemas de control automático",
+        "ingeniería biomédica",
+        "comunicaciones y procesamiento de señales"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=8361"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G019",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién tiene la atribución de decidir sobre las solicitudes de tercera readmisión de alumnos presentadas hasta el 31 de marzo de 2023 en la Facultad de Ciencias Exactas de la UNNE?",
+      "expected_answer_summary": "La Señora decana de la Facultad tiene la atribución de decidir sobre estas solicitudes.",
+      "expected_facts": [
+        "Señora decana de la Facultad",
+        "solicitudes de tercera readmisión",
+        "presentadas al 31 de marzo del 2023"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/docs/actas/2022/Acta 18° Sesión 06-12-2022.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G020",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿La carrera de Guardaparque de la UNNE tiene reconocimiento oficial y validez nacional?",
+      "expected_answer_summary": "Sí, la carrera de Guardaparque de la UNNE tiene reconocimiento oficial y validez nacional.",
+      "expected_facts": [
+        "reconocimiento oficial",
+        "validez nacional"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/guardaparque/2024 Res-641.24CS.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G021",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Quién es el coordinador del grupo de investigación en Procesos Fundamentales en Sistemas Moleculares en FaCENA?",
+      "expected_answer_summary": "El coordinador es Rosana Maria Lobayan.",
+      "expected_facts": [
+        "Coordinador/a: Lobayan, Rosana Maria",
+        "rlobayan@gmail.com"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=1018"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G022",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el codirector del proyecto de investigación PI: 21F014 en la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "El codirector del proyecto es Laura Cristina Ana Leiva.",
+      "expected_facts": [
+        "Codirector/a: Leiva, Laura Cristina Ana"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=76"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G023",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el objetivo del grupo de investigación en Micología y Briología de la FaCENA?",
+      "expected_answer_summary": "El objetivo es producir información original sobre la biología taxonómica de la funga y brioflora en el Norte Argentino.",
+      "expected_facts": [
+        "producir información original",
+        "biología taxonómica",
+        "funga y brioflora"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=1024"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G024",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué objetivo tiene la creación del Observatorio Laboral en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El Observatorio Laboral busca analizar los procesos de inserción laboral de los graduados y generar instrumentos para mejorar sus oportunidades laborales.",
+      "expected_facts": [
+        "análisis de los procesos de inserción laboral de los graduados",
+        "factores que influyen en sus oportunidades",
+        "generar instrumentos que favorezcan el acceso a la demanda de profesionales en la región"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=9004"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G025",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el contacto para consultas sobre cooperación internacional en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El contacto es cooperacion.facena.unne@gmail.com.",
+      "expected_facts": [
+        "cooperacion.facena.unne@gmail.com"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=8135"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G026",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de la Dirección de Gestión Académica de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El correo electrónico es dirgestionacademica@exa.unne.edu.ar.",
+      "expected_facts": [
+        "dirgestionacademica@exa.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=7858"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G027",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar más información sobre el curso de Herramientas Básicas de Sistemas de Información Geográfica para la generación de cartografías temáticas, Nivel 1, en FaCENA?",
+      "expected_answer_summary": "La información ampliada sobre el curso está disponible en un PDF en el sitio web.",
+      "expected_facts": [
+        "https://exa.unne.edu.ar/postgrado1-web/wp-content/uploads/2026/05/Informacion-ampliada-Herramientas-basicas-de-sistema-1.pdf"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?p=1789"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G028",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuál es la materia correlativa necesaria para cursar Anatomía Comparada de los Cordados en la carrera de Licenciatura en Ciencias Biológicas?",
+      "expected_answer_summary": "La materia correlativa necesaria es Introducción a La Biología.",
+      "expected_facts": [
+        "Anatomía Comparada de los Cordados",
+        "Introducción a La Biología",
+        "Licenciatura en Ciencias Biológicas"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/institucional/docs-concursos/2024/Dictamen Anatomia Comparada de los Cordados.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G029",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las redes sociales oficiales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE tiene presencia en Facebook e Instagram.",
+      "expected_facts": [
+        "Facebook: https://www.facebook.com/Facultad-de-Ciencias-Exactas-Naturales-y-Agrimensura-Facena-879702205406183/",
+        "Instagram: https://www.instagram.com/facenaunne/"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=21563"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G030",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las redes sociales oficiales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE tiene presencia en Twitter y Facebook.",
+      "expected_facts": [
+        "Twitter: https://twitter.com/facenaunne",
+        "Facebook: https://www.facebook.com/Facultad-de-Ciencias-Exactas-Naturales-y-Agrimensura-Facena-879702205406183/"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=9064"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G031",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Quién es la coordinadora de las líneas de investigación sobre paleofloras y paleontología en FaCENA?",
+      "expected_answer_summary": "La coordinadora es Alexandra Maria C. Crisafulli.",
+      "expected_facts": [
+        "Coordinadora: Crisafulli, Alexandra Maria C.",
+        "alexandracrisafulli@hotmail.com"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=995"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G032",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es el programa analítico y de examen aprobado para la asignatura Química Clínica en la carrera de Bioquímica?",
+      "expected_answer_summary": "El programa analítico y de examen para la asignatura Química Clínica del Plan de Estudios 2025 ha sido aprobado.",
+      "expected_facts": [
+        "Programa analítico y de examen aprobado",
+        "Asignatura Química Clínica",
+        "Plan de Estudios 2025"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/docs/actas/2025/Acta 11°Sesión21-08-2025.pdf"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G033",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la duración de la Especialización en Gestión y Conservación de la Biodiversidad en FaCENA?",
+      "expected_answer_summary": "La duración es de 440 horas.",
+      "expected_facts": [
+        "440 horas"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=721"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G034",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de la Dirección de Gestión Académica de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El correo electrónico de la Dirección de Gestión Académica es dirgestionacademica@exa.unne.edu.ar.",
+      "expected_facts": [
+        "dirgestionacademica@exa.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=7862"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G035",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la modalidad del curso 'R para principiantes: Fundamentos, Análisis Estadístico y Gráficos' ofrecido por la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "La modalidad del curso es híbrida.",
+      "expected_facts": [
+        "Híbrida",
+        "Aula de Posgrado (presencial)",
+        "Zoom (virtual)"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?p=2404"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G036",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la directora del proyecto sobre paleocomunidades del Neopaleozoico, Mesozoico y Neógeno del Cono Sur de Sudamérica en la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "La directora del proyecto es Alexandra Maria C. Crisafulli.",
+      "expected_facts": [
+        "Directora: Crisafulli, Alexandra Maria C."
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=62"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G037",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el director del proyecto de estudio de moléculas orgánicas como inhibidores de metaloproteinasas del veneno del Bothrops alternatus en la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "La directora del proyecto es Claudia Carolina Gay.",
+      "expected_facts": [
+        "Director/a: Gay, Claudia Carolina"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=83"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G038",
+      "category": "listing",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las áreas temáticas en las que puedo enviar un trabajo para la revista FACENA?",
+      "expected_answer_summary": "Podés enviar trabajos en las áreas de Agrimensura, Biología, Bioquímica, Didáctica de las Ciencias Experimentales, Física, Informática, Ingeniería, Matemática y Química.",
+      "expected_facts": [
+        "Agrimensura",
+        "Biología",
+        "Bioquímica"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?p=1141"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G039",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las redes sociales oficiales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE tiene presencia en Twitter y Facebook.",
+      "expected_facts": [
+        "Twitter: https://twitter.com/facenaunne",
+        "Facebook: https://www.facebook.com/Facultad-de-Ciencias-Exactas-Naturales-y-Agrimensura-Facena-879702205406183/"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=6980"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G040",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la resolución ministerial que otorga el reconocimiento oficial del título de Ingeniero Agrimensor en la UNNE?",
+      "expected_answer_summary": "La resolución ministerial que otorga el reconocimiento oficial del título de Ingeniero Agrimensor en la UNNE es la RESOL-2017-1980-APN-ME.",
+      "expected_facts": [
+        "RESOL-2017-1980-APN-ME"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=9150"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G041",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la directora del proyecto sobre modelos, metodologías y recursos para el desarrollo del pensamiento computacional en la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "La directora del proyecto es Gladys Noemí Dapozo.",
+      "expected_facts": [
+        "Director/a: Dapozo, Gladys Noemí"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=80"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G042",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿A qué correos electrónicos puedo dirigirme para consultas sobre la EXPO FaCENA de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "Puedes comunicarte a los correos planificacion.academica@exa.unne.edu.ar o exa.sae@comunidad.unne.edu.ar.",
+      "expected_facts": [
+        "planificacion.academica@exa.unne.edu.ar",
+        "exa.sae@comunidad.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?p=22575"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G043",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuál es el correo electrónico de contacto del Departamento de Bioquímica de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El correo electrónico de contacto es bioquimica@exa.unne.edu.ar.",
+      "expected_facts": [
+        "bioquimica@exa.unne.edu.ar"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=8032"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G044",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuál es el período de duración del proyecto de investigación PI: 22F004 dirigido por Andrés Danilo Firman?",
+      "expected_answer_summary": "El proyecto de investigación PI: 22F004 tiene un período de duración del 01/01/2024 al 31/12/2027.",
+      "expected_facts": [
+        "01/01/2024",
+        "31/12/2027",
+        "PI: 22F004"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=52"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G045",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los horarios de atención al público en la Dirección de Gestión de Información Institucional y Biblioteca de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La atención al público es de lunes a viernes de 7:30 a 19:00 hs.",
+      "expected_facts": [
+        "lunes a viernes",
+        "7:30 a 19:00 hs",
+        "Campus Deodoro Roca"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=30353"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G046",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar el formulario de inscripción para el Doctorado en Física en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El formulario de inscripción para el Doctorado en Física se encuentra disponible en el enlace proporcionado en el sitio web de la facultad.",
+      "expected_facts": [
+        "Formulario de Inscripción a Doctorados Anexo I",
+        "http://exa.unne.edu.ar/postgrado/1/formularios/resoluciones_doctorandos/INSCRIPCION_CARRERA%20_DOCTORADO_Anexo%20I.docx"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=22697"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G047",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es la directora del proyecto de investigación PI: 21F017 en la Secretaría de Investigación y Posgrado de FaCENA?",
+      "expected_answer_summary": "La directora del proyecto PI: 21F017 es Olga Myriam Vasek.",
+      "expected_facts": [
+        "Directora: Vasek, Olga Myriam"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?cat=86"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G048",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué documento regula la presentación de programas de asignaturas en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El documento que regula la presentación de programas de asignaturas es la Resolución 0734/15CD.",
+      "expected_facts": [
+        "Reglamento de Presentación de Programas",
+        "Res.0734/15CD"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=7865"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G049",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Qué requisitos debe cumplir un título extranjero para ser aceptado en el Doctorado en Física de la Universidad Nacional del Nordeste?",
+      "expected_answer_summary": "El título debe cumplir con la legislación nacional y estar autenticado por autoridad competente.",
+      "expected_facts": [
+        "Cumplir con la legislación nacional",
+        "Autenticado por autoridad competente",
+        "Incluir apostillado de La Haya"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=281"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G050",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el director del proyecto de investigación sobre las propiedades mecánicas de ladrillos elaborados con residuos de PET en la UNNE?",
+      "expected_answer_summary": "El director del proyecto es Clotilde Noemí Sogari.",
+      "expected_facts": [
+        "Director/a: Sogari, Clotilde Noemí"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?p=962"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G051",
+      "category": "authority",
+      "difficulty": "auto",
+      "question": "¿Quién es el responsable de la Secretaría de Investigación y Posgrado en FaCENA?",
+      "expected_answer_summary": "El secretario de Investigación y Posgrado es el Dr. Víctor Toranzos.",
+      "expected_facts": [
+        "Dr. Víctor Toranzos"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=7651"
+      ],
+      "must_not_contain": [],
+      "notes": "Corregido 2026-10-24: pregunta en presente sobre un cargo; el ítem auto-generado salió de una noticia vieja. Verdad = página oficial vigente https://exa.unne.edu.ar/r?page_id=7651"
+    },
+    {
+      "id": "G052",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las redes sociales oficiales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE tiene presencia en Twitter y Facebook.",
+      "expected_facts": [
+        "Twitter",
+        "Facebook"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?p=30725"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G053",
+      "category": "requirements",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los requisitos para inscribirse en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE si tengo más de 25 años y no tengo título secundario?",
+      "expected_answer_summary": "Los requisitos incluyen tener 25 años cumplidos, fotocopias del documento de identidad, constancia de estudios primarios completos, constancias de experiencia laboral y completar un formulario de registro.",
+      "expected_facts": [
+        "Tener 25 años cumplidos",
+        "Fotocopias de las dos primeras hojas del Documento de Identidad",
+        "Constancia de estudios primarios completos original"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=22657"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G054",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevarán a cabo las I Jornadas Regionales de Cannabis Medicinal, Auto cultivo e Industria de Cáñamo en la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "Las jornadas se realizarán los días 8 y 9 de agosto de 2024.",
+      "expected_facts": [
+        "8 y 9 de agosto de 2024",
+        "Facultad de Ciencias Exactas y Naturales y Agrimensura",
+        "UNNE"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?p=30893"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G055",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Qué áreas de investigación abarca el Grupo de Investigación Multivariado de la FaCENA en la UNNE?",
+      "expected_answer_summary": "El grupo se enfoca en la Química Analítica y la Quimiometría.",
+      "expected_facts": [
+        "Química Analítica",
+        "Quimiometría"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=999"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G056",
+      "category": "factual_simple",
+      "difficulty": "auto",
+      "question": "¿Cuál es la duración de la Maestría en Tecnologías de la Información en FaCENA?",
+      "expected_answer_summary": "La Maestría en Tecnologías de la Información tiene una duración de 720 horas.",
+      "expected_facts": [
+        "720 horas"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/postgrado1-web?page_id=719"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G057",
+      "category": "dates",
+      "difficulty": "auto",
+      "question": "¿Cuándo se llevarán a cabo las 7mas. Jornadas de Calidad de Software y Agilidad en la UNNE?",
+      "expected_answer_summary": "Las jornadas se llevarán a cabo el 8 y 9 de noviembre de 2024.",
+      "expected_facts": [
+        "8 y 9 de noviembre",
+        "2024"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/jcsa2024"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G058",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Dónde puedo encontrar el calendario académico de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "El calendario académico se puede encontrar en el enlace proporcionado en el fragmento.",
+      "expected_facts": [
+        "http://exa.unne.edu.ar/r/?page_id=21646"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?paged=3"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G059",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son los horarios de atención al público de la Dirección de Gestión de Información Institucional y Biblioteca de la Facultad de Ciencias Exactas y Naturales y Agrimensura?",
+      "expected_answer_summary": "La atención al público es de lunes a viernes de 7:30 a 19:00 hs.",
+      "expected_facts": [
+        "Lunes a viernes de 7:30 a 19:00 hs.",
+        "Campus Deodoro Roca"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=31638"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "G060",
+      "category": "contact",
+      "difficulty": "auto",
+      "question": "¿Cuáles son las redes sociales oficiales de la Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE?",
+      "expected_answer_summary": "La Facultad de Ciencias Exactas y Naturales y Agrimensura de la UNNE tiene presencia en Facebook e Instagram.",
+      "expected_facts": [
+        "Facebook",
+        "Instagram"
+      ],
+      "ground_truth_urls": [
+        "https://exa.unne.edu.ar/r?page_id=8995"
+      ],
+      "must_not_contain": [],
+      "notes": "auto-generado desde el corpus"
+    },
+    {
+      "id": "O061",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Cuál es el mejor libro para estudiar en primer año?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O062",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Qué opinás de la situación política del país?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    },
+    {
+      "id": "O063",
+      "category": "out_of_scope",
+      "difficulty": "auto",
+      "question": "¿Esta facultad es mejor que la de otra universidad?",
+      "expected_answer_summary": "Declina: no es una consulta institucional.",
+      "expected_facts": [],
+      "ground_truth_urls": [],
+      "must_not_contain": []
+    }
+  ]
+}

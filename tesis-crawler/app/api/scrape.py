@@ -485,10 +485,10 @@ async def quick_refresh_page(req: QuickRefreshRequest):
             "message": "No se pudo extraer contenido de la URL",
         }
 
-    classification = classifier.classify_with_content(
-        url=url,
-        title=scrape_result.title or "",
-        content=(scrape_result.markdown or "")[:8000],
+    classification = classifier.classify_content(
+        url,
+        scrape_result.title or "",
+        (scrape_result.markdown or "")[:8000],
     )
 
     variants = sorted(domain_variants(normalize_domain(req.url.host or "")))

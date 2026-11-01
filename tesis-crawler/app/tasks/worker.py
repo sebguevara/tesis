@@ -17,7 +17,7 @@ from xml.etree import ElementTree as ET
 import httpx
 from bs4 import BeautifulSoup
 from crawl4ai import AsyncWebCrawler
-from crawl4ai.async_dispatcher import MemoryAdaptiveDispatcher, SemaphoreDispatcher
+from crawl4ai.async_dispatcher import MemoryAdaptiveDispatcher, RateLimiter
 from crawl4ai.deep_crawling import BFSDeepCrawlStrategy
 from crawl4ai.deep_crawling.filters import FilterChain, URLFilter, URLPatternFilter
 from app.config import settings
@@ -88,7 +88,10 @@ class CrawlWorker:
         "/trámites",
     )
 
-    SITEMAP_PATHS = ("/sitemap_index.xml", "/sitemap.xml")
+    SITEMAP_PATHS = ("/sitemap_index.xml", "/sitemap.xml", "/wp-sitemap.xml")
+    # Taxonomy / author listings are just link pages; the posts they list are
+    # already in the posts sitemaps.
+    SITEMAP_SKIP_TOKENS = ("taxonom", "sitemap=users", "-users-", "post_tag", "category")
     SITEMAP_NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
     def __init__(self):
@@ -146,6 +149,16 @@ class CrawlWorker:
             return page_urls, child_sitemaps
 
         candidates: list[str] = [base + p for p in cls.SITEMAP_PATHS]
+        # WordPress installed under a subpath (e.g. exa.unne.edu.ar/r/) only
+        # answers there, and "?sitemap=index" works even without pretty permalinks.
+        sub = (parsed.path or "/").rstrip("/")
+        if sub:
+            candidates += [f"{base}{sub}/wp-sitemap.xml", f"{base}{sub}/sitemap_index.xml"]
+        candidates.append(f"{base}{sub}/?sitemap=index")
+        robots = await _fetch(base + "/robots.txt") or ""
+        for line in robots.splitlines():
+            if line.lower().startswith("sitemap:"):
+                candidates.insert(0, line.split(":", 1)[1].strip())
         explored: set[str] = set()
 
         while candidates and len(urls) < 5000:
@@ -158,6 +171,8 @@ class CrawlWorker:
                 continue
             page_urls, child_sitemaps = _parse(xml_text)
             for child in child_sitemaps:
+                if any(tok in child.lower() for tok in cls.SITEMAP_SKIP_TOKENS):
+                    continue
                 if child not in explored:
                     candidates.append(child)
             for u in page_urls:
@@ -174,6 +189,32 @@ class CrawlWorker:
                     break
 
         return urls
+
+    @staticmethod
+    def _make_dispatcher(concurrency: int) -> MemoryAdaptiveDispatcher:
+        """
+        crawl4ai's default dispatcher (also used internally by BFS deep crawl)
+        pauses at 90% RAM and raises MemoryError after 10 min under pressure.
+        On a dev box with Docker that drops the start page ("Requeued due to
+        critical memory pressure"), so BFS finds no links, or kills the crawl.
+        """
+        threshold = float(getattr(settings, "CRAWL_MEMORY_THRESHOLD_PCT", 96.0))
+        return MemoryAdaptiveDispatcher(
+            memory_threshold_percent=threshold,
+            critical_threshold_percent=min(99.5, threshold + 2.5),
+            recovery_threshold_percent=threshold - 4,
+            max_session_permit=max(1, concurrency),
+            memory_wait_timeout=None,
+            rate_limiter=RateLimiter(base_delay=(0.5, 1.5), max_delay=60.0, max_retries=3),
+        )
+
+    @staticmethod
+    def _url_key(url: str) -> str:
+        """Comparable form of a URL: lowercase host, no fragment, no trailing slash."""
+        p = urlparse((url or "").strip())
+        host = (p.netloc or "").lower().removeprefix("www.")
+        path = (p.path or "/").rstrip("/") or "/"
+        return f"{host}{path}?{p.query}" if p.query else f"{host}{path}"
 
     @classmethod
     def _matches_allow_priority(cls, url: str, title: str = "") -> bool:
@@ -197,6 +238,10 @@ class CrawlWorker:
             return "blank_content"
         if parsed.path in ("", "/"):
             return "root_path"
+        # WP archive listings: still traversed to discover posts, never indexed
+        # (they repeat post excerpts and outrank the posts themselves).
+        if re.search(r"/(category|author|tag)/|/page/\d+", parsed.path):
+            return "listing_page"
         if "página no encontrada" in normalized or "pagina no encontrada" in normalized:
             return "not_found_page"
         if len(normalized.split()) < max(1, min_content_words):
@@ -377,6 +422,12 @@ class CrawlWorker:
                 "*/search/*",
                 "*/siga*",
                 "*/cvm-prop-form/*",
+                # Theme demo content shipped with some WP themes (FACENA).
+                "*polytechnic_courses*",
+                "*wpdmpro=*",
+                # Full-text scientific journal articles (Cuaderno Urbano, FAU):
+                # ~450 chunks each, not institutional info, they flood retrieval.
+                "*/cuaderno-urbano-nro-*",
                 # Images
                 "*.jpg*",
                 "*.jpeg*",
@@ -440,10 +491,10 @@ class CrawlWorker:
         # Stage 1: optional sitemap-first seeding. Faster but trades recall
         # (the sitemap may not list every page). Off by default; flip on with
         # use_sitemap_seed=true on POST /api/scrape.
-        sitemap_urls: list[str] = []
-        if use_sitemap_seed:
-            sitemap_urls = await self._fetch_sitemap_urls(start_url, host_filter)
-            sitemap_urls = [u for u in sitemap_urls if block_filter.apply(u)]
+        # The sitemap is always fetched: in BFS mode it tops up the pages BFS did
+        # not reach (union of both beats either alone) and gives a coverage metric.
+        sitemap_urls = await self._fetch_sitemap_urls(start_url, host_filter)
+        sitemap_urls = [u for u in sitemap_urls if block_filter.apply(u)]
         use_sitemap_seed = use_sitemap_seed and len(sitemap_urls) > 0
         if use_sitemap_seed:
             logger.info(
@@ -479,7 +530,9 @@ class CrawlWorker:
             "target_valid_pages": max_pages,
             "crawl_budget_pages": crawl_budget_pages,
             "seeding_strategy": "sitemap" if use_sitemap_seed else "bfs",
-            "sitemap_urls_found": len(sitemap_urls) if use_sitemap_seed else 0,
+            "sitemap_urls_found": len(sitemap_urls),
+            "sitemap_topup_urls": 0,
+            "sitemap_coverage": None,
             "wallclock_seconds": 0.0,
             "accepted_valid_pages": 0,
             "successful_results": 0,
@@ -529,6 +582,7 @@ class CrawlWorker:
         metrics["ingest_queue_maxsize"] = int(getattr(ingest_queue, "maxsize", 0) or 0)
         current_year = datetime.now().year
         pdf_lookback_years = int(getattr(settings, "PDF_LOOKBACK_YEARS", 5) or 5)
+        seen_result_keys: set[str] = set()
 
         async def _sync_queue_metrics() -> None:
             async with metrics_lock:
@@ -699,6 +753,7 @@ class CrawlWorker:
 
             metrics["processed_results"] += 1
             metrics["last_processed_url"] = res_url
+            seen_result_keys.add(self._url_key(res_url))
 
             # Update filter stats (approximate)
             metrics["blocked_by_host_filter"] = max(
@@ -819,18 +874,20 @@ class CrawlWorker:
 
         try:
             async with AsyncWebCrawler() as crawler:
-                # SemaphoreDispatcher works for arun() (BFS) but lacks the
-                # streaming interface arun_many() needs. MemoryAdaptiveDispatcher
-                # supports both — use it on the sitemap path.
-                if use_sitemap_seed:
-                    crawl_dispatcher = MemoryAdaptiveDispatcher(
-                        max_session_permit=max(1, concurrency),
+                # BFS deep crawl calls crawler.arun_many() without a dispatcher;
+                # route every call through ours (see _make_dispatcher).
+                _orig_arun_many = crawler.arun_many
+
+                async def _arun_many(urls, config=None, dispatcher=None, **kwargs):
+                    return await _orig_arun_many(
+                        urls,
+                        config=config,
+                        dispatcher=dispatcher or self._make_dispatcher(concurrency),
+                        **kwargs,
                     )
-                else:
-                    crawl_dispatcher = SemaphoreDispatcher(
-                        semaphore_count=max(1, concurrency),
-                        max_session_permit=max(1, concurrency),
-                    )
+
+                crawler.arun_many = _arun_many
+                crawl_dispatcher = self._make_dispatcher(concurrency)
                 stream_prev = getattr(config, "stream", False)
                 setattr(config, "stream", True)
                 try:
@@ -868,6 +925,40 @@ class CrawlWorker:
                             if res is None:
                                 continue
                             await on_result_hook(res)
+
+                    # Sitemap top-up: crawl sitemap URLs BFS never reached.
+                    topup = [
+                        u for u in sitemap_urls
+                        if self._url_key(u) not in seen_result_keys
+                    ]
+                    if (
+                        not use_sitemap_seed
+                        and topup
+                        and metrics["finished_reason"] != "target_reached"
+                    ):
+                        metrics["sitemap_topup_urls"] = len(topup)
+                        logger.info("Sitemap top-up: %d URLs not reached by BFS", len(topup))
+                        config.deep_crawl_strategy = None
+                        topup_result = await crawler.arun_many(
+                            topup[:crawl_budget_pages],
+                            config=config,
+                            dispatcher=self._make_dispatcher(concurrency),
+                        )
+                        if hasattr(topup_result, "__aiter__"):
+                            async for res in topup_result:
+                                if res is None:
+                                    continue
+                                await on_result_hook(res)
+                                if (
+                                    count_valid_pages_only
+                                    and metrics["accepted_valid_pages"] >= max_pages
+                                ):
+                                    metrics["finished_reason"] = "target_reached"
+                                    break
+                        else:
+                            for res in topup_result or []:
+                                if res is not None:
+                                    await on_result_hook(res)
                 except Exception as primary_exc:
                     logger.exception(
                         "Primary crawl path failed (use_sitemap_seed=%s); falling back to arun(start_url): %s",
@@ -903,6 +994,11 @@ class CrawlWorker:
             metrics["finished_reason"] = "completed"
         metrics["total_results"] = metrics["processed_results"]
         metrics["wallclock_seconds"] = round(time.monotonic() - crawl_started_at, 2)
+        if sitemap_urls:
+            sitemap_keys = {self._url_key(u) for u in sitemap_urls}
+            metrics["sitemap_coverage"] = round(
+                len(sitemap_keys & seen_result_keys) / len(sitemap_keys), 3
+            )
 
         if progress_hook:
             progress_hook(metrics)

@@ -3,19 +3,21 @@ Singleton wrapper around a cross-encoder for retrieval reranking.
 
 Lazy-loaded the first time it's used (the model takes ~10-20s to load and
 ~120MB on disk). Predictions run in a thread to avoid blocking the asyncio
-loop. Multilingual MiniLM-L12 is small but trained on MS MARCO and works
-reasonably well in Spanish for question/answer relevance scoring.
+loop. Default is the multilingual mMARCO MiniLM: on the 3 UNNE eval sets it
+beat the English ms-marco-MiniLM-L-12-v2 (pass_rate arq 70→80%, exa 82→85%,
+med 80→80% with hallucination 7.9→4.8%). RERANKER_MODEL overrides it.
 """
 from __future__ import annotations
 
 import asyncio
 import logging
+import os
 from functools import lru_cache
 from typing import Iterable, Sequence
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "cross-encoder/ms-marco-MiniLM-L-12-v2"
+DEFAULT_MODEL = os.getenv("RERANKER_MODEL", "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1")
 
 
 @lru_cache(maxsize=1)

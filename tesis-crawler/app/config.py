@@ -54,6 +54,8 @@ class Settings(BaseSettings):
     MAX_PDF_SIZE_MB: int = int(os.getenv("MAX_PDF_SIZE_MB", "50"))
     PDF_CONCURRENCY: int = int(os.getenv("PDF_CONCURRENCY", "5"))
     PDF_LOOKBACK_YEARS: int = int(os.getenv("PDF_LOOKBACK_YEARS", "5"))
+    # RAM % at which crawl4ai pauses new pages (its default 90% stalls dev boxes).
+    CRAWL_MEMORY_THRESHOLD_PCT: float = float(os.getenv("CRAWL_MEMORY_THRESHOLD_PCT", "96"))
     PDF_DOC_MAX_SIZE_MB: int = int(os.getenv("PDF_DOC_MAX_SIZE_MB", "15"))
     PDF_DOC_MAX_PAGES: int = int(os.getenv("PDF_DOC_MAX_PAGES", "120"))
 

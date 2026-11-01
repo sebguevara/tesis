@@ -387,6 +387,60 @@ Las dos alucinaciones que quedaban tras la primera Etapa 5 (Q003 presencial/virt
   - **`OPENAI_VERIFY_MODEL` = `gpt-4o`** (separado del `OPENAI_CONTEXT_MODEL` que sigue en gpt-4o-mini para rewrite + contextualization): el verify es la única llamada extra de Stage 4 que sí necesita razonamiento estricto. gpt-4o-mini dejaba pasar consejos médicos (Q050 "tratamiento diabetes") con groundedness=1.0 porque "los datos están en el corpus de farmacología"; gpt-4o respeta la regla 1 (out-of-scope tiene precedencia) y rechaza correctamente.
   - **Ejemplos few-shot en HALLUCINATION_PROMPT del judge**: 4 casos concretos para que distinga "cobertura incompleta" (NO halluc) de "afirmación falsa" (SÍ halluc).
 
+### Etapa 6 — Tres facultades (Medicina, Arquitectura, FACENA) — 2026-10-23/24
+
+**Objetivo:** que el asistente funcione en las tres facultades de la UNNE y no solo en med.unne.edu.ar, con una meta de 90 % de acierto por sitio.
+
+**Por qué hacía falta:** el sistema estaba ajustado a un solo sitio. El prompt tenía hechos de Medicina fijos (las 4 carreras, URLs de trámites) que se iban a filtrar a otras facultades, y el verificador tenía orden de aceptarlos. La recuperación tenía un camino especial solo para `/carreras/`. Además, al intentar crawlear aparecieron fallas de fondo en el crawler.
+
+**Cambios:**
+
+- **Crawler**
+  - `_make_dispatcher` en `worker.py`. El dispatcher por defecto de crawl4ai, que el BFS usa por dentro, pausa con la RAM al 90 % y tira MemoryError a los 10 minutos. En esta máquina la página de inicio quedaba "requeued" y el BFS terminaba con unas 10 páginas. Esa era la causa real de los "stalls".
+  - Sitemap siempre activo: lee los declarados en robots.txt, `wp-sitemap.xml` y `?sitemap=index` bajo la ruta de inicio. Después del BFS, crawlea las URLs del sitemap que el BFS no alcanzó.
+  - Nueva métrica `sitemap_coverage`.
+  - Se excluyen:
+    - los listados de WordPress (category/author/tag/page), que se recorren pero no se indexan;
+    - los artículos de la revista *Cuaderno Urbano* (unos 450 fragmentos cada uno, 52 000 en total);
+    - el contenido demo del tema de FACENA.
+- **Filtro de noticias**: ahora mira solo el título. En Arquitectura todo son posts con la categoría "Novedades" cerca del inicio, y el filtro por contenido bloqueaba 170 páginas reales, entre ellas la guía del estudiante y el plan de estudios de Diseño Gráfico.
+- **Prompts por sitio**: `SITE_FACTS` y `system_rag_for` en `prompts.py`. Los hechos curados se aplican solo al dominio que corresponde, y el verificador y el juez del eval los reciben.
+- **Recuperación** (`rag_service.py`):
+  - `PROGRAM_URL_PATTERNS` por sitio en lugar de `/carreras/` fijo.
+  - El bloque de carreras se fuerza solo si el reranker ya puso una carrera entre los mejores resultados. Antes ocupaba el inicio del contexto en todas las consultas.
+  - Los vecinos van junto a su fragmento semilla, como texto continuo de la página y sin el contexto generado por LLM. Antes iban al final y el presupuesto de 22 000 caracteres los cortaba; además, el contexto del fragmento de Anatomía decía "segundo año" por error.
+  - El título de la página entra al texto que puntúa el reranker, para distinguir cohortes y "curso" de "diplomatura".
+  - El reranker pasa a ser multilingüe: `cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`.
+- **Verificador**: si rechaza una respuesta, pide un segundo veredicto con temperatura 0,7 y se queda con el mayor. En las corridas había falsos rechazos de respuestas correctas que no se repetían.
+- **Eval**:
+  - `gen_eval_set.py` genera preguntas desde el corpus de cualquier sitio. Descarta gestión interna y preguntas que no se entienden solas.
+  - `run_site.ps1` corre el eval completo de un sitio.
+  - El juez ahora ve 24 000 caracteres (antes 12 000, menos que el sistema) y los hechos curados.
+  - Métrica objetivo nueva: `pass_rate`, el porcentaje de preguntas con correctness ≥ 0,75.
+
+**Corpus final:**
+
+| Sitio | Documentos | Fragmentos | Cobertura del sitemap |
+|---|---|---|---|
+| Medicina | 1845 | 24 910 | 100 % |
+| Arquitectura | 1832 | 59 880 | 100 % |
+| FACENA | 1126 | 43 495 | 100 % |
+
+**Resultados** (juez gpt-4o; v2 = 60 preguntas auto-generadas + 3 fuera de alcance por sitio):
+
+| Corrida | Medicina v2 | Arquitectura v2 | FACENA v2 | Medicina manual (50) |
+|---|---|---|---|---|
+| 08: vecinos + juez corregido, reranker en inglés, sets v1 | 80 % | 68 % | 75 % | 84 % |
+| 10: reranker multilingüe, sets v1 | 80 % | 80 % | 85 % | — |
+| 12: final | **90 %** (alucinación 1,6 %) | **90 %** (1,6 %) | **86,7 %** (3,2 %) | 80 % (0 %) |
+
+**Para leer estos números:**
+
+- **Ítems corregidos en los sets.** En los sets se corrigieron 8 ítems de autoridades con datos desactualizados: 6 en el manual y G003, G010, G012, G015, G039, G046 y G051 en los v2. Eran preguntas en presente ("¿quién es el decano?") con respuesta esperada tomada de una página vieja. La verdad pasó a ser la página oficial vigente de autoridades, que coincide con lo que respondía el sistema. También se corrigió Q034 (adscripciones), porque el sitio ya publica el período 2027.
+- **Variabilidad.** Entre corridas idénticas hay unos ±3 puntos: el set manual dio entre 75,6 % y 84,4 %. Con n = 60 por sitio, un punto de diferencia equivale a una pregunta.
+- **Fallos que quedan.** Los del set manual son sobre todo de formato: se esperaba la ruta del menú del sitio y el sistema da el trámite completo; se esperaban horas y responde años. En los sets automáticos quedan preguntas que mezclan cohortes de un mismo curso y algunos falsos rechazos.
+- **Latencia.** Mediana de 12–14 s por consulta con 4 evaluaciones en paralelo; con un solo usuario, unos 8 s.
+
 ## Limitaciones conocidas
 
 - **Retrieval ambiguo en preguntas dicotómicas**: cuando el corpus menciona literal una variante prohibida en otro contexto (ej. Q003: el sitio dice "estrategias presenciales y virtuales" hablando de Moodle, pero la modalidad real de la carrera es presencial), el reranker trae ese chunk junto al canónico y el LLM termina afirmando ambas. Mitigaciones posibles fuera de alcance: (a) un reranker más fuerte (`bge-reranker-large` o Cohere Rerank v3.5), (b) lógica de "elegí la página canónica /carreras/ por sobre menciones tangenciales" en el prompt, (c) un `verify` con clasificación previa "¿la pregunta es dicotómica?" para forzar respuesta cerrada.

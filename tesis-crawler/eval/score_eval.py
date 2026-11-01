@@ -38,7 +38,7 @@ from openai import OpenAI
 
 JUDGE_SYSTEM = (
     "Sos un evaluador estricto de respuestas de un asistente RAG sobre el sitio "
-    "de la Facultad de Medicina de la UNNE. Devolvés SIEMPRE JSON válido, "
+    "de una facultad universitaria. Devolvés SIEMPRE JSON válido, "
     "sin texto fuera del JSON, sin markdown, sin comentarios. Sin emojis."
 )
 
@@ -185,7 +185,21 @@ def _parse_args() -> argparse.Namespace:
     return p.parse_args()
 
 
-def _truncate_context(chunks: list[str], max_chars: int = 12000) -> str:
+def _site_facts(site: str) -> str:
+    try:
+        from app.llm.prompts import site_facts_for
+        return site_facts_for(site or "")
+    except Exception:
+        return ""
+
+
+# Must cover what the system's generator sees (RAGService.MAX_CONTEXT_CHARS_TOTAL
+# = 22000); at 12000 the judge flagged facts from later chunks as invented.
+def _truncate_context(chunks: list[str], max_chars: int = 24000, site: str = "") -> str:
+    facts = _site_facts(site)
+    if facts:
+        # Curated per-site facts are part of what the system is allowed to state.
+        chunks = [f"CONOCIMIENTO INSTITUCIONAL FIJO (curado por la institución):\n{facts}", *chunks]
     if not chunks:
         return "(sin contexto recuperado)"
     joined = "\n\n---\n\n".join(chunks)
@@ -212,7 +226,7 @@ def _judge_json_call(client: OpenAI, model: str, system: str, prompt: str) -> di
         return {"_parse_error": raw[:300]}
 
 
-def _score_item(client: OpenAI, model: str, item: dict[str, Any]) -> dict[str, Any]:
+def _score_item(client: OpenAI, model: str, item: dict[str, Any], site: str = "") -> dict[str, Any]:
     answer = (item.get("answer") or "").strip()
     question = (item.get("question") or "").strip()
     expected_facts = item.get("expected_facts") or []
@@ -262,7 +276,7 @@ def _score_item(client: OpenAI, model: str, item: dict[str, Any]) -> dict[str, A
                 question=question,
                 expected_facts=json.dumps(expected_facts, ensure_ascii=False),
                 must_not_contain=json.dumps(must_not_contain, ensure_ascii=False),
-                context=_truncate_context(context_chunks),
+                context=_truncate_context(context_chunks, site=site),
                 answer=answer,
             ),
         )
@@ -292,7 +306,7 @@ def _score_item(client: OpenAI, model: str, item: dict[str, Any]) -> dict[str, A
         model,
         JUDGE_SYSTEM,
         FAITHFULNESS_PROMPT.format(
-            context=_truncate_context(context_chunks),
+            context=_truncate_context(context_chunks, site=site),
             answer=answer,
         ),
     )
@@ -304,7 +318,7 @@ def _score_item(client: OpenAI, model: str, item: dict[str, Any]) -> dict[str, A
             question=question,
             expected_facts=json.dumps(expected_facts, ensure_ascii=False),
             must_not_contain=json.dumps(must_not_contain, ensure_ascii=False),
-            context=_truncate_context(context_chunks),
+            context=_truncate_context(context_chunks, site=site),
             answer=answer,
         ),
     )
@@ -339,6 +353,8 @@ def _aggregate(scored_items: list[dict[str, Any]]) -> dict[str, Any]:
         return {
             "n": len(items),
             "correctness_avg": _avg([float(x["correctness"]) for x in items if x.get("correctness") is not None]),
+            # Target metric: share of answerable questions answered right (>= 0.75).
+            "pass_rate": _rate([float(x["correctness"]) >= 0.75 for x in items if x.get("correctness") is not None]),
             "faithfulness_avg": _avg([float(x["faithfulness"]) for x in items if x.get("faithfulness") is not None]),
             "hallucination_rate": _rate([bool(x.get("hallucinated")) for x in items]),
             "refusal_correct_rate": _rate(
@@ -378,7 +394,7 @@ def main() -> int:
 
     for idx, item in enumerate(items, 1):
         try:
-            scored_item = _score_item(client, args.judge_model, item)
+            scored_item = _score_item(client, args.judge_model, item, run_data.get("site") or "")
         except Exception as exc:
             scored_item = {
                 "id": item.get("id"),
@@ -420,6 +436,7 @@ def main() -> int:
     print("=== Resumen global ===")
     g = aggregates["global"]
     print(f"  n={g['n']}  errors={g['errors']}")
+    print(f"  pass_rate={g['pass_rate']}  (correctness >= 0.75)")
     print(f"  correctness_avg={g['correctness_avg']}")
     print(f"  faithfulness_avg={g['faithfulness_avg']}")
     print(f"  hallucination_rate={g['hallucination_rate']}")
